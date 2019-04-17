@@ -1,0 +1,152 @@
+/**
+ * Modals
+ */
+/* line 5, ../sass/modal.scss */
+#wposes-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  overflow-y: auto;
+  z-index: 999999;
+}
+
+/* line 18, ../sass/modal.scss */
+#wposes-modal {
+  display: none;
+  position: relative;
+  width: 600px;
+  margin: 100px auto;
+  padding: 30px;
+  background-color: #eee;
+  -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  font-size: 14px;
+  overflow: hidden;
+  z-index: 100000;
+}
+/* line 30, ../sass/modal.scss */
+#wposes-modal .close-wposes-modal {
+  color: #999;
+  cursor: pointer;
+  font-family: "Times New Roman", serif;
+  font-size: 26px;
+  font-weight: 200;
+  position: absolute;
+  right: 18px;
+  top: 18px;
+}
+/* line 40, ../sass/modal.scss */
+#wposes-modal .close-wposes-modal:hover {
+  color: #666;
+}
+/* line 45, ../sass/modal.scss */
+#wposes-modal h3 {
+  margin: 0 0 20px;
+  font-weight: normal;
+  line-height: 1;
+}
+/* line 51, ../sass/modal.scss */
+#wposes-modal .error,
+#wposes-modal .notice,
+#wposes-modal .updated {
+  margin: 0 0 20px;
+}
+/* line 60, ../sass/modal.scss */
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-add-sender #wposes-confirm-email,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-add-sender #wposes-update-dns,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-add-sender #wposes-delete-sender,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-add-sender #wposes-delete-sender-title,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-add-sender #wposes-continue-btn,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-add-sender #wposes-delete-sender-btn {
+  display: none;
+}
+/* line 71, ../sass/modal.scss */
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-confirm-email #wposes-enter-sender,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-confirm-email #wposes-update-dns,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-confirm-email #wposes-delete-sender,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-confirm-email #wposes-delete-sender-title,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-confirm-email #wposes-verify-sender-btn,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-confirm-email #wposes-delete-sender-btn {
+  display: none;
+}
+/* line 82, ../sass/modal.scss */
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-update-dns #wposes-enter-sender,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-update-dns #wposes-confirm-email,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-update-dns #wposes-delete-sender,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-update-dns #wposes-delete-sender-title,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-update-dns #wposes-verify-sender-btn,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-update-dns #wposes-delete-sender-btn {
+  display: none;
+}
+/* line 93, ../sass/modal.scss */
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-delete-sender #wposes-enter-sender,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-delete-sender #wposes-confirm-email,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-delete-sender #wposes-update-dns,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-delete-sender #wposes-add-sender-title,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-delete-sender #wposes-verify-sender-btn,
+#wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-delete-sender #wposes-continue-btn {
+  display: none;
+}
+/* line 103, ../sass/modal.scss */
+#wposes-modal .wposes-verify-sender-prompt .wposes-sender-name {
+  width: 350px;
+  margin: 1px 1px 1px 10px;
+}
+/* line 108, ../sass/modal.scss */
+#wposes-modal .wposes-verify-sender-prompt #wposes-email {
+  margin-left: 10px;
+}
+/* line 113, ../sass/modal.scss */
+#wposes-modal .wposes-verify-sender-prompt #wposes-update-dns th {
+  text-align: left;
+  padding: 0 0 5px 0;
+}
+/* line 119, ../sass/modal.scss */
+#wposes-modal .wposes-verify-sender-prompt .wposes-sender {
+  font-weight: bold;
+}
+/* line 123, ../sass/modal.scss */
+#wposes-modal .wposes-verify-sender-prompt .wposes-verification-errors {
+  color: red;
+}
+/* line 128, ../sass/modal.scss */
+#wposes-modal.wposes-tracking-modal {
+  width: 350px;
+  margin-top: 300px;
+  text-align: center;
+}
+/* line 133, ../sass/modal.scss */
+#wposes-modal.wposes-tracking-modal .close-wposes-modal {
+  display: none;
+}
+/* line 138, ../sass/modal.scss */
+#wposes-modal .actions {
+  margin: 20px -30px -30px;
+  padding: 20px 30px;
+  border-top: none;
+  background-color: #e3e3e3;
+  overflow: hidden;
+}
+/* line 145, ../sass/modal.scss */
+#wposes-modal .actions .right {
+  margin-left: 15px;
+}
+/* line 148, ../sass/modal.scss */
+#wposes-modal .actions .right:last-of-type {
+  margin-left: 0;
+}
+/* line 153, ../sass/modal.scss */
+#wposes-modal .actions button {
+  min-width: 90px;
+  float: right;
+}
+
+/* line 160, ../sass/modal.scss */
+body.wposes-modal-open {
+  overflow: hidden;
+}
