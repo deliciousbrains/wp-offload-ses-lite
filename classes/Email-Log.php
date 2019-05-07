@@ -174,7 +174,7 @@ class Email_Log {
 		$duration = (int) $wp_offload_ses->settings->get_setting( 'log-duration' );
 
 		if ( ! array_key_exists( $duration, self::get_log_durations() ) ) {
-			$duration = 30;
+			$duration = 90;
 			$wp_offload_ses->settings->set_setting( 'log-duration', $duration );
 			$wp_offload_ses->settings->save_settings();
 		}
@@ -192,7 +192,7 @@ class Email_Log {
 	private static function validate_duration( $duration ) {
 		$options = array(
 			'options' => array(
-				'default'   => 30,
+				'default'   => 90,
 				'min_range' => 0,
 			),
 		);

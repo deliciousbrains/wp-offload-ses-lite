@@ -178,7 +178,7 @@
 			wposes_report_table.update( get_search_data() );
 		} );
 
-		$( '#tab-reports #search-submit' ).on( 'click', function( e ) {
+		$( '#wposes-reports-form' ).on( 'submit', function( e ) {
 			e.preventDefault();
 			wposes_report_table.update( get_search_data() );
 		} );

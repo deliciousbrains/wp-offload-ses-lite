@@ -4,9 +4,19 @@
 	var $tabs = $( '.wposes-tab' );
 	var $settings = $( '.wposes-settings' );
 	var $activeTab;
+	var defaultTab = 'general';
+
+	if ( ! wposes.is_setup ) {
+		defaultTab = 'start';
+	}
+
+	if ( ! wposes.show_settings_tabs ) {
+		defaultTab = 'network-settings';
+	}
 
 	wposes.tabs = {
-		defaultTab: wposes.is_setup ? 'general' : 'start',
+
+		defaultTab: defaultTab,
 
 		/**
 		 * Toggle settings tab
@@ -24,7 +34,7 @@
 			$( 'a.nav-tab[data-tab="' + hash + '"]' ).addClass( 'nav-tab-active' );
 			$( '.wposes-main' ).data( 'tab', hash );
 
-			var sub_nav_tabs = [ 'general', 'verified-senders', 'send-test-email', 'aws-access-keys', 'licence' ];
+			var sub_nav_tabs = [ 'network-settings', 'general', 'verified-senders', 'send-test-email', 'aws-access-keys', 'licence' ];
 
 			if ( $.inArray( hash, sub_nav_tabs ) !== -1 ) {
 				$( 'a.nav-tab[data-tab="settings"]' ).addClass( 'nav-tab-active' );

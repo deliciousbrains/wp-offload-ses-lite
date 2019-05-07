@@ -13,6 +13,13 @@
 		?>
 
 		<table class="form-table">
+
+			<?php
+			if ( is_multisite() && is_network_admin() ) {
+				$this->render_view( 'settings/enable-subsite-settings' );
+			}
+			?>
+
 			<?php $args = $this->settings->get_setting_args( 'send-via-ses' ); ?>
 			<tr class="<?php echo $args['tr_class'];?>">
 				<td>
@@ -22,7 +29,7 @@
 					<?php echo $args['setting_msg']; ?>
 					<h4><?php _e( 'Send Mail Using SES', 'wp-offload-ses' ); ?></h4>
 					<p>
-						<?php _e( 'Route all outgoing emails through SES', 'wp-offload-ses' ); ?>
+						<?php _e( 'Route all outgoing emails through SES.', 'wp-offload-ses' ); ?>
 					</p>
 				</td>
 			</tr>

@@ -205,8 +205,13 @@ class WP_Offload_SES extends Plugin_Base {
 	private function convert_wpses_options() {
 		$wposes_settings = get_option( 'wposes_settings', array() );
 
-		// If OSES has already been set up, nothing to do here.
 		if ( ! empty( $wposes_settings ) ) {
+			// Network settings already overridden.
+			if ( is_multisite() && ! isset( $wposes_settings['override-network-settings'] ) ) {
+				$wposes_settings['override-network-settings'] = true;
+				update_option( 'wposes_settings', $wposes_settings );
+			}
+
 			return true;
 		}
 
@@ -350,15 +355,17 @@ class WP_Offload_SES extends Plugin_Base {
 					'wposes_verify_sender'   => wp_create_nonce( 'wposes-verify-sender' ),
 					'wposes_send_test_email' => wp_create_nonce( 'wposes-send-test-email' ),
 				) ),
-				'is_pro'           => $this->is_pro(),
-				'is_setup'         => $this->is_plugin_setup(),
-				'plugin_url'       => $this->get_plugin_page_url( array(), 'self' ),
-				'verified_senders' => $this->get_verified_senders( true ),
+				'is_pro'             => $this->is_pro(),
+				'is_setup'           => $this->is_plugin_setup(),
+				'show_settings_tabs' => $this->show_settings_tabs(),
+				'plugin_url'         => $this->get_plugin_page_url( array(), 'self' ),
+				'verified_senders'   => $this->get_verified_senders( true ),
 			)
 		);
 
 		$this->check_defined_access_keys();
 		$this->check_unverified_senders();
+		$this->maybe_override_network_settings();
 		$this->handle_post_request();
 		$this->http_prepare_download_log();
 
@@ -470,8 +477,9 @@ class WP_Offload_SES extends Plugin_Base {
 	 * @return array
 	 */
 	public function get_settings_sub_nav_tabs() {
-		$tabs         = array();
-		$hide_senders = Utils::get_first_defined_constant( array( 'WP_SES_HIDE_VERIFIED', 'WPOSES_HIDE_VERIFIED' ) );
+		$tabs               = array();
+		$hide_senders       = Utils::get_first_defined_constant( array( 'WP_SES_HIDE_VERIFIED', 'WPOSES_HIDE_VERIFIED' ) );
+		$show_settings_tabs = $this->show_settings_tabs();
 
 		if ( $hide_senders && constant( $hide_senders ) ) {
 			$hide_senders = true;
@@ -479,16 +487,42 @@ class WP_Offload_SES extends Plugin_Base {
 			$hide_senders = false;
 		}
 
-		$tabs['general'] = _x( 'General', 'Show the general settings tab', 'wp-offload-ses'  );
+		if ( is_multisite() && ! is_network_admin() ) {
+			$tabs['network-settings'] = _x( 'Network Settings', 'Show the network settings tab', 'wp-offload-ses' );
+		}
 
-		if ( ! $hide_senders ) {
-			$tabs['verified-senders'] = _x( 'Verified Senders', 'Show the verified senders tab', 'wp-offload-ses'  );
+		if ( $show_settings_tabs ) {
+			$tabs['general'] = _x( 'General', 'Show the general settings tab', 'wp-offload-ses'  );
+
+			if ( ! $hide_senders ) {
+				$tabs['verified-senders'] = _x( 'Verified Senders', 'Show the verified senders tab', 'wp-offload-ses'  );
+			}
 		}
 
 		$tabs['send-test-email']  = _x( 'Send Test Email', 'Show the send test email tab', 'wp-offload-ses'  );
-		$tabs['aws-access-keys']  = _x( 'AWS Access Keys', 'Show the AWS access keys tab', 'wp-offload-ses'  );
+
+		if ( $show_settings_tabs ) {
+			$tabs['aws-access-keys']  = _x( 'AWS Access Keys', 'Show the AWS access keys tab', 'wp-offload-ses'  );
+		}
 
 		return apply_filters( 'wposes_settings_sub_nav_tabs', $tabs );
+	}
+
+	/**
+	 * Should we display the settings tabs?
+	 *
+	 * @return bool
+	 */
+	public function show_settings_tabs() {
+		if ( ! is_multisite() || is_network_admin() ) {
+			return true;
+		}
+
+		if ( $this->settings->get_setting( 'override-network-settings' ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -592,7 +626,16 @@ class WP_Offload_SES extends Plugin_Base {
 	public function is_plugin_setup() {
 		$is_setup = true;
 
-		if ( false === $this->settings->get_setting( 'completed-setup', false ) || isset( $_GET['setup-wizard'] ) ) { // phpcs:ignore
+		if ( false === $this->settings->get_setting( 'completed-setup', false ) ) {
+			$is_setup = false;
+		}
+
+		// For subsites we show the Network Settings tab by default.
+		if ( is_multisite() && ! is_network_admin() ) {
+			$is_setup = true;
+		}
+
+		if ( isset( $_GET['setup-wizard'] ) ) { // phpcs:ignore
 			$is_setup = false;
 		}
 
@@ -903,6 +946,35 @@ class WP_Offload_SES extends Plugin_Base {
 	}
 
 	/**
+	 * Handle the "Override Network Settings" option.
+	 */
+	public function maybe_override_network_settings() {
+		if ( empty( $_POST['plugin'] ) || $this->get_plugin_slug() != sanitize_key( $_POST['plugin'] ) ) { // input var okay
+			return;
+		}
+
+		if ( empty( $_POST['action'] ) || 'save_override_network_settings' != sanitize_key( $_POST['action'] ) ) { // input var okay
+			return;
+		}
+
+		if ( ! wp_verify_nonce( sanitize_key( $_POST['wposes_override_network_settings'] ), $this->get_settings_nonce_key() ) ) { // input var okay
+			die( __( "Cheatin' eh?", 'wp-offload-ses' ) );
+		}
+
+		if ( $_POST['override-network-settings'] ) {
+			$this->settings->set_setting( 'override-network-settings', true );
+		} else {
+			$this->settings->set_settings( array( 'override-network-settings' => false ) );
+		}
+
+		$this->settings->save_settings();
+
+		$url = $this->get_plugin_page_url( array( 'updated' => '1', 'hash' => 'network-settings' ), 'self' );
+		wp_safe_redirect( $url );
+		exit;
+	}
+
+	/**
 	 * Handle the saving of the settings page
 	 */
 	public function handle_post_request() {
@@ -923,7 +995,9 @@ class WP_Offload_SES extends Plugin_Base {
 		$post_vars = $this->settings->get_settings_whitelist();
 
 		foreach ( $post_vars as $var ) {
-			$this->settings->remove_setting( $var );
+			if ( 'override-network-settings' !== $var ) {
+				$this->settings->remove_setting( $var );
+			}
 
 			if ( ! isset( $_POST[ $var ] ) ) { // input var okay
 				continue;

@@ -84,6 +84,15 @@ class Settings {
 	}
 
 	/**
+	 * Helper function for getting the network-level settings.
+	 *
+	 * @return array
+	 */
+	public function get_network_settings() {
+		return $this->filter_settings( get_site_option( $this->settings_key, array() ) );
+	}
+
+	/**
 	 * Get all settings that have been defined via constant for the plugin
 	 *
 	 * @param bool $force Get the settings fresh.
@@ -309,6 +318,7 @@ class Settings {
 			'enable-open-tracking',
 			'enable-click-tracking',
 			'enable-subsite-settings',
+			'override-network-settings',
 		);
 		return apply_filters( 'wposes_settings_whitelist', $settings_whitelist );
 	}
