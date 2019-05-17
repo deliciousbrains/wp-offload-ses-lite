@@ -10,7 +10,7 @@ WP Offload SES Lite sends all outgoing WordPress emails through Amazon Simple Em
 
 == Description ==
 
-WP Offload SES Lite sends all outgoing WordPress emails through Amazon Simple Email Service (SES) instead of the local wp_mail() function.
+WP SES is now WP Offload SES Lite. WP Offload SES Lite sends all outgoing WordPress emails through Amazon Simple Email Service (SES) instead of the local wp_mail() function.
 
 This ensures high email deliverability, email traffic statistics and a powerful managed infrastructure.
 
