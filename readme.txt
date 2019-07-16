@@ -4,7 +4,7 @@ Tags: email,ses,amazon,webservice,deliverability,newsletter,autoresponder,mail,w
 Requires at least: 5.0
 Tested up to: 5.2
 Requires PHP: 5.5+
-Stable tag: 1.1
+Stable tag: 1.2
 
 WP Offload SES Lite sends all outgoing WordPress emails through Amazon Simple Email Service (SES) instead of the local wp_mail() function.
 
@@ -129,6 +129,12 @@ Please double check the credentials match up with the credentials you received w
 3. Verified senders
 
 == Changelog ==
+
+= 1.2 - 2019-07-16 =
+* [Release Summary Blog Post](https://deliciousbrains.com/wp-offload-ses-1-3-released-search-view-resend/?utm_campaign=WP%2BOffload%2BSES&utm_source=wordpress.org&utm_medium=free%2Bplugin%2Blisting)
+* New: List of sent and failed emails in the new Activity tab
+* New: Notice when an email fails to send
+* Bug fix: PHP notice logged in some multisite installs
 
 = 1.1 - 2019-05-07 =
 * New: Multisite network level setting to enable subsite settings

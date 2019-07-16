@@ -13,6 +13,7 @@ if ( $hide_senders && constant( $hide_senders ) ) {
 
 if ( $this->is_plugin_setup() ) {
 	$this->render_view( 'tabs/reports' );
+	$this->render_view( 'tabs/activity' );
 
 	if ( is_multisite() && ! is_network_admin() ) {
 		$this->render_view( 'tabs/settings/network-settings' );

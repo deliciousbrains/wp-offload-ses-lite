@@ -136,6 +136,19 @@ class Email_Events {
 	}
 
 	/**
+	 * Get the number of clicks & last click date for an email.
+	 *
+	 * @param int $email_id The email ID.
+	 *
+	 * @return array|bool
+	 */
+	public function get_email_click_data( $email_id ) {
+		$query = $this->database->prepare( "SELECT SUM(email_click_count) AS email_click_count, MAX(email_last_click_date) AS email_last_click_date FROM $this->clicks_table WHERE email_id = %d", $email_id );
+
+		return $this->database->get_row( $query, ARRAY_A );
+	}
+
+	/**
 	 * Gets the tracking URL for link clicks.
 	 *
 	 * @param int    $email_id       The ID of the email.

@@ -9,6 +9,7 @@
 namespace DeliciousBrains\WP_Offload_SES;
 
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
+use DeliciousBrains\WP_Offload_SES\Utils;
 
 /**
  * Class Email
@@ -456,6 +457,92 @@ class Email {
 		}
 
 		return $this->mail->getSentMIMEMessage();
+	}
+
+	/**
+	 * View the email. Returns HTML used in modal.
+	 *
+	 * @param array $email_data Additional info about the email.
+	 *
+	 * @return void
+	 */
+	public function view( $email_data = array() ) {
+		global $wp_offload_ses;
+
+		$this->from();
+		$this->content_type();
+		$this->charset();
+		$this->return_path();
+
+		$to      = implode( ', ',  array_keys( $this->mail->getAllRecipientAddresses() ) );
+		$opens   = '';
+		$clicks  = '';
+		$status  = '';
+		$sent    = '';
+		$actions = $wp_offload_ses->get_email_action_links( $email_data['id'], $email_data['status'] );
+		unset( $actions['view'] );
+
+		// Maybe add HTML line breaks.
+		if ( 'text/html' !== $this->mail->ContentType ) {
+			$this->mail->Body = nl2br( $this->mail->Body );
+		}
+
+		if ( isset( $email_data['status_i18n'] ) ) {
+			$status = sprintf( __( 'Status: %s', 'wp-offload-ses' ), $email_data['status_i18n'] );
+		}
+
+		if ( isset( $email_data['sent'] ) && $email_data['sent'] ) {
+			$formatted = Utils::get_date_and_time( $email_data['sent'] );
+			$sent      = sprintf( __( 'Sent: %1$s at %2$s', 'wp-offload-ses' ), $formatted['date'], $formatted['time'] );
+		}
+
+		if ( isset( $email_data['open_count'] ) && (int) $email_data['open_count'] ) {
+			$formatted = Utils::get_date_and_time( $email_data['last_opened'] );
+
+			if ( $formatted ) {
+				$opens = sprintf(
+					__( 'Opens: %1$d (Last Opened %2$s at %3$s)', 'wp-offload-ses' ),
+					$email_data['open_count'],
+					$formatted['date'],
+					$formatted['time']
+				);
+			}
+		}
+
+		if ( isset( $email_data['click_count'] ) && (int) $email_data['click_count'] ) {
+			$formatted = Utils::get_date_and_time( $email_data['last_clicked'] );
+
+			if ( $formatted ) {
+				$clicks = sprintf(
+					__( 'Clicks: %1$d (Last Clicked %2$s at %3$s)', 'wp-offload-ses' ),
+					$email_data['click_count'],
+					$formatted['date'],
+					$formatted['time']
+				);
+			}
+		}
+		?>
+		<div id="wposes-email-wrap">
+			<h3 id="wposes-email-subject"><?php echo esc_html( $this->mail->Subject ); ?></h3>
+			<span id="wposes-email-from"><?php printf( __( 'From: %1$s &lt;%2$s&gt;', 'wp-offload-ses' ), $this->mail->FromName, $this->mail->From ); ?></span>
+			<span id="wposes-email-to"><?php printf( __( 'To: %s', 'wp-offload-ses' ), $to ); ?></span>
+			<span id="wposes-email-sent"><?php echo $sent; ?></span>
+
+			<div id="wposes-email-content"><?php echo $this->mail->Body; ?></div>
+
+			<div class="actions select">
+				<span id="wposes-email-info" style="float: left;">
+					<span id="wposes-email-status"><?php echo $status; ?></span>
+					<span id="wposes-email-opens"><?php echo $opens; ?></span>
+					<span id="wposes-email-clicks"><?php echo $clicks; ?></span>
+				</span>
+
+				<span id="wposes-email-actions" style="float: right">
+					<?php echo implode( ' | ', $actions ); ?>
+				</span>
+			</div>
+		</div>
+		<?php
 	}
 
 }

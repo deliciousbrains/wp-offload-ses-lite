@@ -140,20 +140,21 @@ var wposesModal = (function( $ ) {
 			modal.open( $( this ).data( 'wposes-modal' ) + '.' + modal.prefix );
 		} );
 
-		$( 'body' ).on( 'click', '.wposes-modal-cancel, .close-wposes-modal', function( e ) {
-			e.preventDefault();
-
-			/*
-			TODO: Allow modal to be closed by clicking on background overlay (#wposes-overlay)
-			without interfering with child inputs (checkboxes, radio buttons, etc.)
+		$( 'body' ).on( 'click', '.wposes-modal-cancel, .close-wposes-modal, #wposes-overlay', function( e ) {
 			if ( e.target !== this ) {
-				return false;
+				return true;
 			}
-			*/
 
+			e.preventDefault();
 			modal.close();
 		} );
+	} );
 
+	// Key handler.
+	$( document ).keyup( function( e ) {
+		if ( 'Escape' === e.key ) {
+			modal.close();
+		}
 	} );
 
 	return modal;

@@ -1,59 +1,66 @@
+<?php
+$url_args = array(
+	'utm_campaign' => 'WP+Offload+SES+Upgrade',
+	'utm_source'   => 'OSES+Free',
+	'utm_medium'   => 'insideplugin',
+);
+?>
 <div class="wposes-sidebar">
 
-	<a class="wposes-banner" href="https://deliciousbrains.com/wp-offload-ses/upgrade/"></a>
+	<a class="wposes-banner" href="<?php echo $this->dbrains_url( '/wp-offload-ses/upgrade/', $url_args ); ?>"></a>
 
 	<div class="wposes-upgrade-details">
-		<h1><?php _e( 'Upgrade', 'wp-ses' ); ?></h1>
-		<h3><?php _e( 'Get email open and click tracking for all your Amazon SES emails', 'wp-ses' ); ?></h3>
+		<h1><?php _e( 'Upgrade', 'wp-offload-ses' ); ?></h1>
+		<h3><?php _e( 'Get email open and click tracking for all your Amazon SES emails', 'wp-offload-ses' ); ?></h3>
 		<ul>
-			<li><?php _e( 'Track email opens and link clicks', 'wp-ses' ); ?></li>
-			<li><?php _e( 'Log sent emails and failures', 'wp-ses' ); ?></li>
-			<li><?php _e( 'Queue email to handle rate limits and retry failures', 'wp-ses' ); ?></li>
-			<li><?php _e( 'Step-by-step setup wizard encouraging best practices', 'wp-ses' ); ?></li>
-			<li><?php _e( 'Email support', 'wp-ses' ); ?></li>
+			<li><?php _e( 'Track email opens and link clicks', 'wp-offload-ses' ); ?></li>
+			<li><?php _e( 'Log sent emails and failures', 'wp-offload-ses' ); ?></li>
+			<li><?php _e( 'Queue email to handle rate limits and retry failures', 'wp-offload-ses' ); ?></li>
+			<li><?php _e( 'Step-by-step setup wizard encouraging best practices', 'wp-offload-ses' ); ?></li>
+			<li><?php _e( 'Email support', 'wp-offload-ses' ); ?></li>
 		</ul>
 
 		<p style="margin-bottom: 0;">
-			<a href="https://deliciousbrains.com/wp-offload-ses/upgrade/"><?php _e( 'Visit deliciousbrains.com →', 'wp-ses' ); ?></a>
+			<a href="<?php echo $this->dbrains_url( '/wp-offload-ses/upgrade/', $url_args ); ?>"><?php _e( 'Visit deliciousbrains.com →', 'wp-offload-ses' ); ?></a>
 		</p>
 	</div>
 
 	<form method="post" action="https://deliciousbrains.com/email-subscribe/" target="_blank" class="subscribe block">
-		<h2><?php _e( 'Get 40% Off!', 'wp-ses' ); ?></h2>
+		<h2><?php _e( 'Get 40% Off!', 'wp-offload-ses' ); ?></h2>
 
 		<?php $user = wp_get_current_user(); ?>
 
 		<p class="interesting">
-			<?php echo wptexturize( __( "We're celebrating the launch of WP Offload SES with 40% off! Submit your name and email and we'll send you a discount for 40% off the upgrade (limited time only)", 'wp-ses' ) ); ?>
+			<?php echo wptexturize( __( "We're celebrating the launch of WP Offload SES with 40% off! Submit your name and email and we'll send you a discount for 40% off the upgrade (limited time only)", 'wp-offload-ses' ) ); ?>
 		</p>
 
 		<div class="field">
-			<input type="email" name="email" value="<?php echo esc_attr( $user->user_email ); ?>" placeholder="<?php _e( 'Your Email', 'wp-ses' ); ?>"/>
+			<input type="email" name="email" value="<?php echo esc_attr( $user->user_email ); ?>" placeholder="<?php _e( 'Your Email', 'wp-offload-ses' ); ?>"/>
 		</div>
 
 		<div class="field">
-			<input type="text" name="first_name" value="<?php echo esc_attr( trim( $user->first_name ) ); ?>" placeholder="<?php _e( 'First Name', 'wp-ses' ); ?>"/>
+			<input type="text" name="first_name" value="<?php echo esc_attr( trim( $user->first_name ) ); ?>" placeholder="<?php _e( 'First Name', 'wp-offload-ses' ); ?>"/>
 		</div>
 
 		<div class="field">
-			<input type="text" name="last_name" value="<?php echo esc_attr( trim( $user->last_name ) ); ?>" placeholder="<?php _e( 'Last Name', 'wp-ses' ); ?>"/>
+			<input type="text" name="last_name" value="<?php echo esc_attr( trim( $user->last_name ) ); ?>" placeholder="<?php _e( 'Last Name', 'wp-offload-ses' ); ?>"/>
 		</div>
 
 		<input type="hidden" name="campaigns[]" value="22" />
 		<input type="hidden" name="source" value="14" />
 
 		<div class="field subscribe-button">
-			<button type="submit" class="button"><?php _e( 'Send me the coupon', 'wp-ses' ); ?></button>
+			<button type="submit" class="button"><?php _e( 'Send me the coupon', 'wp-offload-ses' ); ?></button>
 		</div>
 
-		<p class="promise"><?php _e( 'We promise we will not use your email for anything else and you can unsubscribe with 1-click anytime.', 'wp-ses' ); ?></p>
+		<p class="promise"><?php _e( 'We promise we will not use your email for anything else and you can unsubscribe with 1-click anytime.', 'wp-offload-ses' ); ?></p>
 	</form>
 
 	<div class="block credits">
-		<h4>Created &amp; maintained by</h4>
+		<h4><?php _e( 'Created & maintained by', 'wp-offload-ses' ); ?></h4>
 		<ul>
 			<li>
-				<a href="https://deliciousbrains.com/?utm_campaign=WP%2BOffload%2BSES%2BUpgrade&utm_source=OSES%2BFree&utm_medium=insideplugin">
+				<a href="<?php echo $this->dbrains_url( '/', $url_args ); ?>">
 					<img src="//www.gravatar.com/avatar/e62fc2e9c8d9fc6edd4fea5339036a91?size=64" alt="" width="32" height="32">
 					<span>Delicious Brains Inc.</span>
 				</a>

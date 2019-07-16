@@ -288,7 +288,8 @@ class Email_Log {
 				`email_open_count` INT DEFAULT '0',
 				`email_first_open_date` DATETIME,
 				`email_last_open_date` DATETIME,
-				`email_created` datetime NOT NULL,
+				`email_created` DATETIME NOT NULL,
+				`email_sent` DATETIME,
 				PRIMARY KEY  (email_id)
 				) $charset_collate;";
 		dbDelta( $sql );

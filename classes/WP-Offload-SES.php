@@ -15,6 +15,7 @@ use DeliciousBrains\WP_Offload_SES\Email_Events;
 use DeliciousBrains\WP_Offload_SES\Notices;
 use DeliciousBrains\WP_Offload_SES\WP_Notifications;
 use DeliciousBrains\WP_Offload_SES\Utils;
+use DeliciousBrains\WP_Offload_SES\Activity_List_Table;
 
 /**
  * Class WP_Offload_SES
@@ -113,8 +114,8 @@ class WP_Offload_SES extends Plugin_Base {
 	 */
 	public function init( $plugin_file_path ) {
 		// Set the name of the plugin.
-		$this->plugin_title      = __( 'Offload SES', 'wp-offload-ses' );
-		$this->plugin_menu_title = __( 'Offload SES', 'wp-offload-ses' );
+		$this->plugin_title      = $this->get_plugin_page_title();
+		$this->plugin_menu_title = $this->get_plugin_page_title();
 
 		// Initialize any necessary classes.
 		$this->aws          = new Amazon_Web_Services( $this );
@@ -133,6 +134,7 @@ class WP_Offload_SES extends Plugin_Base {
 		add_action( 'pre_current_active_plugins', array( $this, 'plugin_deactivated_notice' ) );
 
 		// UI AJAX.
+		add_action( 'wp_ajax_wposes_activity_table', array( $this, 'ajax_activity_table' ) );
 		add_action( 'wp_ajax_wposes-get-diagnostic-info', array( $this, 'ajax_get_diagnostic_info' ) );
 		add_action( 'wp_ajax_wposes-aws-keys-set', array( $this, 'ajax_set_aws_keys' ) );
 		add_action( 'wp_ajax_wposes-aws-keys-remove', array( $this, 'ajax_remove_aws_keys' ) );
@@ -306,7 +308,7 @@ class WP_Offload_SES extends Plugin_Base {
 		);
 
 		// A bit of a hack, but better than doing things the proper way.
-		$submenu['index.php'][] = array( __( 'Offload SES', 'wp-offload-ses' ), 'manage_options', $this->get_plugin_page_url( array(), 'self' ) . '#reports' ); // phpcs:ignore
+		$submenu['index.php'][] = array( $this->get_plugin_page_title(), 'manage_options', $this->get_plugin_page_url( array(), 'self' ) . '#reports' ); // phpcs:ignore
 
 		add_action( 'load-' . $this->hook_suffix, array( $this, 'plugin_load' ) );
 	}
@@ -326,8 +328,8 @@ class WP_Offload_SES extends Plugin_Base {
 		$this->enqueue_script( 'wposes-modal', 'assets/js/modal', array( 'jquery' ) );
 		$this->enqueue_script( 'wposes-script', 'assets/js/script', array( 'jquery', 'underscore', 'wposes-modal' ) );
 		$this->enqueue_script( 'wposes-verified-senders', 'assets/js/verified-senders', array( 'wposes-script', 'wposes-modal' ) );
-		$this->enqueue_script( 'wposes-reports', 'assets/js/reports', array( 'wposes-script' ) );
 		$this->enqueue_script( 'wposes-setup', 'assets/js/setup', array( 'jquery' ) );
+		$this->enqueue_script( 'wposes-activity', 'assets/js/activity', array( 'wposes-script' ) );
 
 		if ( ! $this->is_pro() ) {
 			$this->enqueue_script( 'wposes-tracking-prompt', 'assets/js/tracking-prompt', array( 'wposes-script', 'wposes-modal' ) );
@@ -459,6 +461,7 @@ class WP_Offload_SES extends Plugin_Base {
 
 		if ( $this->is_plugin_setup() ) {
 			$tabs['reports']  = _x( 'Reports', 'Show the reports tab', 'wp-offload-ses' );
+			$tabs['activity'] = _x( 'Activity', 'Show the activity tab', 'wp-offload-ses' );
 			$tabs['settings'] = _x( 'Settings', 'Show the settings tab', 'wp-offload-ses' );
 		} else {
 			$tabs['start']    = _x( 'Setup', 'Show the setup wizard', 'wp-offload-ses' );
@@ -531,7 +534,13 @@ class WP_Offload_SES extends Plugin_Base {
 	 * @return string
 	 */
 	public function get_plugin_page_title() {
-		return $this->plugin_title;
+		$title = __( 'Offload SES Lite', 'wp-offload-ses' );
+
+		if ( $this->is_pro() ) {
+			$title = __( 'Offload SES', 'wp-offload-ses' );
+		}
+
+		return $title;
 	}
 
 	/**
@@ -577,6 +586,68 @@ class WP_Offload_SES extends Plugin_Base {
 		}
 
 		return $verified_senders;
+	}
+
+	/**
+	 * Gets the i18n friendly status of an email.
+	 *
+	 * @param string $status The email status.
+	 *
+	 * @return string
+	 */
+	public function get_email_status_i18n( $status ) {
+		switch ( $status ) {
+			case 'sent':
+				$i18n = __( 'Sent', 'wp-offload-ses' );
+				break;
+			case 'queued':
+				$i18n = __( 'Queued', 'wp-offload-ses' );
+				break;
+			case 'failed':
+				$i18n = __( 'Failed', 'wp-offload-ses' );
+				break;
+			case 'cancelled':
+				$i18n = __( 'Cancelled', 'wp-offload-ses' );
+				break;
+			default:
+				$i18n = $status;
+		}
+
+		return $i18n;
+	}
+
+	/**
+	 * Returns the action links for a provided email status.
+	 *
+	 * @param int    $id     The ID of the email.
+	 * @param string $status The status of the email.
+	 *
+	 * @return array
+	 */
+	public function get_email_action_links( $id, $status ) {
+		$actions  = array();
+		$disabled = $this->is_pro() ? '' : ' disabled';
+
+		$actions['view'] = '<a class="wposes-view-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'View Email', 'wp-offload-ses' ) . '</a>';
+
+		switch( $status ) {
+			case 'sent':
+				$actions['resend'] = '<a class="wposes-resend-email' .  $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Resend', 'wp-offload-ses' ) . '</a>';
+				break;
+			case 'queued':
+				$actions['cancel'] = '<a class="wposes-cancel-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Cancel', 'wp-offload-ses' ) . '</a>';
+				break;
+			case 'failed':
+				$actions['retry'] = '<a class="wposes-resend-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Retry', 'wp-offload-ses' ) . '</a>';
+				break;
+			case 'cancelled':
+				$actions['send'] = '<a class="wposes-resend-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Send', 'wp-offload-ses' ) . '</a>';
+				break;
+		}
+
+		$actions['delete'] = '<a class="wposes-delete-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Delete Permanently', 'wp-offload-ses' ) . '</a>' ;
+
+		return $actions;
 	}
 
 	/**
@@ -781,6 +852,15 @@ class WP_Offload_SES extends Plugin_Base {
 		}
 
 		wp_send_json_success( $response );
+	}
+
+	/**
+	 * Display the activity table over AJAX.
+	 */
+	public function ajax_activity_table() {
+		$activity_table = new Activity_List_Table();
+		$activity_table->load();
+		$activity_table->ajax_response();
 	}
 
 	/**
@@ -1078,6 +1158,38 @@ class WP_Offload_SES extends Plugin_Base {
 	}
 
 	/**
+	 * Adds a notice that an email has failed.
+	 */
+	public function add_failed_email_notice() {
+		$message = sprintf(
+			__( '<strong>WP Offload SES &mdash; </strong> One or more emails have failed to send. <a href="%s">View failures in the Activity tab</a> or <a href="%s">check out our doc for debugging failed emails</a>.', 'wp-offload-ses' ),
+			$this->get_plugin_page_url(
+				array(
+					'status' => 'failed',
+					'hash'   => 'activity',
+				),
+				'self'
+			),
+			$this->dbrains_url(
+				'/wp-offload-ses/docs/general-debugging/',
+				array(
+					'utm_campaign' => 'error+messages',
+				)
+			)
+		);
+
+		$args = array(
+			'type'              => 'error',
+			'only_show_to_user' => false,
+			'flash'             => false,
+			'remove_on_dismiss' => true,
+			'subsite'           => true,
+		);
+
+		$this->get_notices()->add_notice( $message, $args );
+	}
+
+	/**
 	 * Mail handler
 	 *
 	 * @param string|array $to          The email recipient.
@@ -1131,6 +1243,7 @@ class WP_Offload_SES extends Plugin_Base {
 		$status      = 'sent';
 
 		if ( is_wp_error( $result ) ) {
+			$this->add_failed_email_notice();
 			$status = 'failed';
 		} else {
 			// Fires after an email has been sent.
@@ -1140,6 +1253,7 @@ class WP_Offload_SES extends Plugin_Base {
 
 		if ( ! is_null( $email_id ) ) {
 			$this->get_email_log()->update_email( $email_id, 'email_status', $status );
+			$this->get_email_log()->update_email( $email_id, 'email_sent', current_time( 'mysql' ) );
 		}
 
 		return 'sent' === $status ? true : false;
