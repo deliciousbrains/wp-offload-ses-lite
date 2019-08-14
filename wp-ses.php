@@ -3,7 +3,7 @@
 Plugin Name: WP Offload SES Lite
 Description: Automatically send WordPress mail through Amazon SES (Simple Email Service).
 Author: Delicious Brains
-Version: 1.2
+Version: 1.2.1
 Author URI: https://deliciousbrains.com/
 Network: True
 Text Domain: wp-offload-ses
@@ -21,24 +21,24 @@ Domain Path: /languages/
 // **********************************************************************
 */
 
-// Exit if accessed directly.
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
 use DeliciousBrains\WP_Offload_SES\Compatibility_Check;
 
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$GLOBALS['wposes_meta']['wp-offload-ses-lite']['version'] = '1.2';
+$GLOBALS['wposes_meta']['wp-offload-ses-lite']['version'] = '1.2.1';
 
 if ( ! class_exists( 'DeliciousBrains\WP_Offload_SES\Compatibility_Check' ) ) {
-	require_once dirname( __FILE__ ) . '/classes/Compatibility-Check.php';
+	require_once wposes_lite_get_plugin_dir_path() . '/classes/Compatibility-Check.php';
 }
 
 global $wposes_compat_check;
 $wposes_compat_check = new DeliciousBrains\WP_Offload_SES\Compatibility_Check(
-	'WP SES',
-	'wp-ses',
+	'WP Offload SES Lite',
+	'wp-offload-ses-lite',
 	__FILE__
 );
 
@@ -58,11 +58,6 @@ function wp_offload_ses_lite_init() {
 	/** @var Compatibility_Check $wposes_compat_check */
 	global $wposes_compat_check;
 
-	$abspath = dirname( __FILE__ );
-	if ( WPMU_PLUGIN_DIR === $abspath ) {
-		$abspath = $abspath . '/wp-offload-ses/';
-	}
-
 	if ( $wposes_compat_check->is_plugin_active( 'wp-offload-ses/wp-offload-ses.php' ) ) {
 		// Don't load if the pro version is installed.
 		return;
@@ -71,6 +66,8 @@ function wp_offload_ses_lite_init() {
 	if ( ! $wposes_compat_check->is_compatible() ) {
 		return;
 	}
+
+	$abspath = wposes_lite_get_plugin_dir_path();
 
 	// Load autoloaders.
 	require_once $abspath . '/vendor/Aws3/aws-autoloader.php';
@@ -83,6 +80,22 @@ function wp_offload_ses_lite_init() {
 	return $wp_offload_ses;
 }
 add_action( 'init', 'wp_offload_ses_lite_init', 1 );
+
+/**
+ * Gets the path to the plugin files.
+ *
+ * @return string
+ */
+function wposes_lite_get_plugin_dir_path() {
+	$abspath = wp_normalize_path( dirname( __FILE__ ) );
+	$mu_path = wp_normalize_path( WPMU_PLUGIN_DIR );
+
+	if ( $mu_path === $abspath ) {
+		$abspath = $abspath . '/wp-ses/';
+	}
+
+	return $abspath;
+}
 
 /**
  * Check whether we should send mail via SES.

@@ -4,7 +4,7 @@ Tags: email,ses,amazon,webservice,deliverability,newsletter,autoresponder,mail,w
 Requires at least: 5.0
 Tested up to: 5.2
 Requires PHP: 5.5+
-Stable tag: 1.2
+Stable tag: 1.2.1
 
 WP Offload SES Lite sends all outgoing WordPress emails through Amazon Simple Email Service (SES) instead of the local wp_mail() function.
 
@@ -20,6 +20,7 @@ With WP Offload SES Lite, you can:
 * Configure the default email address and name that WordPress uses for notifications
 * Send verification requests for new domains and email addresses
 * Send a test email to make sure everything is working before enabling site-wide email sending
+* View a list of all emails sent from your site
 * View statistics on your Amazon SES send rate
 * Set up a custom "Reply To" and "Return Path" address
 * Configure multisite subsites to use different email settings, or enforce the same settings for your whole network
@@ -32,7 +33,12 @@ https://www.youtube.com/watch?v=gUH3fMlrU10&rel=0
 Get email open and click tracking for all your Amazon SES emails with the following features and more:
 
 * View reports for email opens and link clicks
-* Queue email to handle rate limits and retry failures
+* Auto-retry email sending failures with an email queue that stays within your Amazon SES rate limit
+* Manually retry email sending failures
+* Manually re-send any sent emails
+* Search for any email
+* View a specific email
+* Analyze engagement for a specific email
 * Email support
 * More features coming soon!
 
@@ -59,6 +65,10 @@ If you upgrade to [WP Offload SES](https://deliciousbrains.com/wp-offload-ses/up
 * MySQL 5.5+
 * Apache 2+ or Nginx 1.4+
 * Amazon Web Services account
+
+= Does this plugin auto-retry email delivery failures? =
+
+While you can see a list of all emails sent from your site with this plugin, WP Offload SES Lite does not auto-retry failures (nor does Amazon SES). If you’d like a plugin that will auto-retry for you, upgrade to [WP Offload SES](https://deliciousbrains.com/wp-offload-ses/upgrade/?utm_campaign=WP%2BOffload%2BSES&utm_source=wordpress.org&utm_medium=free%2Bplugin%2Blisting). 
 
 = Can you help me about... (an Amazon concern) =
 
@@ -127,8 +137,16 @@ Please double check the credentials match up with the credentials you received w
 1. Setup wizard
 2. Main settings page
 3. Verified senders
+4. Activity tab
 
 == Changelog ==
+
+= 1.2.1 - 2019-08-07 =
+* Bug fix: Plugin no longer working as an mu-plugin
+* Bug fix: Activity tab doesn't properly handle multiple recipients
+* Bug fix: "Tags" step missing from Setup wizard
+* Bug fix: Missing SimpleXMLElement module causes fatal error
+* Bug fix: Error when adding email headers in some situations
 
 = 1.2 - 2019-07-16 =
 * [Release Summary Blog Post](https://deliciousbrains.com/wp-offload-ses-1-3-released-search-view-resend/?utm_campaign=WP%2BOffload%2BSES&utm_source=wordpress.org&utm_medium=free%2Bplugin%2Blisting)

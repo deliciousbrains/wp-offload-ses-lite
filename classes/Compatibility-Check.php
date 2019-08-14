@@ -386,6 +386,14 @@ class Compatibility_Check {
 			$errors[] = __( 'a PHP version less than 5.5', 'wp-offload-ses' );
 		}
 
+		if ( ! class_exists( '\SimpleXMLElement' ) ) {
+			$errors[] = __( 'no SimpleXML PHP module', 'wp-offload-ses' );
+		}
+
+		if ( ! class_exists( '\XMLWriter' ) ) {
+			$errors[] = __( 'no XMLWriter PHP module', 'wp-offload-ses' );
+		}
+
 		if ( ! function_exists( 'curl_version' ) ) {
 			$errors[] = __( 'no PHP cURL library activated', 'wp-offload-ses' );
 
@@ -431,7 +439,7 @@ class Compatibility_Check {
 			return '';
 		}
 
-		$msg = __( 'The official Amazon&nbsp;Web&nbsp;Services SDK requires PHP 5.5+ and cURL 7.16.2+ compiled with OpenSSL and zlib. Your server currently has', 'wp-offload-ses' );
+		$msg = __( 'The official Amazon&nbsp;Web&nbsp;Services SDK requires PHP 5.5+ with SimpleXML and XMLWriter modules, and cURL 7.16.2+ compiled with OpenSSL and zlib. Your server currently has', 'wp-offload-ses' );
 
 		if ( count( $errors ) > 1 ) {
 			$last_one = ' and ' . array_pop( $errors );

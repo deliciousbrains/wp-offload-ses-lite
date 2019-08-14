@@ -115,7 +115,7 @@ class WP_Notifications {
 		if ( is_array( $headers ) ) {
 			$headers[] = 'Content-Type: text/html;';
 		} else {
-			$headers .= "Content-Type: text/html;\n";
+			$headers = "Content-Type: text/html;\n" . $headers;
 		}
 
 		return $headers;

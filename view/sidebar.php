@@ -11,13 +11,16 @@ $url_args = array(
 
 	<div class="wposes-upgrade-details">
 		<h1><?php _e( 'Upgrade', 'wp-offload-ses' ); ?></h1>
-		<h3><?php _e( 'Get email open and click tracking for all your Amazon SES emails', 'wp-offload-ses' ); ?></h3>
+		<h3><?php _e( 'Get a bundle of features with an upgrade to WP Offload SES', 'wp-offload-ses' ); ?></h3>
 		<ul>
-			<li><?php _e( 'Track email opens and link clicks', 'wp-offload-ses' ); ?></li>
-			<li><?php _e( 'Log sent emails and failures', 'wp-offload-ses' ); ?></li>
-			<li><?php _e( 'Queue email to handle rate limits and retry failures', 'wp-offload-ses' ); ?></li>
-			<li><?php _e( 'Step-by-step setup wizard encouraging best practices', 'wp-offload-ses' ); ?></li>
-			<li><?php _e( 'Email support', 'wp-offload-ses' ); ?></li>
+			<li><?php _e( 'Email&nbsp;support', 'wp-offload-ses' ); ?></li>
+			<li><?php _e( 'Open and click&nbsp;reporting', 'wp-offload-ses' ); ?></li>
+			<li><?php _e( 'Auto-retry email sending&nbsp;failures', 'wp-offload-ses' ); ?></li>
+			<li><?php _e( 'Manually retry email sending&nbsp;failures', 'wp-offload-ses' ); ?></li>
+			<li><?php _e( 'Manually resend any sent&nbsp;emails', 'wp-offload-ses' ); ?></li>
+			<li><?php _e( 'Search for any&nbsp;email', 'wp-offload-ses' ); ?></li>
+			<li><?php _e( 'View a specific&nbsp;email', 'wp-offload-ses' ); ?></li>
+			<li><?php _e( 'Analyze engagement for a specific&nbsp;email', 'wp-offload-ses' ); ?></li>
 		</ul>
 
 		<p style="margin-bottom: 0;">

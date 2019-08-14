@@ -72,7 +72,7 @@ class Email_Log {
 		);
 
 		if ( is_multisite() ) {
-			$args['subsite_id'] = get_current_blog_id();
+			$args['subsite_id'] = isset( $atts['subsite_id'] ) ? $atts['subsite_id'] : get_current_blog_id();
 		}
 
 		$result = $this->database->insert(

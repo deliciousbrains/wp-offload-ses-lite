@@ -14,10 +14,11 @@
 		</li>
 		<li><?php _e( 'Click the <strong>Add user</strong> button.', 'wp-offload-ses' ); ?></li>
 		<li><?php _e( 'Enter a name for the user in the <strong>User name</strong> field.', 'wp-offload-ses' ); ?></li>
-		<li><?php _e( 'Under <strong>Access type</strong> select the checkbox for <strong>Programmatic access</strong>.', 'wp-offload-ses' ); ?></li>
+		<li><?php _e( 'Under <strong>Select AWS access type</strong> select the checkbox for <strong>Programmatic access</strong>.', 'wp-offload-ses' ); ?></li>
 		<li><?php _e( 'Click the <strong>Next: Permissions</strong> button.', 'wp-offload-ses' ); ?></li>
 		<li><?php _e( 'Click <strong>Attach existing policies directly</strong> in the <strong>Set Permissions</strong> section.', 'wp-offload-ses' ); ?></li>
 		<li><?php _e( 'Type <strong>AmazonSESFullAccess</strong> in the search bar and check the box to add the permission.', 'wp-offload-ses' ); ?></li>
+		<li><?php _e( 'Click the <strong>Next: Tags</strong> button at the bottom of the page.', 'wp-offload-ses' ); ?></li>
 		<li><?php _e( 'Click the <strong>Next: Review</strong> button at the bottom of the page.', 'wp-offload-ses' ); ?></li>
 		<li><?php _e( 'Click the <strong>Create user</strong> button.', 'wp-offload-ses' ); ?></li>
 	</ol>

@@ -89,14 +89,10 @@ abstract class Plugin_Base {
 	 */
 	public function __construct( $plugin_file_path ) {
 		$this->plugin_file_path = $plugin_file_path;
-		$this->plugin_dir_path  = rtrim( plugin_dir_path( $plugin_file_path ), '/' );
+		$this->plugin_dir_path  = $this->get_plugin_dir_path();
 		$this->plugin_basename  = plugin_basename( $plugin_file_path );
 		$this->plugin_pagenow   = is_network_admin() ? 'settings.php' : 'options-general.php';
 		$this->settings         = new Settings( static::SETTINGS_KEY, static::SETTINGS_CONSTANT );
-
-		if ( WPMU_PLUGIN_DIR === $this->plugin_dir_path ) {
-			$this->plugin_dir_path .= '/wp-offload-ses';
-		}
 
 		if ( $this->plugin_slug && isset( $GLOBALS['wposes_meta'][ $this->plugin_slug ]['version'] ) ) {
 			$this->plugin_version = $GLOBALS['wposes_meta'][ $this->plugin_slug ]['version'];
@@ -145,6 +141,12 @@ abstract class Plugin_Base {
 	 * @return string
 	 */
 	public function get_plugin_dir_path() {
+		if ( function_exists( 'wposes_get_plugin_dir_path' ) ) {
+			$this->plugin_dir_path = wposes_get_plugin_dir_path();
+		} else {
+			$this->plugin_dir_path = wposes_lite_get_plugin_dir_path();
+		}
+
 		return $this->plugin_dir_path;
 	}
 
@@ -242,11 +244,7 @@ abstract class Plugin_Base {
 	 * @return string
 	 */
 	public function plugins_url( $path ) {
-		if ( WPMU_PLUGIN_DIR . '/wp-offload-ses.php' === $this->plugin_file_path ) {
-			$path = 'wp-offload-ses/' . $path;
-		}
-
-		return plugins_url( $path, $this->plugin_file_path );
+		return plugins_url( $path, $this->plugin_dir_path . '/wp-offload-ses.php' );
 	}
 
 	/**

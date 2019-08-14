@@ -172,6 +172,21 @@ class Activity_List_Table extends \WP_List_Table {
 	}
 
 	/**
+	 * Handles the recipient output.
+	 *
+	 * @param array $email The array of info about the email.
+	 */
+	public function column_recipient( $email ) {
+		$email['recipient'] = maybe_unserialize( $email['recipient'] );
+
+		if ( is_array( $email['recipient'] ) ) {
+			return implode( ', ', $email['recipient'] );
+		}
+
+		return $email['recipient'];
+	}
+
+	/**
 	 * Handles the status output.
 	 *
 	 * @param array $email The array of info about the email.

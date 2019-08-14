@@ -1,7 +1,7 @@
 <div id="tab-start" data-prefix="wposes" class="wposes-tab wposes-content">
 	<div>
 		<div style="float: left; margin: 0 1em 1em 0">
-			<img class="wposes-logo" src="<?php echo plugins_url( 'assets/img/ses-logo.jpg', $this->get_plugin_file_path() ) ?>" />
+			<img class="wposes-logo" src="<?php echo $this->plugins_url( 'assets/img/ses-logo.jpg' ) ?>" />
 		</div>
 		<h2><?php _e( 'Thanks for installing WP Offload SES! 🎉', 'wp-offload-ses' ); ?></h2>
 		<p><?php _e( 'This setup wizard will guide you through the initial setup of the plugin. Once complete, your site will start sending emails through Amazon SES.', 'wp-offload-ses' ); ?></p>
