@@ -71,6 +71,9 @@ class SES_API {
 			'us-east-1' => __( 'US East (N. Virginia)', 'wp-offload-ses' ),
 			'us-west-2' => __( 'US West (Oregon)', 'wp-offload-ses' ),
 			'eu-west-1' => __( 'EU (Ireland)', 'wp-offload-ses' ),
+			'eu-central-1' => __( 'EU (Frankfurt)', 'wp-offload-ses' ),
+			'ap-south-1' => __( 'Asia Pacific (Mumbai)', 'wp-offload-ses' ),
+			'ap-southeast-2' => __( 'Asia Pacific (Sydney)', 'wp-offload-ses' ),
 		);
 
 		return $regions;
