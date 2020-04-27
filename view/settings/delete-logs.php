@@ -1,6 +1,8 @@
 <?php 
-$args     = $this->settings->get_setting_args( 'log-duration' );
-$disabled = ( isset( $args['disabled'] ) && $args['disabled'] ) ? ' disabled' : '';
+$args            = $this->settings->get_setting_args( 'log-duration' );
+$args['options'] = DeliciousBrains\WP_Offload_SES\Email_Log::get_log_durations();
+$args['value']   = (int) $this->get_email_log()->get_log_duration();
+$disabled        = ( isset( $args['disabled'] ) && $args['disabled'] ) ? ' disabled' : '';
 ?>
 
 <tr class="<?php echo $args['tr_class'];?>">
@@ -10,21 +12,7 @@ $disabled = ( isset( $args['disabled'] ) && $args['disabled'] ) ? ' disabled' : 
 	<td>
 		<?php echo $args['setting_msg']; ?>
 		<div class="wposes-field-wrap">
-			<select name="log-duration" <?php echo $disabled; ?>>
-				<?php
-					$log_durations = DeliciousBrains\WP_Offload_SES\Email_Log::get_log_durations();
-
-					foreach ( $log_durations as $key => $value ) {
-						$selected = '';
-
-						if ( $key === (int) $this->get_email_log()->get_log_duration() ) {
-							$selected = 'selected';
-						}
-
-						echo '<option value="' . esc_attr( $key ) . '" ' . $selected . '>' . esc_attr( $value ) . '</option>';
-					}
-				?>
-			</select>
+			<?php $this->render_view( 'elements/select', $args ); ?>
 		</div>
 		<p>
 			<?php _e( 'Logs are stored to track email open and click counts.', 'wp-offload-ses' ); ?>

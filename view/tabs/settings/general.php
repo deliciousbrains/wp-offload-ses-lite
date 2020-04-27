@@ -82,6 +82,8 @@
 				</td>
 			</tr>
 
+			<?php $this->render_view( 'settings/health-report' ); ?>
+
 			<?php
 				$this->render_view( 'settings/region' );
 				$this->render_view( 'settings/wp-notification-email' );
@@ -91,7 +93,8 @@
 				$this->render_view( 'settings/delete-logs' );
 
 				if ( ! $this->is_pro() ) {
-					$this->render_view( 'tracking-prompt' );
+					$this->render_view( 'modals/tracking-prompt' );
+					$this->render_view( 'modals/health-report-prompt' );
 				}
 
 			?>

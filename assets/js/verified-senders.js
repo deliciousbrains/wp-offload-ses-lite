@@ -30,7 +30,7 @@
 
 				var data = {
 					paged: wposes_verified_senders.__query( query, 'paged' ) || '1',
-					order: wposes_verified_senders.__query( query, 'order' ) || 'desc',
+					order: wposes_verified_senders.__query( query, 'order' ) || 'asc',
 					orderby: wposes_verified_senders.__query( query, 'orderby' ) || 'sender'
 				};
 				wposes_verified_senders.update( data );
@@ -48,7 +48,7 @@
 				var data = {
 					paged: parseInt( $( 'input[name=paged]' ).val() ) || '1',
 					order: $( 'input[name=order]' ).val() || 'asc',
-					orderby: $( 'input[name=orderby]' ).val() || 'title'
+					orderby: $( 'input[name=orderby]' ).val() || 'sender'
 				};
 				// Now the timer comes to use: we wait half a second after
 				// the user stopped typing to actually send the call. If

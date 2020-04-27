@@ -417,6 +417,30 @@
 			}
 		} );
 
+		$( '#wposes-enable-health-report-wrap' ).click( function( e ) {
+			if ( $( this ).hasClass( 'on' ) ) {
+				$( '#wposes-health-report-sub-settings' ).show();
+
+				if ( 'custom' === $( 'select[name="health-report-recipients"]' ).val() ) {
+					$( '.wposes-health-report-custom-recipients-container' ).show();
+				} else {
+					$( '.wposes-health-report-custom-recipients-container' ).hide();
+				}
+			} else {
+				$( '#wposes-health-report-sub-settings' ).hide();
+			}
+		} );
+
+		$( 'select[name="health-report-recipients"]' ).change( function( e ) {
+			if ( 'custom' === $( this ).val() ) {
+				$( '.wposes-health-report-custom-recipients-container' ).show();
+				$( 'input[name="health-report-custom-recipients"]' ).attr( 'required', 'required' );
+			} else {
+				$( '.wposes-health-report-custom-recipients-container' ).hide();
+				$( 'input[name="health-report-custom-recipients"]' ).removeAttr( 'required' );
+			}
+		} );
+
 	} );
 
 })( jQuery );

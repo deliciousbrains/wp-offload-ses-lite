@@ -54,6 +54,13 @@ class Email {
 	private $content_type;
 
 	/**
+	 * The ID of the email.
+	 *
+	 * @var int|null
+	 */
+	private $email_id;
+
+	/**
 	 * Init WP_Offload_SES_Email class
 	 *
 	 * @param string|array $to          The recipient of the email.
@@ -61,10 +68,14 @@ class Email {
 	 * @param string       $message     The email message.
 	 * @param string|array $headers     Headers to include in the email.
 	 * @param string|array $attachments Attachments to include in the email.
+	 * @param int|null     $email_id    The ID of the email.
 	 */
-	public function __construct( $to, $subject, $message, $headers, $attachments ) {
+	public function __construct( $to, $subject, $message, $headers, $attachments, $email_id = null ) {
 		require_once ABSPATH . WPINC . '/class-phpmailer.php';
-		$this->mail = new \PHPMailer( true );
+
+		$this->mail     = new \PHPMailer( true );
+		$this->email_id = $email_id;
+
 		$this->to( $to );
 		$this->subject( $subject );
 		$this->body( $message );
@@ -158,13 +169,7 @@ class Email {
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
-		$domain = strtolower( $_SERVER['SERVER_NAME'] ); // phpcs:ignore
-
-		if ( substr( $domain, 0, 4 ) === 'www.' ) {
-			$domain = substr( $domain, 4 );
-		}
-
-		$wp_default_email = 'wordpress@' . $domain;
+		$wp_default_email = Utils::get_wordpress_default_email( false );
 
 		if ( is_null( $this->from ) || $wp_default_email === $this->from ) {
 
@@ -184,7 +189,7 @@ class Email {
 		}
 
 		$this->mail->From     = apply_filters( 'wp_mail_from', $this->from );
-		$this->mail->FromName = apply_filters( 'wp_mail_from_name', $this->from_name );
+		$this->mail->FromName = trim( apply_filters( 'wp_mail_from_name', $this->from_name ), '" ' );
 
 		// Log the email address if it isn't verified.
 		$this->maybe_log_unverified_sender( $this->mail->From );
@@ -225,7 +230,13 @@ class Email {
 		}
 
 		foreach ( $headers as $header ) {
-			list( $name, $content ) = explode( ':', trim( $header ), 2 );
+			$header = explode( ':', trim( $header ), 2 );
+
+			if ( ! is_array( $header ) || 2 !== count( $header ) ) {
+				continue;
+			}
+
+			list( $name, $content ) = $header;
 			$name    = trim( $name );
 			$content = trim( $content );
 			$this->handle_headers( $name, $content );
@@ -344,19 +355,32 @@ class Email {
 	 * @param string|array $attachments Attachments to add.
 	 */
 	private function attachments( $attachments ) {
-		if ( ! empty( $attachments ) ) {
+		/** @var WP_Offload_SES $wp_offload_ses */
+		global $wp_offload_ses;
 
+		$stored_attachments = array();
+
+		if ( null !== $this->email_id ) {
+			$stored_attachments = $wp_offload_ses->get_attachments()->get_attachments_by_email( $this->email_id );
+		}
+
+		// Support the legacy method of adding attachments.
+		if ( empty( $stored_attachments ) && ! empty( $attachments ) ) {
 			// Handle newline-delimited string list of multiple file names
 			if ( ! is_array( $attachments ) ) {
 				$attachments = explode( "\n", str_replace( "\r\n", "\n", $attachments ) );
 			}
 
 			foreach ( $attachments as $attachment ) {
-				try {
-					$this->mail->AddAttachment( $attachment );
-				} catch ( \Exception $e ) {
-					continue;
-				}
+				$stored_attachments[] = array( 'path' => $attachment, 'filename' => wp_basename( $attachment ) );
+			}
+		}
+
+		foreach ( $stored_attachments as $attachment ) {
+			try {
+				$this->mail->AddAttachment( $attachment['path'], $attachment['filename'] );
+			} catch( \Exception $e ) {
+				continue;
 			}
 		}
 	}
@@ -419,14 +443,14 @@ class Email {
 	}
 
 	/**
-	 * Prepare
+	 * Prepare the email for sending.
 	 *
 	 * Use PHPMailer to generate correct email format
 	 *
 	 * @return string
 	 * @throws \phpmailerException
 	 */
-	public function prepare( $email_id = null ) {
+	public function prepare() {
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
@@ -436,9 +460,9 @@ class Email {
 		$this->return_path();
 		$this->maybe_override_reply_to();
 
-		if ( null !== $email_id && 'text/html' === $this->mail->ContentType ) {
+		if ( null !== $this->email_id && 'text/html' === $this->mail->ContentType ) {
 			$this->mail->Body = make_clickable( $this->mail->Body );
-			$this->mail->Body = $wp_offload_ses->get_email_events()->filter_email_content( $email_id, $this->mail->Body );
+			$this->mail->Body = $wp_offload_ses->get_email_events()->filter_email_content( $this->email_id, $this->mail->Body );
 		}
 
 		// Fires after PHPMailer is initalized.
@@ -467,6 +491,7 @@ class Email {
 	 * @return void
 	 */
 	public function view( $email_data = array() ) {
+		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
 		$this->from();
@@ -474,12 +499,13 @@ class Email {
 		$this->charset();
 		$this->return_path();
 
-		$to      = implode( ', ',  array_keys( $this->mail->getAllRecipientAddresses() ) );
-		$opens   = '';
-		$clicks  = '';
-		$status  = '';
-		$sent    = '';
-		$actions = $wp_offload_ses->get_email_action_links( $email_data['id'], $email_data['status'] );
+		$to          = implode( ', ',  array_keys( $this->mail->getAllRecipientAddresses() ) );
+		$opens       = '';
+		$clicks      = '';
+		$status      = '';
+		$sent        = '';
+		$attachments = '';
+		$actions     = $wp_offload_ses->get_email_action_links( $email_data['id'], $email_data['status'] );
 		unset( $actions['view'] );
 
 		// Maybe add HTML line breaks.
@@ -521,6 +547,11 @@ class Email {
 				);
 			}
 		}
+
+		$attachment_links = $wp_offload_ses->get_attachments()->get_attachment_links( $email_data['id'] );
+		if ( ! empty( $attachment_links ) ) {
+			$attachments =  '<hr />' . _n( 'Attachment: ', 'Attachments: ', count( $attachment_links ), 'wp-offload-ses' ) . implode( ', ', $attachment_links );
+		}
 		?>
 		<div id="wposes-email-wrap">
 			<h3 id="wposes-email-subject"><?php echo esc_html( $this->mail->Subject ); ?></h3>
@@ -529,6 +560,8 @@ class Email {
 			<span id="wposes-email-sent"><?php echo $sent; ?></span>
 
 			<div id="wposes-email-content"><?php echo $this->mail->Body; ?></div>
+
+			<span id="wposes-email-attachments"><?php echo $attachments; ?></span>
 
 			<div class="actions select">
 				<span id="wposes-email-info" style="float: left;">

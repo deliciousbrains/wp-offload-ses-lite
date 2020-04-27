@@ -12,5 +12,6 @@ $table = new Activity_List_Table();
 	$table->prepare_items();
 	$table->display();
 	$this->render_view( 'modals/view-email' );
+	$this->render_view( 'modals/delete-email' );
 	?>
 </div>

@@ -9,6 +9,7 @@
 namespace DeliciousBrains\WP_Offload_SES;
 
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
+use DeliciousBrains\WP_Offload_SES\Queue\Queue_Status;
 
 /**
  * Class Diagnostic_Info
@@ -110,10 +111,6 @@ class Diagnostic_Info {
 		$output .= empty( $wpdb->use_mysqli ) ? 'no' : 'yes';
 		$output .= "\r\n";
 
-		$output .= 'WP Cron: ';
-		$output .= esc_html( ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) ? 'Disabled' : 'Enabled' );
-		$output .= "\r\n";
-
 		$output .= 'cURL: ';
 		if ( function_exists( 'curl_init' ) ) {
 			$curl   = curl_version();
@@ -207,20 +204,38 @@ class Diagnostic_Info {
 		$output .= (int) $wp_offload_ses->get_email_log()->get_log_duration();
 		$output .= "\r\n";
 
-		if ( $wp_offload_ses->is_pro() ) {
-			$output .= 'Queued: ';
-			$output .= $wp_offload_ses->get_email_queue()->get_total_jobs();
-			$output .= "\r\n";
+		$queue_status = new Queue_Status( $wp_offload_ses );
 
-			$output .= 'Failures: ';
-			$output .= $wp_offload_ses->get_email_queue()->get_total_failures();
-			$output .= "\r\n";
+		$output .= "\r\n";
+		$output .= 'WP Cron: ';
+		$output .= esc_html( $queue_status->is_wp_cron_enabled() ? 'Enabled' : 'Disabled' );
+		$output .= "\r\n";
 
-			$output .= 'License: ';
-			$output .= $wp_offload_ses->is_valid_licence() ? 'Valid' : 'Not Valid';
-		}
+		$output .= 'Alternate WP Cron: ';
+		$output .= esc_html( $queue_status->is_alternate_wp_cron() ? 'Enabled' : 'Disabled' );
+		$output .= "\r\n";
 
+		$output .= 'Last Run: ';
+		$output .= $this->time_from_timestamp( $queue_status->get_last_cron_run() );
+		$output .= "\r\n";
+
+		$output .= 'Next Scheduled: ';
+		$output .= $this->time_from_timestamp( $queue_status->get_next_scheduled() );
+		$output .= "\r\n";
+
+		$output .= 'Queued: ';
+		$output .= $queue_status->get_total_jobs();
+		$output .= "\r\n";
+
+		$output .= 'Failures: ';
+		$output .= $queue_status->get_total_failures();
 		$output .= "\r\n\r\n";
+
+		if ( $wp_offload_ses->is_pro() ) {
+			$output .= 'License: ';
+			$output .= $wp_offload_ses->is_valid_licence() ? 'Valid' : 'Not Valid';	
+			$output .= "\r\n";
+		}
 
 		$output .= 'WPOSES_SETTINGS: ';
 		$output .= esc_html( ( defined( 'WPOSES_SETTINGS' ) ) ? 'Defined' : 'Not defined' );
@@ -389,6 +404,23 @@ class Diagnostic_Info {
 		$value = $wp_offload_ses->settings->get_setting( $key, 0 );
 
 		return ( 1 == $value ) ? 'On' : 'Off';
+	}
+
+	/**
+	 * Helper for showing time/date from timestamps.
+	 *
+	 * @param string $timestamp The timestamp.
+	 *
+	 * @return string
+	 */
+	public function time_from_timestamp( $timestamp ) {
+		if ( ! $timestamp ) {
+			return 'N/A';
+		}
+
+		$time_format = 'H:i:s Y-m-d';
+
+		return date_i18n( $time_format, $timestamp ) . ' UTC';
 	}
 
 	/**

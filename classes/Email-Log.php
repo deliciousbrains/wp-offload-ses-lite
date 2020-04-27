@@ -39,14 +39,31 @@ class Email_Log {
 	private $clicks_table;
 
 	/**
+	 * The table to log attachments.
+	 *
+	 * @var string
+	 */
+	private $attachments_table;
+
+	/**
+	 * The table to log email attachments.
+	 *
+	 * @var string
+	 */
+	private $email_attachments_table;
+
+	/**
 	 * Construct the log class.
 	 */
 	public function __construct() {
 		global $wpdb;
 
-		$this->database     = $wpdb;
-		$this->log_table    = $this->database->base_prefix . 'oses_emails';
-		$this->clicks_table = $this->database->base_prefix . 'oses_clicks';
+		$this->database = $wpdb;
+
+		$this->log_table               = $this->database->base_prefix . 'oses_emails';
+		$this->clicks_table            = $this->database->base_prefix . 'oses_clicks';
+		$this->attachments_table       = $this->database->base_prefix . 'oses_attachments';
+		$this->email_attachments_table = $this->database->base_prefix . 'oses_email_attachments';
 
 		$this->schedule_cron();
 		add_action( 'deliciousbrains_wp_offload_ses_log_cleanup', array( $this, 'log_cleanup' ) );
@@ -73,6 +90,10 @@ class Email_Log {
 
 		if ( is_multisite() ) {
 			$args['subsite_id'] = isset( $atts['subsite_id'] ) ? $atts['subsite_id'] : get_current_blog_id();
+		}
+
+		if ( isset( $atts['parent'] ) ) {
+			$args['email_parent'] = $atts['parent'];
 		}
 
 		$result = $this->database->insert(
@@ -175,8 +196,6 @@ class Email_Log {
 
 		if ( ! array_key_exists( $duration, self::get_log_durations() ) ) {
 			$duration = 90;
-			$wp_offload_ses->settings->set_setting( 'log-duration', $duration );
-			$wp_offload_ses->settings->save_settings();
 		}
 
 		return self::validate_duration( $duration );
@@ -207,6 +226,7 @@ class Email_Log {
 	 */
 	public static function get_log_durations() {
 		$default_durations = array(
+			'7'   => __( 'After 7 days', 'wp-offload-ses' ),
 			'30'  => __( 'After 30 days', 'wp-offload-ses' ),
 			'60'  => __( 'After 60 days', 'wp-offload-ses' ),
 			'90'  => __( 'After 90 days', 'wp-offload-ses' ),
@@ -241,6 +261,9 @@ class Email_Log {
 	 * Remove outdated logs.
 	 */
 	public function log_cleanup() {
+		/** @var WP_Offload_SES $wp_offload_ses */
+		global $wp_offload_ses;
+
 		if ( ! wp_doing_cron() ) {
 			return;
 		}
@@ -258,11 +281,29 @@ class Email_Log {
 			$subsite_sql = "AND $this->log_table.subsite_id = $subsite_id";
 		}
 
+		// Delete emails and clicks for emails outside of the retention period.
 		$query = "DELETE $this->log_table, $this->clicks_table FROM $this->log_table
 					LEFT JOIN $this->clicks_table ON $this->log_table.email_id = $this->clicks_table.email_id
 					WHERE $this->log_table.email_created < NOW() - INTERVAL $duration DAY
 					$subsite_sql";
 		$this->database->query( $query );
+
+		// Delete any records from link table that no longer exist.
+		$query = "DELETE {$this->email_attachments_table}
+					FROM {$this->email_attachments_table}
+					LEFT JOIN {$this->log_table} ON {$this->email_attachments_table}.email_id = {$this->log_table}.email_id
+					WHERE {$this->log_table}.email_id IS NULL";
+		$this->database->query( $query );
+
+		// Flag any attachments that can be safely deleted.
+		$query = "UPDATE {$this->attachments_table} attachments
+					LEFT JOIN {$this->email_attachments_table} email_attachments ON email_attachments.attachment_id = attachments.id
+					SET attachments.gc = 1
+					WHERE email_attachments.attachment_id IS NULL";
+		$this->database->query( $query );
+
+		// Delete the files themselves.
+		$wp_offload_ses->get_attachments()->delete_attachments();
 	}
 
 	/**
@@ -290,9 +331,21 @@ class Email_Log {
 				`email_last_open_date` DATETIME,
 				`email_created` DATETIME NOT NULL,
 				`email_sent` DATETIME,
-				PRIMARY KEY  (email_id)
+				`email_parent` BIGINT(20),
+				`auto_retries` INT DEFAULT '0',
+				`manual_retries` INT DEFAULT '0',
+				PRIMARY KEY  (email_id),
+				INDEX email_subject_v2 (email_subject(190))
 				) $charset_collate;";
 		dbDelta( $sql );
+
+		$indexes = (array) $wpdb->get_results( "SHOW INDEX FROM $this->log_table", ARRAY_A );
+		$indexes = wp_list_pluck( $indexes, 'Key_name' );
+
+		if ( in_array( 'email_subject', $indexes ) ) {
+			// Drop the old index.
+			$wpdb->query( "ALTER TABLE $this->log_table DROP INDEX email_subject" );
+		}
 	}
 
 }

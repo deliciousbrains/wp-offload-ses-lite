@@ -4,7 +4,7 @@ $key_constant         = $aws->access_key_id_constant();
 $secret_constant      = $aws->secret_access_key_constant();
 $any_constant_defined = (bool) $key_constant || $secret_constant;
 $hide_form_initially  = false;
-$database_warning_url = $aws->dbrains_url( '/wp-offload-ses/doc/quick-start-guide/#save-access-keys', array(
+$database_warning_url = $this->dbrains_url( '/wp-offload-ses/doc/quick-start-guide/#save-access-keys', array(
 	'utm_campaign' => 'support+docs',
 ) );
 ?>

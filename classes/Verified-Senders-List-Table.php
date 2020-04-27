@@ -32,14 +32,6 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 		}
 
 		$this->screen = get_current_screen();
-		add_action( 'load-settings_page_wp-offload-ses', array( $this, 'load' ) );
-	}
-
-	/**
-	 * Contruct WP_List_Table and set the screen options.
-	 */
-	public function load() {
-		global $status, $page;
 
 		/**
 		 * Construct the WP_List_Table parent class.
@@ -54,16 +46,6 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 				'screen'   => $this->screen,
 			)
 		);
-
-		add_screen_option(
-			'per_page',
-			array(
-				'default' => 5,
-				'label'   => __( 'Verified senders per page', 'wp-offload-ses' ),
-				'option'  => 'edit_verified_senders_per_page',
-			)
-		);
-		set_screen_options();
 	}
 
 	/**
@@ -196,7 +178,7 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 	 */
 	public function usort_reorder( $a, $b ) {
 		$orderby = ( ! empty( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : 'sender'; // If no sort, default to sender.
-		$order   = ( ! empty( $_REQUEST['order'] ) ) ? $_REQUEST['order'] : 'desc'; // If no order, default to desc.
+		$order   = ( ! empty( $_REQUEST['order'] ) ) ? $_REQUEST['order'] : 'asc'; // If no order, default to asc.
 		$result  = strcmp( $a[ $orderby ], $b[ $orderby ] ); // Determine sort order.
 
 		return ( 'asc' === $order ) ? $result : -$result; // Send final sort direction to usort.
@@ -229,7 +211,7 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 				'per_page'    => $per_page,
 				'total_pages' => ceil( $total_items / $per_page ),
 				'orderby'     => ! empty( $_REQUEST['orderby'] ) && '' != $_REQUEST['orderby'] ? $_REQUEST['orderby'] : 'sender',
-				'oder'        => ! empty( $_REQUEST['order'] ) && '' != $_REQUEST['order'] ? $_REQUEST['order'] : 'desc',
+				'order'       => ! empty( $_REQUEST['order'] ) && '' != $_REQUEST['order'] ? $_REQUEST['order'] : 'asc',
 			)
 		);
 	}
@@ -240,8 +222,11 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 	public function display() {
 		wp_nonce_field( 'wposes-verified-senders-nonce', 'wposes_verified_senders_nonce' );
 
-		echo '<input type="hidden" id="order" name="order" value="' . $this->pagination_args['order'] . '" />';
-		echo '<input type="hidden" id="orderby" name="orderby" value="' . $this->pagination_args['orderby'] . '" />';
+		$order   = ! empty( $this->_pagination_args['order'] ) ? $this->_pagination_args['order'] : 'asc';
+		$orderby = ! empty( $this->_pagination_args['orderby'] ) ? $this->_pagination_args['orderby'] : 'sender';
+
+		echo '<input type="hidden" id="order" name="order" value="' . esc_attr( $order ) . '" />';
+		echo '<input type="hidden" id="orderby" name="orderby" value="' . esc_attr( $orderby ) . '" />';
 
 		parent::display();
 	}

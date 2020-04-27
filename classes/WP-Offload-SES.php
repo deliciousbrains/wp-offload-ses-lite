@@ -16,6 +16,10 @@ use DeliciousBrains\WP_Offload_SES\Notices;
 use DeliciousBrains\WP_Offload_SES\WP_Notifications;
 use DeliciousBrains\WP_Offload_SES\Utils;
 use DeliciousBrains\WP_Offload_SES\Activity_List_Table;
+use DeliciousBrains\WP_Offload_SES\Health_Report;
+use DeliciousBrains\WP_Offload_SES\Queue\Email_Queue;
+use DeliciousBrains\WP_Offload_SES\Queue\Queue_Status;
+use DeliciousBrains\WP_Offload_SES\Attachments;
 
 /**
  * Class WP_Offload_SES
@@ -60,7 +64,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @var string
 	 */
-	protected $plugin_slug = 'wp-offload-ses';
+	protected $plugin_slug = 'wp-ses';
 
 	/**
 	 * The Amazon_Web_Services class.
@@ -91,11 +95,39 @@ class WP_Offload_SES extends Plugin_Base {
 	private $email_events;
 
 	/**
+	 * The Email_Queue class.
+	 *
+	 * @var Email_Queue
+	 */
+	private $email_queue;
+
+	/**
 	 * The Notices class.
 	 *
-	 * @var Notices;
+	 * @var Notices
 	 */
 	private $notices;
+
+	/**
+	 * The Health_Report class.
+	 *
+	 * @var Health_Report
+	 */
+	private $health_report;
+
+	/**
+	 * The Queue_Status class.
+	 *
+	 * @var Queue_Status
+	 */
+	private $queue_status;
+
+	/**
+	 * The Attachments class.
+	 *
+	 * @var Attachments
+	 */
+	private $attachments;
 
 	/**
 	 * Construct the plugin base and initialize the plugin.
@@ -122,7 +154,15 @@ class WP_Offload_SES extends Plugin_Base {
 		$this->ses_api      = new SES_API();
 		$this->email_log    = new Email_Log();
 		$this->email_events = new Email_Events();
+		$this->email_queue  = new Email_Queue();
+		$this->queue_status = new Queue_Status( $this );
 		$this->notices      = Notices::get_instance( $this );
+		$this->attachments  = new Attachments();
+
+		if ( ! $this->is_pro() ) {
+			$this->health_report = new Health_Report( $this );
+		}
+
 		new WP_Notifications( $this );
 
 		// Plugin setup.
@@ -132,6 +172,7 @@ class WP_Offload_SES extends Plugin_Base {
 		add_filter( 'plugin_action_links', array( $this, 'plugin_actions_settings_link' ), 10, 2 );
 		add_filter( 'network_admin_plugin_action_links', array( $this, 'plugin_actions_settings_link' ), 10, 2 );
 		add_action( 'pre_current_active_plugins', array( $this, 'plugin_deactivated_notice' ) );
+		add_action( 'wposes_plugin_load', array( $this->settings, 'set_default_settings' ) );
 
 		// UI AJAX.
 		add_action( 'wp_ajax_wposes_activity_table', array( $this, 'ajax_activity_table' ) );
@@ -153,9 +194,11 @@ class WP_Offload_SES extends Plugin_Base {
 	public function upgrade_routines( $skip_version_check = false ) {
 		$version = get_site_option( 'wposes_lite_version', '0.0.0' );
 
-		if ( $skip_version_check || version_compare( $version, $GLOBALS['wposes_meta']['wp-offload-ses-lite']['version'], '<' ) ) {
+		if ( $skip_version_check || version_compare( $version, $this->get_plugin_version(), '<' ) ) {
 			$this->get_email_log()->install_tables();
 			$this->get_email_events()->install_tables();
+			$this->get_email_queue()->install_tables();
+			$this->get_attachments()->install_tables();
 
 			if ( ! get_site_option( 'wposes_tracking_key' ) ) {
 				add_site_option( 'wposes_tracking_key', wp_generate_password( 20, true, true ) );
@@ -164,7 +207,7 @@ class WP_Offload_SES extends Plugin_Base {
 			$this->maybe_migrate_from_wpses();
 
 			if ( ! $skip_version_check ) {
-				update_site_option( 'wposes_lite_version', $GLOBALS['wposes_meta']['wp-offload-ses-lite']['version'] );
+				update_site_option( 'wposes_lite_version', $this->get_plugin_version() );
 			}
 		}
 	}
@@ -303,7 +346,7 @@ class WP_Offload_SES extends Plugin_Base {
 			$this->get_plugin_page_title(),
 			$this->plugin_menu_title,
 			'manage_options',
-			$this->plugin_slug,
+			self::$plugin_page,
 			array( $this, 'render_page' )
 		);
 
@@ -333,6 +376,7 @@ class WP_Offload_SES extends Plugin_Base {
 
 		if ( ! $this->is_pro() ) {
 			$this->enqueue_script( 'wposes-tracking-prompt', 'assets/js/tracking-prompt', array( 'wposes-script', 'wposes-modal' ) );
+			$this->enqueue_script( 'wposes-health-report-prompt', 'assets/js/health-report-prompt', array( 'wposes-script', 'wposes-modal' ) );
 		}
 
 		wp_localize_script(
@@ -411,12 +455,39 @@ class WP_Offload_SES extends Plugin_Base {
 	}
 
 	/**
+	 * Getter for Email_Queue.
+	 *
+	 * @return Email_Queue
+	 */
+	public function get_email_queue() {
+		return $this->email_queue;
+	}
+
+	/**
 	 * Getter for Notices.
 	 *
 	 * @return Notices
 	 */
 	public function get_notices() {
 		return $this->notices;
+	}
+
+	/**
+	 * Getter for Health_Report.
+	 *
+	 * @return Health_Report
+	 */
+	public function get_health_report() {
+		return $this->health_report;
+	}
+
+	/**
+	 * Getter for Attachments.
+	 *
+	 * @return Attachments
+	 */
+	public function get_attachments() {
+		return $this->attachments;
 	}
 
 	/**
@@ -431,6 +502,10 @@ class WP_Offload_SES extends Plugin_Base {
 		$url           = $this->get_plugin_page_url( array(), 'self' );
 		$text          = __( 'Settings', 'wp-offload-ses' );
 		$settings_link = '<a href="' . $url . '">' . esc_html( $text ) . '</a>';
+
+		if ( is_multisite() && ! is_network_admin() && ! $this->settings->get_setting( 'enable-subsite-settings' ) ) {
+			return $links;
+		}
 
 		if ( $file === $this->plugin_basename ) {
 			array_unshift( $links, $settings_link );
@@ -921,7 +996,7 @@ class WP_Offload_SES extends Plugin_Base {
 			$username
 		);
 
-		$email  = new Email( $to, $subject, $content, '', '', $this->settings->get_settings() );
+		$email  = new Email( $to, $subject, $content, '', '' );
 		$raw    = $email->prepare();
 		$result = $this->get_ses_api()->send_email( $raw );
 
@@ -1208,7 +1283,7 @@ class WP_Offload_SES extends Plugin_Base {
 			if ( is_array( $headers ) ) {
 				$headers[] = 'Content-Type: text/html;';
 			} else {
-				$headers .= "Content-Type: text/html;\n";
+				$headers = "Content-Type: text/html;\n" . $headers;
 			}
 		}
 
@@ -1220,43 +1295,55 @@ class WP_Offload_SES extends Plugin_Base {
 			return false;
 		}
 
-		return $this->manually_send_email( $atts, $email_id );
+		if ( ! is_array( $attachments ) ) {
+			$attachments = explode( "\n", str_replace( "\r\n", "\n", $attachments ) );
+		}
+
+		foreach ( $attachments as $attachment ) {
+			$this->get_attachments()->handle_attachment( $email_id, $attachment );
+		}
+
+		$this->get_email_queue()->process_email( $email_id );
+		$this->trigger_queue();
+
+		return true;
 	}
 
 	/**
-	 * Send an email without queueing it.
-	 *
-	 * @param array $atts     The attributes of the email.
-	 * @param int   $email_id The ID of the email.
+	 * Sends an async request to trigger the queue if possible.
 	 *
 	 * @return bool
 	 */
-	public function manually_send_email( $atts, $email_id = null ) {
-		$to          = isset( $atts['to'] ) ? $atts['to'] : '';
-		$subject     = isset( $atts['subject'] ) ? $atts['subject'] : '';
-		$message     = isset( $atts['message'] ) ? $atts['message'] : '';
-		$headers     = isset( $atts['headers'] ) ? $atts['headers'] : '';
-		$attachments = isset( $atts['attachments'] ) ? $atts['attachments'] : array();
-		$email       = new Email( $to, $subject, $message, $headers, $attachments );
-		$raw         = $email->prepare( $email_id );
-		$result      = $this->get_ses_api()->send_email( $raw );
-		$status      = 'sent';
-
-		if ( is_wp_error( $result ) ) {
-			$this->add_failed_email_notice();
-			$status = 'failed';
-		} else {
-			// Fires after an email has been sent.
-			do_action( 'wpses_mailsent', $to, $subject, $message, $headers, $attachments ); // Backwards compat.
-			do_action( 'wposes_mail_sent', $to, $subject, $message, $headers, $attachments );
+	public function trigger_queue() {
+		// Make sure we're not DDOSing our own site.
+		if ( get_transient( 'wposes_triggered_queue' ) ) {
+			return false;
 		}
 
-		if ( ! is_null( $email_id ) ) {
-			$this->get_email_log()->update_email( $email_id, 'email_status', $status );
-			$this->get_email_log()->update_email( $email_id, 'email_sent', current_time( 'mysql' ) );
-		}
+		set_transient( 'wposes_triggered_queue', true, 10 );
 
-		return 'sent' === $status ? true : false;
+		$data = array(
+			'action' => 'wposes_trigger_queue',
+			'nonce'  => wp_create_nonce( 'wposes_trigger_queue' ),
+		);
+
+		$request_args = apply_filters(
+			'wposes_queue_request',
+			array(
+				'url'  => admin_url( 'admin-ajax.php' ),
+				'args' => array(
+					'timeout'   => 0.01,
+					'blocking'  => false,
+					'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
+					'body'      => $data,
+					'cookies'   => $_COOKIE,
+				),
+			)
+		);
+
+		$result = wp_remote_post( $request_args['url'], $request_args['args'] );
+
+		return ! is_wp_error( $result );
 	}
 
 }

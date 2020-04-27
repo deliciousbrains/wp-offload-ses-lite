@@ -11,7 +11,7 @@ use Exception;
  *
  * @since 1.0.0
  */
-class Amazon_Web_Services extends Plugin_Base {
+class Amazon_Web_Services {
 
 	/**
 	 * The AWS client.
@@ -26,13 +26,6 @@ class Amazon_Web_Services extends Plugin_Base {
 	 * @var WP_Offload_SES
 	 */
 	private $wposes;
-
-	/**
-	 * The plugin slug.
-	 *
-	 * @var string
-	 */
-	protected $plugin_slug = 'wp-offload-ses';
 
 	/**
 	 * Construct the Amazon_Web_Services class.
@@ -181,7 +174,7 @@ class Amazon_Web_Services extends Plugin_Base {
 	 */
 	public function get_client( array $args ) {
 		if ( $this->needs_access_keys() ) {
-			throw new \Exception( sprintf( __( 'You must first <a href="%s">set your AWS access keys</a> to use this plugin.', 'wp-offload-ses' ), $this->get_plugin_page_url( array(), 'self' ) . '#settings' ) );
+			throw new \Exception( sprintf( __( 'You must first <a href="%s">set your AWS access keys</a> to use this plugin.', 'wp-offload-ses' ), $this->wposes->get_plugin_page_url( array(), 'self' ) . '#settings' ) );
 		}
 
 		if ( is_null( $this->client ) ) {
@@ -199,7 +192,7 @@ class Amazon_Web_Services extends Plugin_Base {
 			}
 
 			$args['version'] = '2010-12-01';
-			$arg             = apply_filters( 'aws_get_client_args', $args );
+			$args            = apply_filters( 'aws_get_client_args', $args );
 
 			$this->client = new SesClient( $args );
 		}

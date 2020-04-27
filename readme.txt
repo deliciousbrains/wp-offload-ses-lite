@@ -1,48 +1,77 @@
 === WP Offload SES Lite ===
 Contributors: deliciousbrains, bradt, SylvainDeaure
-Tags: email,ses,amazon,webservice,deliverability,newsletter,autoresponder,mail,wp_mail,smtp,service
+Tags: amazon ses,smtp,email delivery,gmail smtp,newsletter
 Requires at least: 5.0
-Tested up to: 5.2
+Tested up to: 5.4
 Requires PHP: 5.5+
-Stable tag: 1.2.1
+Stable tag: 1.4.1
 
-WP Offload SES Lite sends all outgoing WordPress emails through Amazon Simple Email Service (SES) instead of the local wp_mail() function.
+Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
 
 == Description ==
 
-WP SES is now WP Offload SES Lite. WP Offload SES Lite sends all outgoing WordPress emails through Amazon Simple Email Service (SES) instead of the local wp_mail() function.
+Are your WordPress site emails not being delivered? That's pretty common. Over 20,000 sites trust WP Offload SES Lite to send their site email.
 
-This ensures high email deliverability, email traffic statistics and a powerful managed infrastructure.
+WordPress' default email sending functions just don't cut it these days. You absolutely need to set up something more.
+
+Some folks set up an SMTP plugin to use their existing email provider (e.g. Gmail, Outlook.com, Yahoo, etc) to send their WordPress emails but then find out the hard way (i.e. emails not getting delivered) that there's a daily hard limit on the number of emails they can send. Sending WordPress emails through SMTP is simply not worth the risk.
+
+Other folks try sending services like Postmark, Mailgun, Sendgrid, etc but realize that they're expensive and their WordPress plugins are subpar ([check out our reviews for details](https://deliciousbrains.com/most-wordpress-email-plugins-suck/?utm_campaign=WP%2BOffload%2BSES&utm_source=wordpress.org&utm_medium=free%2Bplugin%2Blisting)).
+
+With WP Offload SES Lite, you get the high deliverability, powerful managed infrastructure, and low cost of Amazon SES but with the support of a quality WordPress plugin that's easy to set up and lets you know when there are sending failures.
 
 With WP Offload SES Lite, you can:
 
 * Effortlessly configure your site to send all email via Amazon SES with our step-by-step setup wizard
 * Configure the default email address and name that WordPress uses for notifications
-* Send verification requests for new domains and email addresses
+* Verify sending domains and email addresses
 * Send a test email to make sure everything is working before enabling site-wide email sending
 * View a list of all emails sent from your site
 * View statistics on your Amazon SES send rate
 * Set up a custom "Reply To" and "Return Path" address
+* Weekly health report in your inbox gives you confidence your emails are sending
 * Configure multisite subsites to use different email settings, or enforce the same settings for your whole network
 * Integrate with your favorite form and newsletter plugins, including Ninja Forms, Contact Form 7, Gravity Forms, Email Subscribers & Newsletters, and more
 
-**Upgrade for Email Support and More Features**
+### Upgrade to WP Offload SES <del>Lite</del>
 
-https://www.youtube.com/watch?v=gUH3fMlrU10&rel=0
+Get email open and click reporting and more with an upgrade to WP Offload SES:
 
-Get email open and click tracking for all your Amazon SES emails with the following features and more:
+= Open & Click Reporting =
 
-* View reports for email opens and link clicks
-* Auto-retry email sending failures with an email queue that stays within your Amazon SES rate limit
-* Manually retry email sending failures
-* Manually re-send any sent emails
-* Search for any email
-* View a specific email
-* Analyze engagement for a specific email
-* Email support
-* More features coming soon!
+It's important to be able to measure the engagement of your site emails. Are people actually opening certain emails? Are they clicking links? With that information, you can try to update an email's subject line and see if the open rate improves. Or update the email copy and see if more people click on the links. With WP Offload SES, you can access all of this instantly, from your WordPress dashboard.
+
+= Auto-Retry Email Sending Failures =
+
+Every Amazon SES account has a max send rate. If you try to send more emails per second than your account rate, Amazon SES will return an error and refuse to send the email which could result in dropped emails if not handled properly. WP Offload SES is aware of your SES account's send rate and will stay within the limit, but in the event of a failed send (e.g. a networking issue) the robust queue system will retry sending those emails and keep track of failures.
+
+= Manually Retry Email Sending Failures =
+
+Let’s say there was a networking issue that prevented your site from connecting to Amazon SES to send your email. WP Offload SES will automatically retry sending a few times before giving up and calling it a failure. If that happens, you can simply retry those failures once connectivity to Amazon SES is restored. With WP Offload SES none of your emails will get dropped into the ether because of a failure.
+
+= Manually Resend Any Sent Emails =
+
+Let’s say that one of your users accidentally deleted a message that was sent to them. You can find that email in WP Offload SES and resend it in just a few clicks. No more manually assembling the pieces of the email you think they need because you don’t have a copy of the original email.
+
+= Search for Any Email =
+
+Amazon SES doesn’t log emails sent on its own, let alone allow you to search for a sent email. WP Offload SES logs every email sent and allows you to filter by date and search by recipient and/or email subject.
+
+= View a Specific Email =
+
+WP Offload SES saves the full content of every email sent through your WordPress site, allowing you to view exactly what your customers were sent.
+
+= Analyze Engagement for a Specific Email =
+
+Would you like to know if a customer has viewed a specific email they’ve been sent? Or maybe you want to know if they’ve clicked the links in the email? Simply search for the email, click View Email and you can see how many times they opened that particular email and how many times they clicked on the links. No more time consuming back-and-forth with the customer, asking if they’ve received an email or not.
+
+= PriorityExpert™ Email Support =
+
+PriorityExpert™ email support guarantees that a developer will handle your support request. A developer will reply to your very first email and a developer who works on the software will see it through to conclusion. It also means that your request will be assigned the highest priority in our queue.
 
 [Compare WP Offload SES Lite and WP Offload SES →](https://deliciousbrains.com/wp-offload-ses/upgrade/?utm_campaign=WP%2BOffload%2BSES&utm_source=wordpress.org&utm_medium=free%2Bplugin%2Blisting)
+
+https://www.youtube.com/watch?v=gUH3fMlrU10&rel=0
 
 == Installation ==
 
@@ -65,6 +94,14 @@ If you upgrade to [WP Offload SES](https://deliciousbrains.com/wp-offload-ses/up
 * MySQL 5.5+
 * Apache 2+ or Nginx 1.4+
 * Amazon Web Services account
+
+= What about SMTP plugins? =
+
+Unfortunately, sending emails through your existing email provider over SMTP is prone to hitting rate limits, as standard email services like Gmail, Outlook.com, Yahoo, etc aren’t designed for the large number of emails that are sent when sending out invoices, password reset emails, support requests, etc. SMTP is also missing some key features like an email queue which means emails that don’t send successfully on the first try just get dropped.
+
+= Will it work with Postmark, Mailgun, Sendgrid, and other email sending services? =
+
+At the moment WP Offload SES only supports Amazon SES. We're considering supporting additional services like Mailgun, Sendgrid, Postmark, etc in the future. If this is something you'd like to see, [let us know](https://wordpress.org/support/plugin/wp-ses/).
 
 = Does this plugin auto-retry email delivery failures? =
 
@@ -140,6 +177,37 @@ Please double check the credentials match up with the credentials you received w
 4. Activity tab
 
 == Changelog ==
+
+= 1.4.1 - 2020-04-27 =
+* New: Added London, central Canada, and São Paulo as available regions
+* New: Added 7 day log duration
+* New: Added `wposes_send_cron_error_email` filter for disabling cron error emails
+* Improvement: Reduce interval between cron health checks to reduce false-positives
+* Bug fix: Cron health check not working properly on multisite installs
+* Bug fix: Cron health check email being sent twice in some situations
+* Bug fix: Cron health check still runs when sending via SES is disabled
+
+= 1.4 - 2020-03-11 =
+* New: Added email queue to handle bulk email sending
+* New: Store a copy of attachments to prevent conflicts with other plugins
+* Improvement: Health report no longer center aligned
+* Bug fix: Health report not being sent in some situations
+* Bug fix: Invalid headers causing email to fail
+* Bug fix: Index on email log table too large for some MySQL servers
+* Bug fix: Filter for infinite log duration no longer working
+* Bug fix: Open tracking image missing alt attribute
+* Bug fix: Activity tab UI controls not aligned since WordPress 5.3
+* Bug fix: "From name" wrapped in quotes in some situations
+
+= 1.3 - 2019-12-11 =
+* [Release Summary Blog Post](https://deliciousbrains.com/wp-offload-ses-1-4-released-email-health-report/?utm_campaign=WP%2BOffload%2BSES&utm_source=wordpress.org&utm_medium=free%2Bplugin%2Blisting)
+* New: Weekly/monthly health report in your inbox gives you confidence your emails are sending
+* New: Added Frankfurt, Mumbai, and Sydney as available regions
+* Bug fix: Click tracking improperly encodes anchor links
+
+= 1.2.2 - 2019-09-11 =
+* Bug fix: Broken link to plugin settings page if subsite settings are disabled
+* Bug fix: Undefined index `SERVER_NAME` in some environments
 
 = 1.2.1 - 2019-08-07 =
 * Bug fix: Plugin no longer working as an mu-plugin
@@ -304,5 +372,4 @@ Quota and statistics Integration
 
 = 0.1.2 =
 First public Beta release
-
 

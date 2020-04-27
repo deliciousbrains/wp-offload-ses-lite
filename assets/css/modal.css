@@ -51,24 +51,28 @@
   line-height: 1;
 }
 /* line 51, ../sass/modal.scss */
+#wposes-modal #wposes-delete-email-subject {
+  font-weight: bold;
+}
+/* line 55, ../sass/modal.scss */
 #wposes-modal .wposes-delete-email {
   color: #a00;
 }
-/* line 55, ../sass/modal.scss */
+/* line 59, ../sass/modal.scss */
 #wposes-modal .wposes-delete-email:hover {
   color: #dc3232;
 }
-/* line 59, ../sass/modal.scss */
+/* line 63, ../sass/modal.scss */
 #wposes-modal .error,
 #wposes-modal .notice,
 #wposes-modal .updated {
   margin: 0 0 20px;
 }
-/* line 66, ../sass/modal.scss */
+/* line 70, ../sass/modal.scss */
 #wposes-modal .wposes-view-email-prompt #wposes-email-subject {
   margin-bottom: 10px;
 }
-/* line 70, ../sass/modal.scss */
+/* line 74, ../sass/modal.scss */
 #wposes-modal .wposes-view-email-prompt #wposes-email-to,
 #wposes-modal .wposes-view-email-prompt #wposes-email-from,
 #wposes-modal .wposes-view-email-prompt #wposes-email-status,
@@ -76,15 +80,23 @@
 #wposes-modal .wposes-view-email-prompt #wopses-email-clicks {
   display: block;
 }
-/* line 78, ../sass/modal.scss */
+/* line 82, ../sass/modal.scss */
+#wposes-modal .wposes-view-email-prompt #wposes-email-attachments {
+  word-wrap: break-word;
+}
+/* line 84, ../sass/modal.scss */
+#wposes-modal .wposes-view-email-prompt #wposes-email-attachments hr {
+  margin: 15px 0;
+}
+/* line 89, ../sass/modal.scss */
 #wposes-modal .wposes-view-email-prompt #wposes-email-content {
   margin-top: 20px;
 }
-/* line 82, ../sass/modal.scss */
+/* line 93, ../sass/modal.scss */
 #wposes-modal .wposes-view-email-prompt .actions {
   height: 54px;
 }
-/* line 85, ../sass/modal.scss */
+/* line 96, ../sass/modal.scss */
 #wposes-modal .wposes-view-email-prompt .actions #wposes-email-info,
 #wposes-modal .wposes-view-email-prompt .actions #wposes-email-actions {
   position: relative;
@@ -93,7 +105,7 @@
       -ms-transform: translateY(-50%);
           transform: translateY(-50%);
 }
-/* line 97, ../sass/modal.scss */
+/* line 108, ../sass/modal.scss */
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-add-sender #wposes-confirm-email,
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-add-sender #wposes-update-dns,
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-add-sender #wposes-delete-sender,
@@ -102,7 +114,7 @@
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-add-sender #wposes-delete-sender-btn {
   display: none;
 }
-/* line 108, ../sass/modal.scss */
+/* line 119, ../sass/modal.scss */
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-confirm-email #wposes-enter-sender,
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-confirm-email #wposes-update-dns,
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-confirm-email #wposes-delete-sender,
@@ -111,7 +123,7 @@
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-confirm-email #wposes-delete-sender-btn {
   display: none;
 }
-/* line 119, ../sass/modal.scss */
+/* line 130, ../sass/modal.scss */
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-update-dns #wposes-enter-sender,
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-update-dns #wposes-confirm-email,
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-update-dns #wposes-delete-sender,
@@ -120,7 +132,7 @@
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-update-dns #wposes-delete-sender-btn {
   display: none;
 }
-/* line 130, ../sass/modal.scss */
+/* line 141, ../sass/modal.scss */
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-delete-sender #wposes-enter-sender,
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-delete-sender #wposes-confirm-email,
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-delete-sender #wposes-update-dns,
@@ -129,39 +141,39 @@
 #wposes-modal .wposes-verify-sender-prompt #wposes-verified-sender-form.wposes-delete-sender #wposes-continue-btn {
   display: none;
 }
-/* line 140, ../sass/modal.scss */
+/* line 151, ../sass/modal.scss */
 #wposes-modal .wposes-verify-sender-prompt .wposes-sender-name {
   width: 350px;
   margin: 1px 1px 1px 10px;
 }
-/* line 145, ../sass/modal.scss */
+/* line 156, ../sass/modal.scss */
 #wposes-modal .wposes-verify-sender-prompt #wposes-email {
   margin-left: 10px;
 }
-/* line 150, ../sass/modal.scss */
+/* line 161, ../sass/modal.scss */
 #wposes-modal .wposes-verify-sender-prompt #wposes-update-dns th {
   text-align: left;
   padding: 0 0 5px 0;
 }
-/* line 156, ../sass/modal.scss */
+/* line 167, ../sass/modal.scss */
 #wposes-modal .wposes-verify-sender-prompt .wposes-sender {
   font-weight: bold;
 }
-/* line 160, ../sass/modal.scss */
+/* line 171, ../sass/modal.scss */
 #wposes-modal .wposes-verify-sender-prompt .wposes-verification-errors {
   color: red;
 }
-/* line 165, ../sass/modal.scss */
-#wposes-modal.wposes-tracking-modal {
+/* line 176, ../sass/modal.scss */
+#wposes-modal.wposes-tracking-modal, #wposes-modal.wposes-health-report-modal {
   width: 350px;
   margin-top: 300px;
   text-align: center;
 }
-/* line 170, ../sass/modal.scss */
-#wposes-modal.wposes-tracking-modal .close-wposes-modal {
+/* line 182, ../sass/modal.scss */
+#wposes-modal.wposes-tracking-modal .close-wposes-modal, #wposes-modal.wposes-health-report-modal .close-wposes-modal {
   display: none;
 }
-/* line 175, ../sass/modal.scss */
+/* line 187, ../sass/modal.scss */
 #wposes-modal .actions {
   margin: 20px -30px -30px;
   padding: 20px 30px;
@@ -169,21 +181,21 @@
   background-color: #e3e3e3;
   overflow: hidden;
 }
-/* line 182, ../sass/modal.scss */
+/* line 194, ../sass/modal.scss */
 #wposes-modal .actions .right {
   margin-left: 15px;
 }
-/* line 185, ../sass/modal.scss */
+/* line 197, ../sass/modal.scss */
 #wposes-modal .actions .right:last-of-type {
   margin-left: 0;
 }
-/* line 190, ../sass/modal.scss */
+/* line 202, ../sass/modal.scss */
 #wposes-modal .actions button {
   min-width: 90px;
   float: right;
 }
 
-/* line 197, ../sass/modal.scss */
+/* line 209, ../sass/modal.scss */
 body.wposes-modal-open {
   overflow: hidden;
 }

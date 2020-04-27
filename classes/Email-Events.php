@@ -195,7 +195,7 @@ class Email_Events {
 
 		if ( $open_tracking ) {
 			// Add the tracking pixel.
-			$content .= '<img src="' . $this->get_open_tracking_url( $email_id ) . '" />';
+			$content .= '<img src="' . $this->get_open_tracking_url( $email_id ) . '" alt="" />';
 		}
 
 		if ( ! $click_tracking ) {
@@ -212,7 +212,7 @@ class Email_Events {
 		foreach ( $links as $link ) {
 			$url = $link->getAttribute( 'href' );
 
-			if ( '' === $url ) {
+			if ( '' === $url || '#' === substr( $url, 0, 1 ) ) {
 				continue;
 			}
 

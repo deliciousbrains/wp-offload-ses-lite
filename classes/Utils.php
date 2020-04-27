@@ -187,7 +187,7 @@ class Utils {
 	 */
 	public static function get_wordpress_default_email( $apply_filter = true ) {
 		// Get the site domain and get rid of www.
-		$sitename = strtolower( $_SERVER['SERVER_NAME'] ); // phpcs:ignore
+		$sitename = wp_parse_url( network_home_url(), PHP_URL_HOST );
 
 		if ( substr( $sitename, 0, 4 ) == 'www.' ) {
 			$sitename = substr( $sitename, 4 );

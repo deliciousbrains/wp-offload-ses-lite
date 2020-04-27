@@ -29,12 +29,12 @@ $url_args = array(
 	</div>
 
 	<form method="post" action="https://deliciousbrains.com/email-subscribe/" target="_blank" class="subscribe block">
-		<h2><?php _e( 'Get 40% Off!', 'wp-offload-ses' ); ?></h2>
+		<h2><?php _e( 'Get 20% Off!', 'wp-offload-ses' ); ?></h2>
 
 		<?php $user = wp_get_current_user(); ?>
 
 		<p class="interesting">
-			<?php echo wptexturize( __( "We're celebrating the launch of WP Offload SES with 40% off! Submit your name and email and we'll send you a discount for 40% off the upgrade (limited time only)", 'wp-offload-ses' ) ); ?>
+			<?php echo wptexturize( __( "Submit your name and email and we'll send you a discount for 20% off the upgrade.", 'wp-offload-ses' ) ); ?>
 		</p>
 
 		<div class="field">

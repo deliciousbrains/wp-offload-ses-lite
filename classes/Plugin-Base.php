@@ -180,7 +180,8 @@ abstract class Plugin_Base {
 				$base_url = self_admin_url( $this->get_plugin_pagenow() );
 				break;
 			default:
-				$base_url = network_admin_url( $this->get_plugin_pagenow() );
+				$pagenow  = is_multisite() ? 'settings.php' : 'options-general.php';
+				$base_url = network_admin_url( $pagenow );
 		}
 
 		// Add a hash to the URL.
