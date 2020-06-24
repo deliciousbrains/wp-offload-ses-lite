@@ -205,7 +205,12 @@ class Email_Events {
 		$dom = new \DOMDocument();
 
 		$libxml_previous_state = libxml_use_internal_errors( true );
-		$dom->loadHTML( mb_convert_encoding( $content, 'HTML-ENTITIES', get_bloginfo( 'charset' ) ) );
+
+		if ( function_exists( 'mb_convert_encoding' ) ) {
+			$content = mb_convert_encoding( $content, 'HTML-ENTITIES', get_bloginfo( 'charset' ) );
+		}
+
+		$dom->loadHTML( $content );
 
 		$links = $dom->getElementsByTagName( 'a' );
 

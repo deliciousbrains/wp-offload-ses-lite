@@ -1225,7 +1225,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 * @return string
 	 */
 	public function maybe_decode_subject( $subject ) {
-		if ( '=?' === substr( $subject, 0, 2 ) && '?=' === substr( $subject, -2 ) ) {
+		if ( '=?' === substr( $subject, 0, 2 ) && '?=' === substr( $subject, -2 ) && function_exists( 'mb_decode_mimeheader' ) ) {
 			return mb_decode_mimeheader( $subject );
 		}
 

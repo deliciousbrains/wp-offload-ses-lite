@@ -59,7 +59,11 @@ class Worker {
 		}
 
 		try {
-			$command = $job->handle();
+			if ( $job->attempts() >= $this->attempts ) {
+				$job->release();
+			} else {
+				$command = $job->handle();
+			}
 		} catch ( \Exception $exception ) {
 			$job->release();
 		}

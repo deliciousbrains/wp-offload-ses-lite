@@ -9,6 +9,8 @@
 namespace DeliciousBrains\WP_Offload_SES;
 
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
+use DeliciousBrains\WP_Offload_SES\Email;
+use DeliciousBrains\WP_Offload_SES\SES_API;
 
 /**
  * Class Pro_Health_Report.
@@ -279,13 +281,15 @@ class Health_Report {
 		$recipients = $this->get_recipients();
 		$headers    = array( 'Content-Type: text/html' );
 
-		/**
-		 * Prevent WP from converting emoji to images that won't display
-		 * correctly on clients using MS Word as rendering engine.
-		 */
-		remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
+		$email  = new Email( $recipients, $subject, $content, $headers, array() );
+		$raw    = $email->prepare();
+		$result = $this->wposes->get_ses_api()->send_email( $raw );
 
-		return wp_mail( $recipients, $subject, $content, $headers );
+		if ( is_wp_error( $result ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

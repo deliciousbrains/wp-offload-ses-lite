@@ -4,11 +4,13 @@ Tags: amazon ses,smtp,email delivery,gmail smtp,newsletter
 Requires at least: 5.0
 Tested up to: 5.4
 Requires PHP: 5.5+
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
 
 == Description ==
+
+https://www.youtube.com/watch?v=m2fSx-DAgfY&feature=youtu.be&t=212
 
 Are your WordPress site emails not being delivered? That's pretty common. Over 20,000 sites trust WP Offload SES Lite to send their site email.
 
@@ -177,6 +179,11 @@ Please double check the credentials match up with the credentials you received w
 4. Activity tab
 
 == Changelog ==
+
+= 1.4.2 - 2020-06-19 =
+* Improvement: Health Report no longer includes the Health Report in email summaries
+* Bug fix: Email queue getting stuck if there is a fatal error while processing an email
+* Bug fix: Missing mbstring module causes fatal error
 
 = 1.4.1 - 2020-04-27 =
 * New: Added London, central Canada, and São Paulo as available regions
