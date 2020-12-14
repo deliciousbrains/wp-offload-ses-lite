@@ -15,6 +15,7 @@ use DeliciousBrains\WP_Offload_SES\Aws3\Aws\ResultInterface;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Ses\Exception\SesException;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise\PromiseInterface;
 use DeliciousBrains\WP_Offload_SES\Queue\Connection;
+use DeliciousBrains\WP_Offload_SES\Error;
 
 /**
  * Class Command_Pool
@@ -121,9 +122,19 @@ class Command_Pool {
 				/** @var WP_Offload_SES $wp_offload_ses */
 				global $wp_offload_ses;
 
-				$id = $this->commands[ $iterKey ]['x-message-id'];
+				$id = (int) $this->commands[ $iterKey ]['x-message-id'];
 				/** @var Email_Job $job */
 				$job   = $this->connection->get_job( $id );
+
+				if ( ! $job ) {
+					new Error(
+						Error::$job_retrieval_failure,
+						__( 'Failed to retrieve the job while executing the command pool.', 'wp-offload-ses' ),
+						(string) $id
+					);
+					return false;
+				}
+
 				$email = $wp_offload_ses->get_email_log()->get_email( $job->email_id );
 
 				if ( $email ) {
@@ -144,9 +155,18 @@ class Command_Pool {
 				/** @var WP_Offload_SES $wp_offload_ses */
 				global $wp_offload_ses;
 
-				$id = $this->commands[ $iterKey ]['x-message-id'];
+				$id = (int) $this->commands[ $iterKey ]['x-message-id'];
 				/** @var Email_Job $job */
 				$job = $this->connection->get_job( $id );
+
+				if ( ! $job ) {
+					new Error(
+						Error::$job_retrieval_failure,
+						__( 'Failed to retrieve the job while executing the command pool.', 'wp-offload-ses' ),
+						(string) $id
+					);
+					return false;
+				}
 
 				$job->release();
 				$wp_offload_ses->get_email_events()->delete_links_by_email( $job->email_id );

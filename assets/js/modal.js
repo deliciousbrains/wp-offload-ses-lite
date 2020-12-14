@@ -151,7 +151,7 @@ var wposesModal = (function( $ ) {
 	} );
 
 	// Key handler.
-	$( document ).keyup( function( e ) {
+	$( document ).on( 'keyup', function( e ) {
 		if ( 'Escape' === e.key ) {
 			modal.close();
 		}

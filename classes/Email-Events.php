@@ -77,8 +77,9 @@ class Email_Events {
 			'wp-offload-ses/v1',
 			'/c/(?P<data>\S+)',
 			array(
-				'methods'  => 'GET',
-				'callback' => array( $this, 'update_clicks' ),
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'update_clicks' ),
+				'permission_callback' => '__return_true',
 			)
 		);
 
@@ -86,8 +87,9 @@ class Email_Events {
 			'wp-offload-ses/v1',
 			'/o/(?P<data>\S+)',
 			array(
-				'methods'  => 'GET',
-				'callback' => array( $this, 'update_opens' ),
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'update_opens' ),
+				'permission_callback' => '__return_true',
 			)
 		);
 	}

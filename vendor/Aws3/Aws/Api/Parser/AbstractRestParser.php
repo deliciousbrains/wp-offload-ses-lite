@@ -53,13 +53,17 @@ abstract class AbstractRestParser extends \DeliciousBrains\WP_Offload_SES\Aws3\A
     private function extractPayload($payload, \DeliciousBrains\WP_Offload_SES\Aws3\Aws\Api\StructureShape $output, \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\ResponseInterface $response, array &$result)
     {
         $member = $output->getMember($payload);
-        if ($member instanceof StructureShape) {
-            // Structure members parse top-level data into a specific key.
-            $result[$payload] = [];
-            $this->payload($response, $member, $result[$payload]);
+        if (!empty($member['eventstream'])) {
+            $result[$payload] = new \DeliciousBrains\WP_Offload_SES\Aws3\Aws\Api\Parser\EventParsingIterator($response->getBody(), $member, $this);
         } else {
-            // Streaming data is just the stream from the response body.
-            $result[$payload] = $response->getBody();
+            if ($member instanceof StructureShape) {
+                // Structure members parse top-level data into a specific key.
+                $result[$payload] = [];
+                $this->payload($response, $member, $result[$payload]);
+            } else {
+                // Streaming data is just the stream from the response body.
+                $result[$payload] = $response->getBody();
+            }
         }
     }
     /**
@@ -84,7 +88,7 @@ abstract class AbstractRestParser extends \DeliciousBrains\WP_Offload_SES\Aws3\A
                 break;
             case 'timestamp':
                 try {
-                    $value = new \DeliciousBrains\WP_Offload_SES\Aws3\Aws\Api\DateTimeResult($value);
+                    $value = \DeliciousBrains\WP_Offload_SES\Aws3\Aws\Api\DateTimeResult::fromTimestamp($value, !empty($shape['timestampFormat']) ? $shape['timestampFormat'] : null);
                     break;
                 } catch (\Exception $e) {
                     // If the value cannot be parsed, then do not add it to the
@@ -92,10 +96,20 @@ abstract class AbstractRestParser extends \DeliciousBrains\WP_Offload_SES\Aws3\A
                     return;
                 }
             case 'string':
-                if ($shape['jsonvalue']) {
-                    $value = $this->parseJson(base64_decode($value));
+                try {
+                    if ($shape['jsonvalue']) {
+                        $value = $this->parseJson(base64_decode($value), $response);
+                    }
+                    // If value is not set, do not add to output structure.
+                    if (!isset($value)) {
+                        return;
+                    }
+                    break;
+                } catch (\Exception $e) {
+                    //If the value cannot be parsed, then do not add it to the
+                    //output structure.
+                    return;
                 }
-                break;
         }
         $result[$name] = $value;
     }

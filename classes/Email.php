@@ -21,7 +21,7 @@ class Email {
 	/**
 	 * The PHPMailer class included in WordPress core.
 	 *
-	 * @var \PHPMailer 5.2.10
+	 * @var \PHPMailer\PHPMailer\PHPMailer 6.1.6
 	 */
 	private $mail;
 
@@ -71,9 +71,7 @@ class Email {
 	 * @param int|null     $email_id    The ID of the email.
 	 */
 	public function __construct( $to, $subject, $message, $headers, $attachments, $email_id = null ) {
-		require_once ABSPATH . WPINC . '/class-phpmailer.php';
-
-		$this->mail     = new \PHPMailer( true );
+		$this->mail     = $this->get_PHPMailer();
 		$this->email_id = $email_id;
 
 		$this->to( $to );
@@ -81,6 +79,26 @@ class Email {
 		$this->body( $message );
 		$this->headers( $headers );
 		$this->attachments( $attachments );
+	}
+
+	/**
+	 * Gets the PHP Mailer instance.
+	 * 
+	 * Backwards-compatibility for pre-5.5 versions of WordPress.
+	 *
+	 * @return PHPMailer
+	 */
+	public function get_PHPMailer() {
+		if ( file_exists( ABSPATH . WPINC . '/PHPMailer/PHPMailer.php' ) ) {
+			require_once ABSPATH . WPINC . '/PHPMailer/PHPMailer.php';
+			require_once ABSPATH . WPINC . '/PHPMailer/Exception.php';
+			$PHPMailer = new \PHPMailer\PHPMailer\PHPMailer();
+		} else {
+			require_once ABSPATH . WPINC . '/class-phpmailer.php';
+			$PHPMailer = new \PHPMailer( true );
+		}
+
+		return $PHPMailer;
 	}
 
 	/**
@@ -468,12 +486,10 @@ class Email {
 		// Fires after PHPMailer is initalized.
 		do_action_ref_array( 'phpmailer_init', array( &$this->mail ) );
 
-		/**
-		 * This will need to be updated if WordPress updates to
-		 * PHPMailer 6.0 (or if we include our own version of it).
-		 */
 		try {
 			$this->mail->preSend();
+		} catch ( \PHPMailer\PHPMailer\Exception $exception ) {
+			return $exception;
 		} catch ( \phpmailerException $exception ) {
 			return $exception;
 		} catch ( \Exception $exception ) {

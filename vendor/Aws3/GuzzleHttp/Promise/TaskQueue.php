@@ -9,7 +9,7 @@ namespace DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise;
  * maintains a constant stack size. You can use the task queue asynchronously
  * by calling the `run()` function of the global task queue in an event loop.
  *
- *     GuzzleHttp\Promise\queue()->run();
+ *     GuzzleHttp\Promise\Utils::queue()->run();
  */
 class TaskQueue implements \DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise\TaskQueueInterface
 {
@@ -39,8 +39,8 @@ class TaskQueue implements \DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promi
     }
     public function run()
     {
-        /** @var callable $task */
         while ($task = array_shift($this->queue)) {
+            /** @var callable $task */
             $task();
         }
     }

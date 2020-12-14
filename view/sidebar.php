@@ -1,13 +1,13 @@
 <?php
 $url_args = array(
 	'utm_campaign' => 'WP+Offload+SES+Upgrade',
-	'utm_source'   => 'OSES+Free',
+	'utm_source'   => 'OSES+Lite',
 	'utm_medium'   => 'insideplugin',
 );
 ?>
 <div class="wposes-sidebar">
 
-	<a class="wposes-banner" href="<?php echo $this->dbrains_url( '/wp-offload-ses/upgrade/', $url_args ); ?>"></a>
+	<a class="wposes-banner" href="<?php echo $this->dbrains_url( '/wp-offload-ses/pricing/', $url_args ); ?>"></a>
 
 	<div class="wposes-upgrade-details">
 		<h1><?php _e( 'Upgrade', 'wp-offload-ses' ); ?></h1>
@@ -22,49 +22,40 @@ $url_args = array(
 			<li><?php _e( 'View a specific&nbsp;email', 'wp-offload-ses' ); ?></li>
 			<li><?php _e( 'Analyze engagement for a specific&nbsp;email', 'wp-offload-ses' ); ?></li>
 		</ul>
-
-		<p style="margin-bottom: 0;">
-			<a href="<?php echo $this->dbrains_url( '/wp-offload-ses/upgrade/', $url_args ); ?>"><?php _e( 'Visit deliciousbrains.com →', 'wp-offload-ses' ); ?></a>
-		</p>
 	</div>
 
-	<form method="post" action="https://deliciousbrains.com/email-subscribe/" target="_blank" class="subscribe block">
-		<h2><?php _e( 'Get 20% Off!', 'wp-offload-ses' ); ?></h2>
-
-		<?php $user = wp_get_current_user(); ?>
-
-		<p class="interesting">
-			<?php echo wptexturize( __( "Submit your name and email and we'll send you a discount for 20% off the upgrade.", 'wp-offload-ses' ) ); ?>
+	<div class="wposes-discount subscribe block">
+		<h2 style="text-align:center; font-weight: normal;"><?php _e( 'Get 20% off your first year of&nbsp;WP Offload SES!', 'wp-offload-ses' ); ?></h2>
+		<h3>
+			<a href="<?php echo $this->dbrains_url( 'wp-offload-ses/pricing/', $url_args ); ?>" class="wposes-discount-btn">
+				<?php _e( 'Get The Discount', 'wp-offload-ses' ); ?>
+			</a>
+		</h3>
+		<p class="wposes-discount-applied">
+			<?php _e( '* Discount applied automatically', 'wp-offload-ses' ); ?>
 		</p>
-
-		<div class="field">
-			<input type="email" name="email" value="<?php echo esc_attr( $user->user_email ); ?>" placeholder="<?php _e( 'Your Email', 'wp-offload-ses' ); ?>"/>
+		<div class="wposes-testimonial">
+			<h3 class="wposes-handle">
+				@markdavoli
+				<span class="wposes-rating">
+					<?php $sidebar_star = $this->plugins_url( 'assets/img/icon-sidebar-star.svg' ); ?>
+					<img src="<?php echo $sidebar_star; ?>" alt="*" />
+					<img src="<?php echo $sidebar_star; ?>" alt="*" />
+					<img src="<?php echo $sidebar_star; ?>" alt="*" />
+					<img src="<?php echo $sidebar_star; ?>" alt="*" />
+					<img src="<?php echo $sidebar_star; ?>" alt="*" />
+				</span>
+			</h3>
+			<p class="wposes-quote">"Great plugin for WordPress in combination with rock solid Amazon SES for sending email reliably."</p>
 		</div>
+	</div>
 
-		<div class="field">
-			<input type="text" name="first_name" value="<?php echo esc_attr( trim( $user->first_name ) ); ?>" placeholder="<?php _e( 'First Name', 'wp-offload-ses' ); ?>"/>
-		</div>
-
-		<div class="field">
-			<input type="text" name="last_name" value="<?php echo esc_attr( trim( $user->last_name ) ); ?>" placeholder="<?php _e( 'Last Name', 'wp-offload-ses' ); ?>"/>
-		</div>
-
-		<input type="hidden" name="campaigns[]" value="22" />
-		<input type="hidden" name="source" value="14" />
-
-		<div class="field subscribe-button">
-			<button type="submit" class="button"><?php _e( 'Send me the coupon', 'wp-offload-ses' ); ?></button>
-		</div>
-
-		<p class="promise"><?php _e( 'We promise we will not use your email for anything else and you can unsubscribe with 1-click anytime.', 'wp-offload-ses' ); ?></p>
-	</form>
-
-	<div class="block credits">
+	<div class="credits">
 		<h4><?php _e( 'Created & maintained by', 'wp-offload-ses' ); ?></h4>
 		<ul>
 			<li>
 				<a href="<?php echo $this->dbrains_url( '/', $url_args ); ?>">
-					<img src="//www.gravatar.com/avatar/e62fc2e9c8d9fc6edd4fea5339036a91?size=64" alt="" width="32" height="32">
+					<img src="<?php echo $this->plugins_url( 'assets/img/logo-dbi.svg' ); ?>" alt="Delicious Brains Inc." />
 					<span>Delicious Brains Inc.</span>
 				</a>
 			</li>

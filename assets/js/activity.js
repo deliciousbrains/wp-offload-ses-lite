@@ -218,7 +218,13 @@
 				// Handle the successful result
 				success: function( response ) {
 					// WP_List_Table::ajax_response() returns json
-					var parsed_response = $.parseJSON( response );
+					var parsed_response = {};
+
+					try {
+						parsed_response = JSON.parse( response );
+					} catch ( error ) {
+						console.log( error );
+					}
 
 					// Add the requested rows
 					if ( parsed_response.rows.length ) {

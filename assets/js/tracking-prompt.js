@@ -44,14 +44,14 @@
 	// Event Handlers
 	$( document ).ready( function() {
 
-		$( '#wposes-enable-open-tracking-wrap' ).click( function( e ) {
+		$( '#wposes-enable-open-tracking-wrap' ).on( 'click', function( e ) {
 			if ( $( this ).hasClass( 'on' ) && ! trackingPrompt.modalShown ) {
 				trackingPrompt.showPrompt();
 				trackingPrompt.modalShown = true;
 			}
 		} );
 
-		$( '#wposes-enable-click-tracking-wrap' ).click( function( e ) {
+		$( '#wposes-enable-click-tracking-wrap' ).on( 'click', function( e ) {
 			if ( $( this ).hasClass( 'on' ) && ! trackingPrompt.modalShown ) {
 				trackingPrompt.showPrompt();
 				trackingPrompt.modalShown = true;

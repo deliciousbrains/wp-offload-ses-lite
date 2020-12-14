@@ -19,6 +19,8 @@ class MultiRegionClient implements \DeliciousBrains\WP_Offload_SES\Aws3\Aws\AwsC
     private $config;
     /** @var HandlerList */
     private $handlerList;
+    /** @var array */
+    private $aliases;
     public static function getArguments()
     {
         $args = array_intersect_key(\DeliciousBrains\WP_Offload_SES\Aws3\Aws\ClientResolver::getDefaultArguments(), ['service' => true, 'region' => true]);

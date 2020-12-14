@@ -14,8 +14,11 @@ class EcsCredentialProvider
 {
     const SERVER_URI = 'http://169.254.170.2';
     const ENV_URI = "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI";
+    const ENV_TIMEOUT = 'AWS_METADATA_SERVICE_TIMEOUT';
     /** @var callable */
     private $client;
+    /** @var float|mixed */
+    private $timeout;
     /**
      *  The constructor accepts following options:
      *  - timeout: (optional) Connection timeout, in seconds, default 1.0
@@ -25,7 +28,7 @@ class EcsCredentialProvider
      */
     public function __construct(array $config = [])
     {
-        $this->timeout = isset($config['timeout']) ? $config['timeout'] : 1.0;
+        $this->timeout = (double) getenv(self::ENV_TIMEOUT) ?: (isset($config['timeout']) ? $config['timeout'] : 1.0);
         $this->client = isset($config['client']) ? $config['client'] : \DeliciousBrains\WP_Offload_SES\Aws3\Aws\default_http_handler();
     }
     /**
@@ -37,7 +40,7 @@ class EcsCredentialProvider
     {
         $client = $this->client;
         $request = new \DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Psr7\Request('GET', self::getEcsUri());
-        return $client($request, ['timeout' => $this->timeout])->then(function (\DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\ResponseInterface $response) {
+        return $client($request, ['timeout' => $this->timeout, 'proxy' => ''])->then(function (\DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\ResponseInterface $response) {
             $result = $this->decodeResult((string) $response->getBody());
             return new \DeliciousBrains\WP_Offload_SES\Aws3\Aws\Credentials\Credentials($result['AccessKeyId'], $result['SecretAccessKey'], $result['Token'], strtotime($result['Expiration']));
         })->otherwise(function ($reason) {

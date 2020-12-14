@@ -394,11 +394,11 @@
 			e.stopPropagation();
 		} );
 
-		$( 'body' ).click( function() {
+		$( 'body' ).on( 'click', function() {
 			$( '.helper-message' ).hide();
 		} );
 
-		$( '.helper-message' ).click( function( e ) {
+		$( '.helper-message' ).on( 'click', function( e ) {
 			e.stopPropagation();
 		} );
 
@@ -417,7 +417,7 @@
 			}
 		} );
 
-		$( '#wposes-enable-health-report-wrap' ).click( function( e ) {
+		$( '#wposes-enable-health-report-wrap' ).on( 'click', function( e ) {
 			if ( $( this ).hasClass( 'on' ) ) {
 				$( '#wposes-health-report-sub-settings' ).show();
 
@@ -431,7 +431,7 @@
 			}
 		} );
 
-		$( 'select[name="health-report-recipients"]' ).change( function( e ) {
+		$( 'select[name="health-report-recipients"]' ).on( 'change', function( e ) {
 			if ( 'custom' === $( this ).val() ) {
 				$( '.wposes-health-report-custom-recipients-container' ).show();
 				$( 'input[name="health-report-custom-recipients"]' ).attr( 'required', 'required' );

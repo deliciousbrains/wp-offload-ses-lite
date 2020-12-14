@@ -15,7 +15,6 @@ class AppendStream implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Mess
     private $seekable = true;
     private $current = 0;
     private $pos = 0;
-    private $detached = false;
     /**
      * @param StreamInterface[] $streams Streams to decorate. Each stream must
      *                                   be readable.
@@ -55,7 +54,7 @@ class AppendStream implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Mess
     }
     public function getContents()
     {
-        return copy_to_string($this);
+        return \DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Psr7\Utils::copyToString($this);
     }
     /**
      * Closes each attached stream.
@@ -65,20 +64,28 @@ class AppendStream implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Mess
     public function close()
     {
         $this->pos = $this->current = 0;
+        $this->seekable = true;
         foreach ($this->streams as $stream) {
             $stream->close();
         }
         $this->streams = [];
     }
     /**
-     * Detaches each attached stream
+     * Detaches each attached stream.
+     *
+     * Returns null as it's not clear which underlying stream resource to return.
      *
      * {@inheritdoc}
      */
     public function detach()
     {
-        $this->close();
-        $this->detached = true;
+        $this->pos = $this->current = 0;
+        $this->seekable = true;
+        foreach ($this->streams as $stream) {
+            $stream->detach();
+        }
+        $this->streams = [];
+        return null;
     }
     public function tell()
     {

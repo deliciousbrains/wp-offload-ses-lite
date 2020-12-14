@@ -69,13 +69,21 @@ class SES_API {
 	public static function get_regions() {
 		$regions = array(
 			'us-east-1'      => __( 'US East (N. Virginia)', 'wp-offload-ses' ),
+			'us-east-2'      => __( 'US East (Ohio)', 'wp-offload-ses' ),
+			'us-west-1'      => __( 'US West (N. California)', 'wp-offload-ses' ),
 			'us-west-2'      => __( 'US West (Oregon)', 'wp-offload-ses' ),
 			'ca-central-1'   => __( 'Canada (Central)', 'wp-offload-ses' ),
-			'eu-west-1'      => __( 'EU (Ireland)', 'wp-offload-ses' ),
-			'eu-west-2'      => __( 'EU (London)', 'wp-offload-ses' ),
-			'eu-central-1'   => __( 'EU (Frankfurt)', 'wp-offload-ses' ),
+			'eu-west-1'      => __( 'Europe (Ireland)', 'wp-offload-ses' ),
+			'eu-west-2'      => __( 'Europe (London)', 'wp-offload-ses' ),
+			'eu-west-3'      => __( 'Europe (Paris)', 'wp-offload-ses' ),
+			'eu-central-1'   => __( 'Europe (Frankfurt)', 'wp-offload-ses' ),
+			'eu-north-1'     => __( 'Europe (Stockholm)', 'wp-offload-ses' ),
 			'ap-south-1'     => __( 'Asia Pacific (Mumbai)', 'wp-offload-ses' ),
+			'ap-northeast-2' => __( 'Asia Pacific (Seoul)', 'wp-offload-ses' ),
+			'ap-southeast-1' => __( 'Asia Pacific (Singapore)', 'wp-offload-ses' ),
 			'ap-southeast-2' => __( 'Asia Pacific (Sydney)', 'wp-offload-ses' ),
+			'ap-northeast-1' => __( 'Asia Pacific (Tokyo)', 'wp-offload-ses' ),
+			'me-south-1'     => __( 'Middle East (Bahrain)', 'wp-offload-ses' ),
 			'sa-east-1'      => __( 'South America (São Paulo)', 'wp-offload-ses' ),
 		);
 

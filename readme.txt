@@ -2,9 +2,9 @@
 Contributors: deliciousbrains, bradt, SylvainDeaure
 Tags: amazon ses,smtp,email delivery,gmail smtp,newsletter
 Requires at least: 5.0
-Tested up to: 5.4
+Tested up to: 5.6
 Requires PHP: 5.5+
-Stable tag: 1.4.2
+Stable tag: 1.4.4
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
 
@@ -179,6 +179,16 @@ Please double check the credentials match up with the credentials you received w
 4. Activity tab
 
 == Changelog ==
+
+= 1.4.4 - 2020-12-14 =
+* New: WordPress 5.6 and PHP 8 compatible
+* New: Added North California, Paris, Stockholm, and Bahrain as available regions
+
+= 1.4.3 - 2020-08-05 =
+* New: Added Ohio, Seoul, Singapore, and Tokyo as available regions
+* New: Compatibility with WordPress 5.5
+* Bug fix: Queue not running when PHP memory limit is over 1G
+* Bug fix: Fatal error when deleting a job that no longer exists
 
 = 1.4.2 - 2020-06-19 =
 * Improvement: Health Report no longer includes the Health Report in email summaries

@@ -72,7 +72,7 @@
 		}
 
 		// Save access keys and region
-		$( '#tab-setup-access-keys .wposes-wizard-next-btn' ).click( function( e ) {
+		$( '#tab-setup-access-keys .wposes-wizard-next-btn' ).on( 'click', function( e ) {
 			e.preventDefault();
 			var form_data = $( '#wposes-setup-region' ).serialize();
 			var region_text = $( 'select[name="region"] option:selected' ).text();
@@ -106,7 +106,7 @@
 		} );
 
 		// Listen for sender type toggles
-		$( '.wposes-sender-type-toggle input[type="radio"]' ).change( function() {
+		$( '.wposes-sender-type-toggle input[type="radio"]' ).on( 'change', function() {
 			if ( 'wposes-email' === this.id ) {
 				$( '.wposes-show-domain' ).hide();
 				$( '.wposes-show-email' ).show();
@@ -117,7 +117,7 @@
 		} );
 
 		// Verify the senders with Amazon
-		$( '#tab-verify-sender .wposes-wizard-next-btn' ).click( function( e ) {
+		$( '#tab-verify-sender .wposes-wizard-next-btn' ).on( 'click', function( e ) {
 			e.preventDefault();
 
 			var sender_type = $( 'input[name="sender-type"]:checked' ).val();
@@ -138,7 +138,7 @@
 		} );
 
 		// Save and complete setup
-		$( '#tab-configure-wp-offload-ses .wposes-wizard-next-btn' ).click( function( e ) {
+		$( '#tab-configure-wp-offload-ses .wposes-wizard-next-btn' ).on( 'click', function( e ) {
 			e.preventDefault();
 
 			var notification_email = $( 'input[name="default-email"]' );

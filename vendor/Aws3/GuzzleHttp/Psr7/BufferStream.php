@@ -43,6 +43,7 @@ class BufferStream implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Mess
     public function detach()
     {
         $this->close();
+        return null;
     }
     public function getSize()
     {

@@ -25,9 +25,12 @@ class Response implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\
      */
     public function __construct($status = 200, array $headers = [], $body = null, $version = '1.1', $reason = null)
     {
-        $this->statusCode = (int) $status;
+        $this->assertStatusCodeIsInteger($status);
+        $status = (int) $status;
+        $this->assertStatusCodeRange($status);
+        $this->statusCode = $status;
         if ($body !== '' && $body !== null) {
-            $this->stream = stream_for($body);
+            $this->stream = \DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Psr7\Utils::streamFor($body);
         }
         $this->setHeaders($headers);
         if ($reason == '' && isset(self::$phrases[$this->statusCode])) {
@@ -47,12 +50,27 @@ class Response implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\
     }
     public function withStatus($code, $reasonPhrase = '')
     {
+        $this->assertStatusCodeIsInteger($code);
+        $code = (int) $code;
+        $this->assertStatusCodeRange($code);
         $new = clone $this;
-        $new->statusCode = (int) $code;
+        $new->statusCode = $code;
         if ($reasonPhrase == '' && isset(self::$phrases[$new->statusCode])) {
             $reasonPhrase = self::$phrases[$new->statusCode];
         }
-        $new->reasonPhrase = $reasonPhrase;
+        $new->reasonPhrase = (string) $reasonPhrase;
         return $new;
+    }
+    private function assertStatusCodeIsInteger($statusCode)
+    {
+        if (filter_var($statusCode, FILTER_VALIDATE_INT) === false) {
+            throw new \InvalidArgumentException('Status code must be an integer value.');
+        }
+    }
+    private function assertStatusCodeRange($statusCode)
+    {
+        if ($statusCode < 100 || $statusCode >= 600) {
+            throw new \InvalidArgumentException('Status code must be an integer value between 1xx and 5xx.');
+        }
     }
 }

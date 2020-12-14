@@ -31,8 +31,9 @@ class Error extends \WP_Error {
 	// License related errors.
 	public static $licence_error = 301;
 
-	// Cron related error.
+	// Cron related errors.
 	public static $send_cron_email = 401;
+	public static $job_retrieval_failure = 402;
 
 	/**
 	 * Error constructor.

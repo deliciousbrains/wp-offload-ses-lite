@@ -28,6 +28,7 @@ class FnStream implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\
     }
     /**
      * Lazily determine which methods are not implemented.
+     *
      * @throws \BadMethodCallException
      */
     public function __get($name)
@@ -42,6 +43,14 @@ class FnStream implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\
         if (isset($this->_fn_close)) {
             call_user_func($this->_fn_close);
         }
+    }
+    /**
+     * An unserialize would allow the __destruct to run when the unserialized value goes out of scope.
+     * @throws \LogicException
+     */
+    public function __wakeup()
+    {
+        throw new \LogicException('FnStream should never be unserialized');
     }
     /**
      * Adds custom functionality to an underlying stream by intercepting

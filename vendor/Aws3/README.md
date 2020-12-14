@@ -13,51 +13,14 @@ using services like Amazon S3, Amazon DynamoDB, Amazon Glacier, etc. You can
 get started in minutes by [installing the SDK through Composer][docs-installation]
 or by downloading a single zip or phar file from our [latest release][latest-release].
 
-## Resources
-
-* [User Guide][docs-guide] – For both getting started and in-depth SDK usage information
-* [API Docs][docs-api] – For details about operations, parameters, and responses
-* [Blog][sdk-blog] – Tips & tricks, articles, and announcements
-* [Sample Project][sdk-sample] - A quick, sample project to help get you started
-* [Forum][sdk-forum] – Ask questions, get help, and give feedback
-* [Issues][sdk-issues] – Report issues, submit pull requests, and get involved
-  (see [Apache 2.0 License][sdk-license])
-* [@awsforphp][sdk-twitter] – Follow us on Twitter
-
-## Getting Help
-
-Please use these community resources for getting help. We use the GitHub issues for tracking bugs and feature requests and have limited bandwidth to address them.
-
-* Ask a question on [StackOverflow](https://stackoverflow.com/) and tag it with [`aws-php-sdk`](http://stackoverflow.com/questions/tagged/aws-php-sdk)
-* Come join the AWS SDK for PHP [gitter](https://gitter.im/aws/aws-sdk-php)
-* Open a support ticket with [AWS Support](https://console.aws.amazon.com/support/home/)
-* If it turns out that you may have found a bug, please [open an issue](https://github.com/aws/aws-sdk-php/issues/new)
-
-## Opening Issues
-
-If you encounter a bug with `aws-sdk-php` we would like to hear about it. Search the existing issues and try to make sure your problem doesn’t already exist before opening a new issue. It’s helpful if you include the version of `aws-sdk-php`, PHP version and OS you’re using. Please include a stack trace and reduced repro case when appropriate, too.
-
-The GitHub issues are intended for bug reports and feature requests. For help and questions with using `aws-sdk-php` please make use of the resources listed in the Getting Help section. There are limited resources available for handling issues and by keeping the list of open issues lean we can respond in a timely manner.
-
-## Features
-
-* Provides easy-to-use HTTP clients for all supported AWS
-  [services][docs-services], [regions][docs-rande], and authentication
-  protocols.
-* Is built on [Guzzle][guzzle-docs], and utilizes many of its features,
-  including persistent connections, asynchronous requests, middlewares, etc.
-* Provides convenience features including easy result pagination via
-  [Paginators][docs-paginators], [Waiters][docs-waiters], and simple
-  [Result objects][docs-results].
-* Provides a [multipart uploader tool][docs-s3-multipart] for Amazon S3 and
-  Amazon Glacier that can be paused and resumed.
-* Provides an [Amazon S3 Stream Wrapper][docs-streamwrapper], so that you can
-  use PHP's native file handling functions to interact with your S3 buckets and
-  objects like a local filesystem.
-* Provides the [Amazon DynamoDB Session Handler][docs-ddbsh] for easily scaling
-  sessions on a fast, NoSQL database.
-* Automatically uses [IAM Instance Profile Credentials][aws-iam-credentials] on
-  configured Amazon EC2 instances.
+Jump To:
+* [Getting Started](#Getting-Started)
+* [Quick Examples](#Quick-Examples)
+* [Getting Help](#Getting-Help)
+* [Features](#Features)
+* [Contributing](#Contributing)
+* [More Resources](#Resources)
+* [Related AWS Projects](#Related-AWS-Projects)
 
 ## Getting Started
 
@@ -69,7 +32,11 @@ The GitHub issues are intended for bug reports and feature requests. For help an
    7.16.2+ compiled with a TLS backend (e.g., NSS or OpenSSL).
 1. **Install the SDK** – Using [Composer] is the recommended way to install the
    AWS SDK for PHP. The SDK is available via [Packagist] under the
-   [`aws/aws-sdk-php`][install-packagist] package. Please see the
+   [`aws/aws-sdk-php`][install-packagist] package. If Composer is installed globally on your system, you can run the following in the base directory of your project to add the SDK as a dependency:
+   ```
+   composer require aws/aws-sdk-php
+   ```
+   Please see the
    [Installation section of the User Guide][docs-installation] for more
    detailed information about installing the SDK through Composer and other
    means.
@@ -113,17 +80,73 @@ try {
 }
 ```
 
-### Related AWS Projects
+## Getting Help
+
+Please use these community resources for getting help. We use the GitHub issues for tracking bugs and feature requests and have limited bandwidth to address them.
+
+* Ask a question on [StackOverflow](https://stackoverflow.com/) and tag it with [`aws-php-sdk`](http://stackoverflow.com/questions/tagged/aws-php-sdk)
+* Come join the AWS SDK for PHP [gitter](https://gitter.im/aws/aws-sdk-php)
+* Open a support ticket with [AWS Support](https://console.aws.amazon.com/support/home/)
+* If it turns out that you may have found a bug, please [open an issue](https://github.com/aws/aws-sdk-php/issues/new/choose)
+
+This SDK implements AWS service APIs. For general issues regarding the AWS services and their limitations, you may also take a look at the [Amazon Web Services Discussion Forums](https://forums.aws.amazon.com/).
+
+
+### Opening Issues
+
+If you encounter a bug with `aws-sdk-php` we would like to hear about it. Search the existing issues and try to make sure your problem doesn’t already exist before opening a new issue. It’s helpful if you include the version of `aws-sdk-php`, PHP version and OS you’re using. Please include a stack trace and a simple workflow to reproduce the case when appropriate, too.
+
+The GitHub issues are intended for bug reports and feature requests. For help and questions with using `aws-sdk-php` please make use of the resources listed in the Getting Help section. There are limited resources available for handling issues and by keeping the list of open issues lean we can respond in a timely manner.
+
+## Features
+
+* Provides easy-to-use HTTP clients for all supported AWS
+  [services][docs-services], [regions][docs-rande], and authentication
+  protocols.
+* Is built on [Guzzle][guzzle-docs], and utilizes many of its features,
+  including persistent connections, asynchronous requests, middlewares, etc.
+* Provides convenience features including easy result pagination via
+  [Paginators][docs-paginators], [Waiters][docs-waiters], and simple
+  [Result objects][docs-results].
+* Provides a [multipart uploader tool][docs-s3-multipart] for Amazon S3 and
+  Amazon Glacier that can be paused and resumed.
+* Provides an [Amazon S3 Stream Wrapper][docs-streamwrapper], so that you can
+  use PHP's native file handling functions to interact with your S3 buckets and
+  objects like a local filesystem.
+* Provides an [Amazon S3 Encryption Client][docs-s3-encryption] for creating and interacting with encrypted objects in your S3 buckets.
+* Provides the [Amazon DynamoDB Session Handler][docs-ddbsh] for easily scaling
+  sessions on a fast, NoSQL database.
+* Automatically uses [IAM Instance Profile Credentials][aws-iam-credentials] on
+  configured Amazon EC2 instances.
+
+## Contributing
+
+We work hard to provide a high-quality and useful SDK for our AWS services, and we greatly value feedback and contributions from our community. Please review our [contributing guidelines](./CONTRIBUTING.md) before submitting any issues or pull requests to ensure we have all the necessary information to effectively respond to your bug report or contribution.
+
+
+## Resources
+
+* [User Guide][docs-guide] – For both getting started and in-depth SDK usage information
+* [API Docs][docs-api] – For details about operations, parameters, and responses
+* [Blog][sdk-blog] – Tips & tricks, articles, and announcements
+* [Sample Project][sdk-sample] - A quick, sample project to help get you started
+* [Forum][sdk-forum] – Ask questions, get help, and give feedback
+* [Issues][sdk-issues] – Report issues, submit pull requests, and get involved
+  (see [Apache 2.0 License][sdk-license])
+* [@awsforphp][sdk-twitter] – Follow us on Twitter
+
+## Related AWS Projects
 
 * [AWS Service Provider for Laravel][mod-laravel]
 * [AWS SDK ZF2 Module][mod-zf2]
 * [AWS Service Provider for Silex][mod-silex]
 * [AWS SDK Bundle for Symfony][mod-symfony]
 * [Amazon SNS Message Validator for PHP][sns-validator] - SNS validator without requiring SDK
-* [Guzzle Version 6][guzzle-docs] – PHP HTTP client and framework
-* For Version 2 of the SDK:
+* [Guzzle Version 7][guzzle-docs] – PHP HTTP client and framework
+* For Version 2 of the SDK (deprecated):
   * [User Guide][docs-guide-v2]
   * [API Docs][docs-api-v2]
+* [Serverless LAMP stack guide][serverless-LAMP-stack-guide] - A guide to building and deploying a serverless PHP application
 * Other [AWS SDKs & Tools][aws-tools] (e.g., js, cli, ruby, python, java, etc.)
 
 [sdk-website]: http://aws.amazon.com/sdkforphp
@@ -138,26 +161,27 @@ try {
 [latest-release]: https://github.com/aws/aws-sdk-php/releases
 
 [docs-api]: http://docs.aws.amazon.com/aws-sdk-php/v3/api/index.html
-[docs-guide]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/index.html
+[docs-guide]: http://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/welcome.html
 [docs-api-v2]: http://docs.aws.amazon.com/aws-sdk-php/v2/api/index.html
 [docs-guide-v2]: http://docs.aws.amazon.com/aws-sdk-php/v2/guide/index.html
 [docs-contribution]: https://github.com/aws/aws-sdk-php/blob/master/CONTRIBUTING.md
-[docs-migration]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/migration.html
+[docs-migration]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_migration.html
 [docs-signup]: http://aws.amazon.com/developers/access-keys/
-[docs-requirements]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/getting-started/requirements.html
-[docs-installation]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/getting-started/installation.html
-[docs-quickstart]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/#getting-started
-[docs-paginators]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/paginators.html
-[docs-waiters]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/guide/waiters.html
-[docs-results]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/getting-started/basic-usage.html#result-objects
-[docs-exceptions]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/quick-start.html#error-handling
-[docs-wire-logging]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/faq.html#how-can-i-see-what-data-is-sent-over-the-wire
-[docs-ddbsh]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/service/dynamodb-session-handler.html
+[docs-requirements]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_requirements.html
+[docs-installation]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_installation.html
+[docs-quickstart]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/welcome.html#getting-started
+[docs-paginators]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/guide_paginators.html
+[docs-waiters]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/guide_waiters.html
+[docs-results]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_basic-usage.html#result-objects
+[docs-exceptions]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_basic-usage.html#handling-errors
+[docs-wire-logging]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/faq.html#how-can-i-see-what-data-is-sent-over-the-wire
+[docs-ddbsh]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/service_dynamodb-session-handler.html
 [docs-services]: https://aws.amazon.com/products/
 [docs-rande]: http://docs.aws.amazon.com/general/latest/gr/rande.html
-[docs-streamwrapper]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/service/s3-stream-wrapper.html
-[docs-s3-transfer]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/service/s3-transfer.html
-[docs-s3-multipart]: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/service/s3-multipart-upload.html
+[docs-streamwrapper]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/s3-stream-wrapper.html
+[docs-s3-transfer]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/s3-transfer.html
+[docs-s3-multipart]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/s3-multipart-upload.html
+[docs-s3-encryption]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/s3-encryption-client.html
 
 [aws]: http://aws.amazon.com
 [aws-iam-credentials]: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/UsingIAM.html#UsingIAMrolesWithAmazonEC2Instances
@@ -175,3 +199,4 @@ try {
 [mod-silex]: https://github.com/aws/aws-sdk-php-silex
 [mod-symfony]: https://github.com/aws/aws-sdk-php-symfony
 [sns-validator]: https://github.com/aws/aws-php-sns-message-validator
+[serverless-LAMP-stack-guide]: https://github.com/aws-samples/php-examples-for-aws-lambda

@@ -83,7 +83,13 @@
 				// Handle the successful result
 				success: function( response ) {
 					// WP_List_Table::ajax_response() returns json
-					var parsed_response = $.parseJSON( response );
+					var parsed_response = {};
+
+					try {
+						parsed_response = JSON.parse( response );
+					} catch ( error ) {
+						console.log( error );
+					}
 
 					// Add the requested rows
 					if ( parsed_response.rows.length ) {
@@ -354,19 +360,19 @@
 			}
 
 			// Listen for prompt response
-			$( '#wposes-verify-sender-btn' ).click( function( event ) {
+			$( '#wposes-verify-sender-btn' ).on( 'click', function( event ) {
 				event.preventDefault();
 				wposes.Tools.VerifySender.handlePromptResponse();
 			} );
 
 			// Listen for delete sender confirmation
-			$( '#wposes-delete-sender-btn' ).click( function( event ) {
+			$( '#wposes-delete-sender-btn' ).on( 'click', function( event ) {
 				event.preventDefault();
 				wposes.Tools.VerifySender.deleteSender();
 			} );
 
 			// Listen for sender type toggles
-			$( '#wposes-verified-sender-form input[type="radio"]' ).change( function() {
+			$( '#wposes-verified-sender-form input[type="radio"]' ).on( 'change', function() {
 				if ( 'wposes-email' === this.id ) {
 					$( '.wposes-show-domain, .wposes-verification-errors' ).hide();
 					$( '.wposes-show-email' ).show();

@@ -32,5 +32,5 @@ interface SignatureInterface
      *
      * @return RequestInterface
      */
-    public function presign(\DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request, \DeliciousBrains\WP_Offload_SES\Aws3\Aws\Credentials\CredentialsInterface $credentials, $expires);
+    public function presign(\DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request, \DeliciousBrains\WP_Offload_SES\Aws3\Aws\Credentials\CredentialsInterface $credentials, $expires, array $options = []);
 }

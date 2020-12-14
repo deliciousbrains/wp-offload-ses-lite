@@ -93,6 +93,8 @@ use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Credentials\CredentialsInterface;
  * @method \GuzzleHttp\Promise\Promise listTemplatesAsync(array $args = [])
  * @method \Aws\Result listVerifiedEmailAddresses(array $args = [])
  * @method \GuzzleHttp\Promise\Promise listVerifiedEmailAddressesAsync(array $args = [])
+ * @method \Aws\Result putConfigurationSetDeliveryOptions(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise putConfigurationSetDeliveryOptionsAsync(array $args = [])
  * @method \Aws\Result putIdentityPolicy(array $args = [])
  * @method \GuzzleHttp\Promise\Promise putIdentityPolicyAsync(array $args = [])
  * @method \Aws\Result reorderReceiptRuleSet(array $args = [])

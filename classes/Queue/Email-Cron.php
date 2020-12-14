@@ -65,4 +65,22 @@ class Email_Cron extends Cron {
 		$this->unlock_worker();
 	}
 
+	/**
+	 * Get PHP memory limit.
+	 *
+	 * @return int
+	 */
+	protected function get_memory_limit() {
+		if ( function_exists( 'ini_get' ) ) {
+			$memory_limit = ini_get( 'memory_limit' );
+		} else {
+			$memory_limit = '256M';
+		}
+		if ( ! $memory_limit || -1 == $memory_limit ) {
+			// Unlimited, set to 1GB
+			$memory_limit = '1000M';
+		}
+
+		return wp_convert_hr_to_bytes( $memory_limit );
+	}
 }

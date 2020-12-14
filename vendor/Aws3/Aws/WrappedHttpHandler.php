@@ -64,7 +64,7 @@ class WrappedHttpHandler
         $fn = $this->httpHandler;
         $options = $command['@http'] ?: [];
         $stats = [];
-        if ($this->collectStats) {
+        if ($this->collectStats || !empty($options['collect_stats'])) {
             $options['http_stats_receiver'] = static function (array $transferStats) use(&$stats) {
                 $stats = $transferStats;
             };
@@ -124,7 +124,7 @@ class WrappedHttpHandler
             $parts = ['response' => null];
         } else {
             try {
-                $parts = call_user_func($this->errorParser, $err['response']);
+                $parts = call_user_func($this->errorParser, $err['response'], $command);
                 $serviceError .= " {$parts['code']} ({$parts['type']}): " . "{$parts['message']} - " . $err['response']->getBody();
             } catch (ParserException $e) {
                 $parts = [];

@@ -27,6 +27,7 @@ class Request implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\R
      */
     public function __construct($method, $uri, array $headers = [], $body = null, $version = '1.1')
     {
+        $this->assertMethod($method);
         if (!$uri instanceof UriInterface) {
             $uri = new \DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Psr7\Uri($uri);
         }
@@ -34,11 +35,11 @@ class Request implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\R
         $this->uri = $uri;
         $this->setHeaders($headers);
         $this->protocol = $version;
-        if (!$this->hasHeader('Host')) {
+        if (!isset($this->headerNames['host'])) {
             $this->updateHostFromUri();
         }
         if ($body !== '' && $body !== null) {
-            $this->stream = stream_for($body);
+            $this->stream = \DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Psr7\Utils::streamFor($body);
         }
     }
     public function getRequestTarget()
@@ -70,6 +71,7 @@ class Request implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\R
     }
     public function withMethod($method)
     {
+        $this->assertMethod($method);
         $new = clone $this;
         $new->method = strtoupper($method);
         return $new;
@@ -85,7 +87,7 @@ class Request implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\R
         }
         $new = clone $this;
         $new->uri = $uri;
-        if (!$preserveHost) {
+        if (!$preserveHost || !isset($this->headerNames['host'])) {
             $new->updateHostFromUri();
         }
         return $new;
@@ -108,5 +110,11 @@ class Request implements \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\R
         // Ensure Host is the first header.
         // See: http://tools.ietf.org/html/rfc7230#section-5.4
         $this->headers = [$header => [$host]] + $this->headers;
+    }
+    private function assertMethod($method)
+    {
+        if (!is_string($method) || $method === '') {
+            throw new \InvalidArgumentException('Method must be a non-empty string.');
+        }
     }
 }

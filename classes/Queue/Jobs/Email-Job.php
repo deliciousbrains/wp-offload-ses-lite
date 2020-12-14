@@ -62,11 +62,11 @@ class Email_Job extends Job {
 		$email       = new Email( $to, $subject, $message, $headers, $attachments, $this->email_id );
 		$raw         = $email->prepare();
 
-		/**
-		 * This will need to be updated if WordPress updates to
-		 * PHPMailer 6.0 (or if we include our own version of it).
-		 */
-		if ( $raw instanceof \phpmailerException || $raw instanceof \Exception ) {
+		if (
+			$raw instanceof \phpmailerException ||
+			$raw instanceof \Exception ||
+			$raw instanceof \PHPMailer\PHPMailer\Exception
+		) {
 			throw $raw;
 		}
 

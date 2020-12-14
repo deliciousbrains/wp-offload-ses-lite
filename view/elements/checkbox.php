@@ -4,6 +4,7 @@ $class    = ( isset( $class ) ) ? 'class="' . $class . '"' : '';
 $disabled = ( isset( $disabled ) && $disabled ) ? ' disabled' : '';
 $values   = ( isset( $values ) && is_array( $values ) && 2 === count( $values ) ) ? $values : array( 0, 1 );
 $prefix   = $this->get_plugin_prefix_slug();
+$value    = ( ! empty( $value ) ) ? $value : $values[0]; // Default to "Off" for empty/falsy type values.
 ?>
 <div id="<?php echo $prefix . '-' . $key; ?>-wrap" data-checkbox="<?php echo $prefix . '-' . $key; ?>" class="wposes-switch<?php echo $disabled . ( $value == $values[1] ? ' on' : '' ); ?>">
 	<span class="off <?php echo $value == $values[0] ? 'checked' : ''; ?>">OFF</span>
