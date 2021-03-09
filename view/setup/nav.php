@@ -7,7 +7,7 @@
 	</div>
 	<div class="wposes-wizard-control-row wposes-wizard-control-row-secondary">
 		<?php if ( 0 !== $step  ): ?>
-			<div class="wposes-wizard-step wp-ui-text-icon"><?php printf( __( 'Step %s of %s', 'wp-offload-ses' ), $step, '6' ); ?></div>
+			<div class="wposes-wizard-step howto"><?php printf( __( 'Step %s of %s', 'wp-offload-ses' ), $step, '6' ); ?></div>
 		<?php endif; ?>
 
 		<a class="wposes-skip-to-settings" href="<?php echo $this->get_plugin_page_url( array( 'skip-setup' => true, 'hash' => 'settings' ), 'self' ); ?>"><?php _e( 'Skip to Settings', 'wp-offload-ses' ); ?></a>
