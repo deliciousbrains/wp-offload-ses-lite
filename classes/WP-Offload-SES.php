@@ -1278,8 +1278,9 @@ class WP_Offload_SES extends Plugin_Base {
 	public function mail_handler( $to, $subject, $message, $headers, $attachments ) {
 		$content_type = apply_filters( 'wp_mail_content_type', 'text/plain' );
 
-		// Add Content-Type header now in case filter is removed by time queue is ran.
-		if ( 'text/html' === $content_type ) {
+		// Add Content-Type header now in case filter is removed by time queue is ran,
+		// but only if `WP Better Emails` plugin isn't installed.
+		if ( 'text/html' === $content_type && ! class_exists( 'WP_Better_Emails' ) ) {
 			if ( is_array( $headers ) ) {
 				$headers[] = 'Content-Type: text/html;';
 			} else {
