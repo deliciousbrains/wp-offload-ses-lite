@@ -179,7 +179,8 @@ class Email_Log {
 	 */
 	private function schedule_cron() {
 		if ( ! wp_next_scheduled( 'deliciousbrains_wp_offload_ses_log_cleanup' ) ) {
-			wp_schedule_event( strtotime( '+1 day' ), 'daily', 'deliciousbrains_wp_offload_ses_log_cleanup' );
+            $schedule = apply_filters( 'deliciousbrains_wp_offload_ses_log_cleanup_run_schedule', 'daily' );
+			wp_schedule_event( strtotime( '+1 day' ), $schedule, 'deliciousbrains_wp_offload_ses_log_cleanup' );
 		}
 	}
 
