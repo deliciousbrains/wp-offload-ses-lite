@@ -11,13 +11,14 @@ class QueueManager
     /**
      * @var array
      */
-    protected static $instances = array();
+    protected static $instances = [];
     /**
      * Resolve a Queue instance for required connection.
      *
      * @param string $connection
      *
      * @return Queue
+     * @throws \Exception
      */
     public static function resolve($connection)
     {
@@ -38,9 +39,9 @@ class QueueManager
     {
         $connections = static::connections();
         if (empty($connections[$connection])) {
-            throw new \DeliciousBrains\WP_Offload_SES\WP_Queue\Exceptions\ConnectionNotFoundException();
+            throw new ConnectionNotFoundException();
         }
-        static::$instances[$connection] = new \DeliciousBrains\WP_Offload_SES\WP_Queue\Queue($connections[$connection]);
+        static::$instances[$connection] = new Queue($connections[$connection]);
         return static::$instances[$connection];
     }
     /**
@@ -50,7 +51,7 @@ class QueueManager
      */
     protected static function connections()
     {
-        $connections = array('database' => new \DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\DatabaseConnection($GLOBALS['wpdb']), 'redis' => new \DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\RedisConnection(), 'sync' => new \DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\SyncConnection());
+        $connections = ['database' => new DatabaseConnection($GLOBALS['wpdb']), 'redis' => new RedisConnection(), 'sync' => new SyncConnection()];
         return apply_filters('wp_queue_connections', $connections);
     }
 }

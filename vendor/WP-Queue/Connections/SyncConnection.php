@@ -4,7 +4,7 @@ namespace DeliciousBrains\WP_Offload_SES\WP_Queue\Connections;
 
 use Exception;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Job;
-class SyncConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\ConnectionInterface
+class SyncConnection implements ConnectionInterface
 {
     /**
      * Execute the job immediately without pushing to the queue.
@@ -14,10 +14,10 @@ class SyncConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connect
      *
      * @return bool|int
      */
-    public function push(\DeliciousBrains\WP_Offload_SES\WP_Queue\Job $job, $delay = 0)
+    public function push(Job $job, $delay = 0)
     {
         $job->handle();
-        return true;
+        return \true;
     }
     /**
      * Retrieve a job from the queue.
@@ -26,7 +26,7 @@ class SyncConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connect
      */
     public function pop()
     {
-        return false;
+        return \false;
     }
     /**
      * Delete a job from the queue.
@@ -37,7 +37,7 @@ class SyncConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connect
      */
     public function delete($job)
     {
-        return false;
+        return \false;
     }
     /**
      * Release a job back onto the queue.
@@ -48,7 +48,7 @@ class SyncConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connect
      */
     public function release($job)
     {
-        return false;
+        return \false;
     }
     /**
      * Push a job onto the failure queue.
@@ -58,9 +58,9 @@ class SyncConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connect
      *
      * @return bool
      */
-    public function failure($job, \Exception $exception)
+    public function failure($job, Exception $exception)
     {
-        return false;
+        return \false;
     }
     /**
      * Get total jobs in the queue.

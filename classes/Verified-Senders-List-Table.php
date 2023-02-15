@@ -8,8 +8,6 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
-use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
-
 // TODO: we may want to include our own version of this class.
 if ( ! class_exists( '\WP_List_Table' ) ) {
 	require_once( ABSPATH . '/wp-admin/includes/wp-list-table.php' );
@@ -36,7 +34,7 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 		/**
 		 * Construct the WP_List_Table parent class.
 		 *
-		 * @param array
+		 * @param array $args
 		 */
 		parent::__construct(
 			array(
@@ -84,33 +82,25 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 	 *
 	 * @return array
 	 */
-	public function get_data() {
+	public function get_data(): array {
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
 		$data       = array();
-		$identities = $wp_offload_ses->get_ses_api()->get_identities();
+		$identities = $wp_offload_ses->get_verified_senders();
 
 		if ( is_wp_error( $identities ) ) {
 			return $data;
 		}
 
-		$statuses = $wp_offload_ses->get_ses_api()->get_identity_verification_attributes( $identities );
-
-		if ( is_wp_error( $statuses ) ) {
-			return $data;
-		}
-
 		foreach ( $identities as $identity ) {
-			$status = $statuses[ $identity ];
-
 			array_push(
 				$data,
 				array(
-					'sender'  => $identity,
-					'type'    => isset( $status['VerificationToken'] ) ? 'Domain' : 'Email',
-					'status'  => '<span class="sender-' . $status['VerificationStatus'] . '">' . $status['VerificationStatus'] . '</span>',
-					'actions' => $this->get_sender_actions( $identity, $status ),
+					'sender'  => $identity['IdentityName'],
+					'type'    => 'EMAIL_ADDRESS' === $identity['IdentityType'] ? 'Email' : 'Domain',
+					'status'  => '<span class="sender-' . $identity['VerificationStatus'] . '">' . $identity['VerificationStatus'] . '</span>',
+					'actions' => $this->get_sender_actions( $identity ),
 				)
 			);
 		}
@@ -121,19 +111,18 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 	/**
 	 * Get the available actions for the provided sender.
 	 *
-	 * @param string $identity The identity to get actions for.
-	 * @param array  $status   The status of the identity.
+	 * @param array $identity The identity to get actions for.
 	 *
 	 * @return string
 	 */
-	public function get_sender_actions( $identity, $status ) {
-		$actions = '<a class="wposes-remove-sender" data-sender="' . $identity . '" href="#">' . __( 'Remove', 'wp-offload-ses' ) . '</a>';
+	public function get_sender_actions( array $identity ): string {
+		$actions = '<a class="wposes-remove-sender" data-sender="' . $identity['IdentityName'] . '" href="#">' . __( 'Remove', 'wp-offload-ses' ) . '</a>';
 
-		if ( 'Pending' === $status['VerificationStatus'] ) {
-			if ( isset( $status['VerificationToken'] ) ) {
-				$actions = '<a class="wposes-view-dns" data-sender="' . $identity . '" data-token="' . $status['VerificationToken'] . '" href="#">' . __( 'View DNS', 'wp-offload-ses' ) . '</a> | ' . $actions;
+		if ( 'PENDING' === $identity['VerificationStatus'] ) {
+			if ( isset( $identity['VerificationTokens'] ) ) {
+				$actions = '<a class="wposes-view-dns" data-sender="' . $identity['IdentityName'] . '" data-tokens=\'' . json_encode( $identity['VerificationTokens'] ) . '\' href="#">' . __( 'View DNS', 'wp-offload-ses' ) . '</a> | ' . $actions;
 			} else {
-				$actions = '<a class="wposes-resend-verification" data-sender="' . $identity . '" href="#">' . __( 'Resend Verification', 'wp-offload-ses' ) . '</a> | ' . $actions;
+				$actions = '<a class="wposes-resend-verification" data-sender="' . $identity['IdentityName'] . '" href="#">' . __( 'Resend Verification', 'wp-offload-ses' ) . '</a> | ' . $actions;
 			}
 		}
 

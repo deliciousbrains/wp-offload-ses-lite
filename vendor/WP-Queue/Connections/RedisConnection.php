@@ -4,7 +4,7 @@ namespace DeliciousBrains\WP_Offload_SES\WP_Queue\Connections;
 
 use Exception;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Job;
-class RedisConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\ConnectionInterface
+class RedisConnection implements ConnectionInterface
 {
     /**
      * Push a job onto the queue.
@@ -14,9 +14,8 @@ class RedisConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connec
      *
      * @return bool|int
      */
-    public function push(\DeliciousBrains\WP_Offload_SES\WP_Queue\Job $job, $delay = 0)
+    public function push(Job $job, $delay = 0)
     {
-        //
     }
     /**
      * Retrieve a job from the queue.
@@ -25,7 +24,6 @@ class RedisConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connec
      */
     public function pop()
     {
-        //
     }
     /**
      * Delete a job from the queue.
@@ -34,7 +32,6 @@ class RedisConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connec
      */
     public function delete($job)
     {
-        //
     }
     /**
      * Release a job back onto the queue.
@@ -43,17 +40,17 @@ class RedisConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connec
      */
     public function release($job)
     {
-        //
     }
     /**
      * Push a job onto the failure queue.
      *
      * @param Job       $job
      * @param Exception $exception
+     *
+     * @return bool
      */
-    public function failure($job, \Exception $exception)
+    public function failure($job, Exception $exception)
     {
-        //
     }
     /**
      * Get total jobs in the queue.
@@ -62,7 +59,6 @@ class RedisConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connec
      */
     public function jobs()
     {
-        //
     }
     /**
      * Get total jobs in the failures queue.
@@ -71,6 +67,5 @@ class RedisConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connec
      */
     public function failed_jobs()
     {
-        //
     }
 }

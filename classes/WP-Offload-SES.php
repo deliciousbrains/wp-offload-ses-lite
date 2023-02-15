@@ -2,24 +2,16 @@
 /**
  * The main WP Offload SES plugin class.
  *
- * @author Delicious Brains
+ * @author  Delicious Brains
  * @package WP Offload SES
  */
 
 namespace DeliciousBrains\WP_Offload_SES;
 
-use DeliciousBrains\WP_Offload_SES\Amazon_Web_Services;
-use DeliciousBrains\WP_Offload_SES\SES_API;
-use DeliciousBrains\WP_Offload_SES\Email_Log;
-use DeliciousBrains\WP_Offload_SES\Email_Events;
-use DeliciousBrains\WP_Offload_SES\Notices;
-use DeliciousBrains\WP_Offload_SES\WP_Notifications;
-use DeliciousBrains\WP_Offload_SES\Utils;
-use DeliciousBrains\WP_Offload_SES\Activity_List_Table;
-use DeliciousBrains\WP_Offload_SES\Health_Report;
 use DeliciousBrains\WP_Offload_SES\Queue\Email_Queue;
 use DeliciousBrains\WP_Offload_SES\Queue\Queue_Status;
-use DeliciousBrains\WP_Offload_SES\Attachments;
+use Exception;
+use phpmailerException;
 
 /**
  * Class WP_Offload_SES
@@ -113,7 +105,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @var Health_Report
 	 */
-	private $health_report;
+	protected $health_report;
 
 	/**
 	 * The Queue_Status class.
@@ -133,6 +125,8 @@ class WP_Offload_SES extends Plugin_Base {
 	 * Construct the plugin base and initialize the plugin.
 	 *
 	 * @param string $plugin_file_path The plugin file path.
+	 *
+	 * @throws Exception
 	 */
 	public function __construct( $plugin_file_path ) {
 		parent::__construct( $plugin_file_path );
@@ -143,8 +137,10 @@ class WP_Offload_SES extends Plugin_Base {
 	 * Initialize the plugin.
 	 *
 	 * @param string $plugin_file_path The plugin file path.
+	 *
+	 * @throws Exception
 	 */
-	public function init( $plugin_file_path ) {
+	public function init( string $plugin_file_path ) {
 		// Set the name of the plugin.
 		$this->plugin_title      = $this->get_plugin_page_title();
 		$this->plugin_menu_title = $this->get_plugin_page_title();
@@ -190,26 +186,45 @@ class WP_Offload_SES extends Plugin_Base {
 	 * Perform plugin upgrade routines.
 	 *
 	 * @param bool $skip_version_check If we should skip the version check.
+	 *
+	 * @return bool
 	 */
-	public function upgrade_routines( $skip_version_check = false ) {
+	public function upgrade_routines( bool $skip_version_check = false ): bool {
 		$version = get_site_option( 'wposes_lite_version', '0.0.0' );
 
-		if ( $skip_version_check || version_compare( $version, $this->get_plugin_version(), '<' ) ) {
-			$this->get_email_log()->install_tables();
-			$this->get_email_events()->install_tables();
-			$this->get_email_queue()->install_tables();
-			$this->get_attachments()->install_tables();
-
-			if ( ! get_site_option( 'wposes_tracking_key' ) ) {
-				add_site_option( 'wposes_tracking_key', wp_generate_password( 20, true, true ) );
-			}
-
-			$this->maybe_migrate_from_wpses();
-
-			if ( ! $skip_version_check ) {
-				update_site_option( 'wposes_lite_version', $this->get_plugin_version() );
-			}
+		// Nothing to upgrade.
+		if ( ! $skip_version_check && ! version_compare( $version, $this->get_plugin_version(), '<' ) ) {
+			return false;
 		}
+
+		// Already doing an upgrade.
+		if ( get_site_option( 'wposes_doing_upgrade' ) ) {
+			return false;
+		}
+
+		// Start the upgrade.
+		update_site_option( 'wposes_doing_upgrade', true );
+
+		$this->get_email_log()->install_tables();
+		$this->get_email_events()->install_tables();
+		$this->get_email_queue()->install_tables();
+		$this->get_attachments()->install_tables();
+
+		if ( ! get_site_option( 'wposes_tracking_key' ) ) {
+			add_site_option( 'wposes_tracking_key', wp_generate_password( 20, true, true ) );
+		}
+
+		$this->maybe_migrate_from_wpses();
+
+		// If $skip_version_check is true, this upgrade was initiated by the pro version.
+		if ( ! $skip_version_check ) {
+			update_site_option( 'wposes_lite_version', $this->get_plugin_version() );
+		}
+
+		// All done!
+		delete_site_option( 'wposes_doing_upgrade' );
+
+		return true;
 	}
 
 	/**
@@ -217,7 +232,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return bool
 	 */
-	private function maybe_migrate_from_wpses() {
+	private function maybe_migrate_from_wpses(): bool {
 		if ( ! is_multisite() ) {
 			// Migrate over single site settings.
 			return $this->convert_wpses_options();
@@ -225,7 +240,7 @@ class WP_Offload_SES extends Plugin_Base {
 
 		// Set free version to use subsite settings by default.
 		if ( ! $this->is_pro() ) {
-			$settings = get_site_option( static::SETTINGS_KEY );
+			$settings                            = get_site_option( static::SETTINGS_KEY );
 			$settings['enable-subsite-settings'] = true;
 			update_site_option( static::SETTINGS_KEY, $settings );
 		}
@@ -247,7 +262,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return bool
 	 */
-	private function convert_wpses_options() {
+	private function convert_wpses_options(): bool {
 		$wposes_settings = get_option( 'wposes_settings', array() );
 
 		if ( ! empty( $wposes_settings ) ) {
@@ -297,8 +312,8 @@ class WP_Offload_SES extends Plugin_Base {
 					if ( '' === $value ) {
 						break;
 					}
-					$value  = explode( '.', $value );
-					$region = $value[1];
+					$value                     = explode( '.', $value );
+					$region                    = $value[1];
 					$wposes_settings['region'] = $region;
 					break;
 			}
@@ -383,17 +398,17 @@ class WP_Offload_SES extends Plugin_Base {
 			'wposes-script',
 			'wposes',
 			array(
-				'strings' => apply_filters( 'wposes_js_strings', array(
-					'get_diagnostic_info'         => __( 'Getting diagnostic info...', 'wp-offload-ses' ),
-					'get_diagnostic_info_error'   => __( 'Error getting diagnostic info: ', 'wp-offload-ses' ),
+				'strings'            => apply_filters( 'wposes_js_strings', array(
+					'get_diagnostic_info'       => __( 'Getting diagnostic info...', 'wp-offload-ses' ),
+					'get_diagnostic_info_error' => __( 'Error getting diagnostic info: ', 'wp-offload-ses' ),
 					// Mimic WP Core's notice text, therefore no translation needed here.
-					'settings_saved'              => __( 'Settings saved.' ),
-					'domain_invalid'              => __( 'Please enter a valid domain name (without http:// or https://', 'wp-offload-ses' ),
-					'email_invalid'               => __( 'Please enter a valid email address.', 'wp-offload-ses' ),
-					'not_shown_placeholder'       => _x( '-- not shown --', 'placeholder for hidden access key, 39 char max', 'wp-offload-ses' ),
-					'email_not_verified'          => __( 'Please enter a valid email address that has been verified with Amazon SES.', 'wp-offload-ses' ),
+					'settings_saved'            => __( 'Settings saved.' ),
+					'domain_invalid'            => __( 'Please enter a valid domain name (without http:// or https://', 'wp-offload-ses' ),
+					'email_invalid'             => __( 'Please enter a valid email address.', 'wp-offload-ses' ),
+					'not_shown_placeholder'     => _x( '-- not shown --', 'placeholder for hidden access key, 39 char max', 'wp-offload-ses' ),
+					'email_not_verified'        => __( 'Please enter a valid email address that has been verified with Amazon SES.', 'wp-offload-ses' ),
 				) ),
-				'nonces' => apply_filters( 'wposes_js_nonces', array(
+				'nonces'             => apply_filters( 'wposes_js_nonces', array(
 					'get_diagnostic_info'    => wp_create_nonce( 'wposes-get-diagnostic-info' ),
 					'aws_keys_set'           => wp_create_nonce( 'wposes-aws-keys-set' ),
 					'aws_keys_remove'        => wp_create_nonce( 'wposes-aws-keys-remove' ),
@@ -423,7 +438,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return Amazon_Web_Services
 	 */
-	public function get_aws() {
+	public function get_aws(): Amazon_Web_Services {
 		return $this->aws;
 	}
 
@@ -432,7 +447,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return SES_API
 	 */
-	public function get_ses_api() {
+	public function get_ses_api(): SES_API {
 		return $this->ses_api;
 	}
 
@@ -441,7 +456,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return Email_Log
 	 */
-	public function get_email_log() {
+	public function get_email_log(): Email_Log {
 		return $this->email_log;
 	}
 
@@ -450,7 +465,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return Email_Events
 	 */
-	public function get_email_events() {
+	public function get_email_events(): Email_Events {
 		return $this->email_events;
 	}
 
@@ -459,7 +474,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return Email_Queue
 	 */
-	public function get_email_queue() {
+	public function get_email_queue(): Email_Queue {
 		return $this->email_queue;
 	}
 
@@ -468,7 +483,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return Notices
 	 */
-	public function get_notices() {
+	public function get_notices(): Notices {
 		return $this->notices;
 	}
 
@@ -477,7 +492,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return Health_Report
 	 */
-	public function get_health_report() {
+	public function get_health_report(): Health_Report {
 		return $this->health_report;
 	}
 
@@ -486,7 +501,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return Attachments
 	 */
-	public function get_attachments() {
+	public function get_attachments(): Attachments {
 		return $this->attachments;
 	}
 
@@ -498,7 +513,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return array
 	 */
-	public function plugin_actions_settings_link( $links, $file ) {
+	public function plugin_actions_settings_link( array $links, string $file ): array {
 		$url           = $this->get_plugin_page_url( array(), 'self' );
 		$text          = __( 'Settings', 'wp-offload-ses' );
 		$settings_link = '<a href="' . $url . '">' . esc_html( $text ) . '</a>';
@@ -531,7 +546,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return array
 	 */
-	public function get_settings_tabs() {
+	public function get_settings_tabs(): array {
 		$tabs = array();
 
 		if ( $this->is_plugin_setup() ) {
@@ -539,7 +554,7 @@ class WP_Offload_SES extends Plugin_Base {
 			$tabs['activity'] = _x( 'Activity', 'Show the activity tab', 'wp-offload-ses' );
 			$tabs['settings'] = _x( 'Settings', 'Show the settings tab', 'wp-offload-ses' );
 		} else {
-			$tabs['start']    = _x( 'Setup', 'Show the setup wizard', 'wp-offload-ses' );
+			$tabs['start'] = _x( 'Setup', 'Show the setup wizard', 'wp-offload-ses' );
 		}
 
 		if ( is_super_admin() ) {
@@ -554,7 +569,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return array
 	 */
-	public function get_settings_sub_nav_tabs() {
+	public function get_settings_sub_nav_tabs(): array {
 		$tabs               = array();
 		$hide_senders       = Utils::get_first_defined_constant( array( 'WP_SES_HIDE_VERIFIED', 'WPOSES_HIDE_VERIFIED' ) );
 		$show_settings_tabs = $this->show_settings_tabs();
@@ -570,17 +585,17 @@ class WP_Offload_SES extends Plugin_Base {
 		}
 
 		if ( $show_settings_tabs ) {
-			$tabs['general'] = _x( 'General', 'Show the general settings tab', 'wp-offload-ses'  );
+			$tabs['general'] = _x( 'General', 'Show the general settings tab', 'wp-offload-ses' );
 
 			if ( ! $hide_senders ) {
-				$tabs['verified-senders'] = _x( 'Verified Senders', 'Show the verified senders tab', 'wp-offload-ses'  );
+				$tabs['verified-senders'] = _x( 'Verified Senders', 'Show the verified senders tab', 'wp-offload-ses' );
 			}
 		}
 
-		$tabs['send-test-email']  = _x( 'Send Test Email', 'Show the send test email tab', 'wp-offload-ses'  );
+		$tabs['send-test-email'] = _x( 'Send Test Email', 'Show the send test email tab', 'wp-offload-ses' );
 
 		if ( $show_settings_tabs ) {
-			$tabs['aws-access-keys']  = _x( 'AWS Access Keys', 'Show the AWS access keys tab', 'wp-offload-ses'  );
+			$tabs['aws-access-keys'] = _x( 'AWS Access Keys', 'Show the AWS access keys tab', 'wp-offload-ses' );
 		}
 
 		return apply_filters( 'wposes_settings_sub_nav_tabs', $tabs );
@@ -591,7 +606,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return bool
 	 */
-	public function show_settings_tabs() {
+	public function show_settings_tabs(): bool {
 		if ( ! is_multisite() || is_network_admin() ) {
 			return true;
 		}
@@ -608,7 +623,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return string
 	 */
-	public function get_plugin_page_title() {
+	public function get_plugin_page_title(): string {
 		$title = __( 'Offload SES Lite', 'wp-offload-ses' );
 
 		if ( $this->is_pro() ) {
@@ -623,7 +638,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return string
 	 */
-	public function get_plugin_prefix() {
+	public function get_plugin_prefix(): string {
 		return $this->plugin_prefix;
 	}
 
@@ -632,7 +647,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return string
 	 */
-	public function get_plugin_prefix_slug() {
+	public function get_plugin_prefix_slug(): string {
 		return str_replace( '_', '-', $this->plugin_prefix );
 	}
 
@@ -641,7 +656,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return string
 	 */
-	public function get_settings_nonce_key() {
+	public function get_settings_nonce_key(): string {
 		return $this->get_plugin_prefix_slug() . '-save-settings';
 	}
 
@@ -650,12 +665,13 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @param bool $force Get them directly from the SES API.
 	 *
-	 * @return array
+	 * @return array|Error
 	 */
-	public function get_verified_senders( $force = false ) {
+	public function get_verified_senders( bool $force = false ) {
 		$verified_senders = get_transient( 'wposes_verified_senders' );
 
-		if ( false === $verified_senders || $force ) {
+		// Only get identities if not cached, forcing refresh, or cache doesn't match expected format.
+		if ( false === $verified_senders || $force || ! is_array( $verified_senders ) || empty( $verified_senders[0]['IdentityName'] ) ) {
 			$verified_senders = $this->get_aws()->needs_access_keys() ? array() : $this->get_ses_api()->get_identities();
 			set_transient( 'wposes_verified_senders', $verified_senders, 300 );
 		}
@@ -670,7 +686,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return string
 	 */
-	public function get_email_status_i18n( $status ) {
+	public function get_email_status_i18n( string $status ): string {
 		switch ( $status ) {
 			case 'sent':
 				$i18n = __( 'Sent', 'wp-offload-ses' );
@@ -699,15 +715,15 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return array
 	 */
-	public function get_email_action_links( $id, $status ) {
+	public function get_email_action_links( int $id, string $status ): array {
 		$actions  = array();
 		$disabled = $this->is_pro() ? '' : ' disabled';
 
 		$actions['view'] = '<a class="wposes-view-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'View Email', 'wp-offload-ses' ) . '</a>';
 
-		switch( $status ) {
+		switch ( $status ) {
 			case 'sent':
-				$actions['resend'] = '<a class="wposes-resend-email' .  $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Resend', 'wp-offload-ses' ) . '</a>';
+				$actions['resend'] = '<a class="wposes-resend-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Resend', 'wp-offload-ses' ) . '</a>';
 				break;
 			case 'queued':
 				$actions['cancel'] = '<a class="wposes-cancel-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Cancel', 'wp-offload-ses' ) . '</a>';
@@ -720,7 +736,7 @@ class WP_Offload_SES extends Plugin_Base {
 				break;
 		}
 
-		$actions['delete'] = '<a class="wposes-delete-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Delete Permanently', 'wp-offload-ses' ) . '</a>' ;
+		$actions['delete'] = '<a class="wposes-delete-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Delete Permanently', 'wp-offload-ses' ) . '</a>';
 
 		return $actions;
 	}
@@ -728,28 +744,28 @@ class WP_Offload_SES extends Plugin_Base {
 	/**
 	 * Check if the provided email address is a verified sender.
 	 *
-	 * @param string $email The email address to check.
+	 * @param string $email       The email address to check.
+	 * @param bool   $exact_match Optionally check for exact match only, default false.
 	 *
 	 * @return bool
 	 */
-	public function is_verified_email_address( $email ) {
+	public function is_verified_email_address( string $email, bool $exact_match = false ): bool {
 		$verified_senders = $this->get_verified_senders();
 
-		if ( ! is_array( $verified_senders ) ) {
+		if ( is_wp_error( $verified_senders ) || ! is_array( $verified_senders ) ) {
 			return false;
 		}
 
 		foreach ( $verified_senders as $sender ) {
-			if ( $email === $sender ) {
+			// Exact match, e.g. most likely an email address.
+			if ( $email === $sender['IdentityName'] ) {
 				return true;
 			}
 
-			$length = strlen( $sender );
-			if ( $sender === substr( $email, -$length ) ) {
+			// Ends with verified identity name, most likely a domain.
+			if ( ! $exact_match && $sender === substr( $email, -strlen( $sender['IdentityName'] ) ) ) {
 				return true;
 			}
-
-			continue;
 		}
 
 		return false;
@@ -760,7 +776,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return bool
 	 */
-	public function is_pro() {
+	public function is_pro(): bool {
 		return false;
 	}
 
@@ -769,14 +785,14 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return bool
 	 */
-	public function is_plugin_setup() {
+	public function is_plugin_setup(): bool {
 		$is_setup = true;
 
 		if ( false === $this->settings->get_setting( 'completed-setup', false ) ) {
 			$is_setup = false;
 		}
 
-		// For subsites we show the Network Settings tab by default.
+		// For subsites, we show the Network Settings tab by default.
 		if ( is_multisite() && ! is_network_admin() ) {
 			$is_setup = true;
 		}
@@ -823,7 +839,7 @@ class WP_Offload_SES extends Plugin_Base {
 		if ( Amazon_Web_Services::is_any_access_key_constant_defined() ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'All access key constants must be removed before keys can be set in the database.', 'wp-offload-ses' ),
+					'message'             => __( 'All access key constants must be removed before keys can be set in the database.', 'wp-offload-ses' ),
 					'access_keys_defined' => true,
 				)
 			);
@@ -934,7 +950,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 */
 	public function ajax_activity_table() {
 		$activity_table = new Activity_List_Table();
-		$activity_table->load();
+		// TODO: Remove or find actual function to call - $activity_table->load();
 		$activity_table->ajax_response();
 	}
 
@@ -946,6 +962,12 @@ class WP_Offload_SES extends Plugin_Base {
 
 		$sender      = filter_input( INPUT_POST, 'sender' );
 		$sender_type = filter_input( INPUT_POST, 'sender_type' );
+
+		// Since SESv2, verify is no longer idempotent,
+		// so we'll try and delete an existing email identity first.
+		if ( $this->is_verified_email_address( $sender, true ) ) {
+			$this->get_ses_api()->delete_identity( $sender );
+		}
 
 		if ( 'domain' === $sender_type ) {
 			$response = $this->get_ses_api()->verify_domain( $sender );
@@ -977,12 +999,14 @@ class WP_Offload_SES extends Plugin_Base {
 	 */
 	public function ajax_verified_senders_list() {
 		$verified_senders_table = new Verified_Senders_List_Table();
-		$verified_senders_table->load();
+		// TODO: Remove or find actual function to call - $verified_senders_table->load();
 		$verified_senders_table->ajax_response();
 	}
 
 	/**
 	 * Send a test email over AJAX.
+	 *
+	 * @throws phpmailerException
 	 */
 	public function ajax_send_test_email() {
 		$this->verify_ajax_request();
@@ -1023,7 +1047,7 @@ class WP_Offload_SES extends Plugin_Base {
 	/**
 	 * Helper method for returning data to AJAX call
 	 *
-	 * @param array $return Data to return.
+	 * @param mixed $return Data to return.
 	 */
 	public function end_ajax( $return = array() ) {
 		wp_send_json( $return );
@@ -1047,6 +1071,7 @@ class WP_Offload_SES extends Plugin_Base {
 		$message .= '<ul>';
 
 		foreach ( $unverified_senders as $sender ) {
+			$sender  = esc_html( $sender );
 			$message .= "<li>{$sender}</li>";
 		}
 
@@ -1201,7 +1226,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return string
 	 */
-	public function more_info_link( $path, $utm_content = '', $hash = '' ) {
+	public function more_info_link( string $path, string $utm_content = '', string $hash = '' ): string {
 		$args = array(
 			'utm_campaign' => 'support+docs',
 		);
@@ -1222,9 +1247,9 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @param string $subject The email subject.
 	 *
-	 * @return string
+	 * @return string|bool
 	 */
-	public function maybe_decode_subject( $subject ) {
+	public function maybe_decode_subject( string $subject ) {
 		if ( '=?' === substr( $subject, 0, 2 ) && '?=' === substr( $subject, -2 ) && function_exists( 'mb_decode_mimeheader' ) ) {
 			return mb_decode_mimeheader( $subject );
 		}
@@ -1246,7 +1271,7 @@ class WP_Offload_SES extends Plugin_Base {
 				'self'
 			),
 			$this->dbrains_url(
-				'/wp-offload-ses/docs/general-debugging/',
+				'/wp-offload-ses/doc/general-debugging/',
 				array(
 					'utm_campaign' => 'error+messages',
 				)
@@ -1275,10 +1300,10 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return bool
 	 */
-	public function mail_handler( $to, $subject, $message, $headers, $attachments ) {
+	public function mail_handler( $to, $subject, $message, $headers, $attachments ): bool {
 		$content_type = apply_filters( 'wp_mail_content_type', 'text/plain' );
 
-		// Add Content-Type header now in case filter is removed by time queue is ran.
+		// Add Content-Type header now in case filter is removed by time queue is run.
 		if ( 'text/html' === $content_type ) {
 			if ( is_array( $headers ) ) {
 				$headers[] = 'Content-Type: text/html;';
@@ -1314,7 +1339,7 @@ class WP_Offload_SES extends Plugin_Base {
 	 *
 	 * @return bool
 	 */
-	public function trigger_queue() {
+	public function trigger_queue(): bool {
 		// Make sure we're not DDOSing our own site.
 		if ( get_transient( 'wposes_triggered_queue' ) ) {
 			return false;
@@ -1345,5 +1370,4 @@ class WP_Offload_SES extends Plugin_Base {
 
 		return ! is_wp_error( $result );
 	}
-
 }

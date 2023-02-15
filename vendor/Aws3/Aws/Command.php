@@ -5,13 +5,15 @@ namespace DeliciousBrains\WP_Offload_SES\Aws3\Aws;
 /**
  * AWS command object.
  */
-class Command implements \DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface
+class Command implements CommandInterface
 {
     use HasDataTrait;
     /** @var string */
     private $name;
     /** @var HandlerList */
     private $handlerList;
+    /** @var Array */
+    private $authSchemes;
     /**
      * Accepts an associative array of command options, including:
      *
@@ -21,11 +23,11 @@ class Command implements \DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterfa
      * @param array       $args           Arguments to pass to the command
      * @param HandlerList $list           Handler list
      */
-    public function __construct($name, array $args = [], \DeliciousBrains\WP_Offload_SES\Aws3\Aws\HandlerList $list = null)
+    public function __construct($name, array $args = [], HandlerList $list = null)
     {
         $this->name = $name;
         $this->data = $args;
-        $this->handlerList = $list ?: new \DeliciousBrains\WP_Offload_SES\Aws3\Aws\HandlerList();
+        $this->handlerList = $list ?: new HandlerList();
         if (!isset($this->data['@http'])) {
             $this->data['@http'] = [];
         }
@@ -43,11 +45,33 @@ class Command implements \DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterfa
     }
     public function hasParam($name)
     {
-        return array_key_exists($name, $this->data);
+        return \array_key_exists($name, $this->data);
     }
     public function getHandlerList()
     {
         return $this->handlerList;
+    }
+    /**
+     * For overriding auth schemes on a per endpoint basis when using
+     * EndpointV2 provider. Intended for internal use only.
+     *
+     * @param array $authSchemes
+     *
+     * @internal
+     */
+    public function setAuthSchemes(array $authSchemes)
+    {
+        $this->authSchemes = $authSchemes;
+    }
+    /**
+     * Get auth schemes added to command as required
+     * for endpoint resolution
+     *
+     * @returns array | null
+     */
+    public function getAuthSchemes()
+    {
+        return $this->authSchemes;
     }
     /** @deprecated */
     public function get($name)

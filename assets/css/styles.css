@@ -1,33 +1,26 @@
-/* line 4, ../sass/styles.scss */
 .wposes-main.wrap {
   position: relative;
 }
-/* line 7, ../sass/styles.scss */
 .wposes-main.wrap > h1 {
   float: left;
 }
-/* line 11, ../sass/styles.scss */
 .wposes-main.wrap ul {
   margin: 13px 30px;
   list-style-type: disc;
 }
-/* line 16, ../sass/styles.scss */
 .wposes-main.wrap .wposes-notice,
 .wposes-main.wrap .wposes-updated,
 .wposes-main.wrap .wposes-error,
 .wposes-main.wrap .error,
 .wposes-main.wrap .notice,
 .wposes-main.wrap .updated {
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   max-width: 705px;
   margin-top: 15px;
 }
-/* line 27, ../sass/styles.scss */
 .wposes-main.wrap .wposes-error.fatal {
   clear: both;
 }
-/* line 31, ../sass/styles.scss */
 .wposes-main.wrap h2.nav-tab-wrapper {
   float: none;
   margin-bottom: 15px;
@@ -35,30 +28,23 @@
   margin-top: 10px;
   padding: 9px 0 0 5px;
 }
-/* line 38, ../sass/styles.scss */
 .wposes-main.wrap h2.nav-tab-wrapper .nav-tab-container {
   float: right;
 }
-/* line 41, ../sass/styles.scss */
 .wposes-main.wrap h2.nav-tab-wrapper .nav-tab-container :last-child {
   margin-right: 5px;
 }
-/* line 46, ../sass/styles.scss */
 .wposes-main.wrap h2.nav-tab-wrapper a.nav-tab-active {
   color: #464646;
   cursor: default;
 }
-/* line 51, ../sass/styles.scss */
-.wposes-main.wrap h2.nav-tab-wrapper a[data-tab="settings"].nav-tab-active {
+.wposes-main.wrap h2.nav-tab-wrapper a[data-tab=settings].nav-tab-active {
   background: #f7fbfd;
   border-bottom: 1px solid #f7fbfd;
 }
-/* line 56, ../sass/styles.scss */
 .wposes-main.wrap h2.nav-tab-wrapper a:focus {
-  -webkit-box-shadow: none;
-          box-shadow: none;
+  box-shadow: none;
 }
-/* line 61, ../sass/styles.scss */
 .wposes-main.wrap .sub-nav-tab-container {
   margin: -15px 0 20px 0;
   padding: 10px 10px 5px 40px;
@@ -67,19 +53,16 @@
   height: 33px;
   width: 655px;
 }
-/* line 69, ../sass/styles.scss */
 .wposes-main.wrap .sub-nav-tab-container .nav-tab {
   border: none;
   background: none;
   color: #0073aa;
   font-weight: normal;
-  -webkit-box-shadow: none;
-          box-shadow: none;
+  box-shadow: none;
   padding-left: 8px;
   padding-right: 8px;
   border: 1px solid #f7fbfd;
 }
-/* line 80, ../sass/styles.scss */
 .wposes-main.wrap .sub-nav-tab-container .nav-tab:after {
   display: block;
   content: attr(title);
@@ -88,7 +71,6 @@
   overflow: hidden;
   visibility: hidden;
 }
-/* line 89, ../sass/styles.scss */
 .wposes-main.wrap .sub-nav-tab-container .nav-tab-active {
   background: #f1f1f1;
   border: 1px solid #ccc;
@@ -97,52 +79,41 @@
   font-weight: bold;
   padding-bottom: 9px;
 }
-/* line 98, ../sass/styles.scss */
 .wposes-main.wrap .sub-nav-tab-container .nav-tab:hover {
   text-decoration: underline;
 }
-/* line 103, ../sass/styles.scss */
 .wposes-main.wrap .more-info {
   white-space: nowrap;
 }
-/* line 108, ../sass/styles.scss */
 .wposes-main.wrap .error pre {
   background: #eaeaea;
   background: rgba(0, 0, 0, 0.07);
   display: block;
   padding: 10px 15px;
 }
-/* line 114, ../sass/styles.scss */
 .wposes-main.wrap .error pre code {
   padding: 0;
   background: none;
 }
-/* line 122, ../sass/styles.scss */
-.wposes-main.wrap[data-tab="support"] .wposes-notice, .wposes-main.wrap[data-tab="support"] .error, .wposes-main.wrap[data-tab="support"] .updated, .wposes-main.wrap[data-tab="support"] .updated.show {
+.wposes-main.wrap[data-tab=support] .wposes-notice, .wposes-main.wrap[data-tab=support] .error, .wposes-main.wrap[data-tab=support] .updated, .wposes-main.wrap[data-tab=support] .updated.show {
   display: none;
 }
-/* line 125, ../sass/styles.scss */
-.wposes-main.wrap[data-tab="support"] .fatal .error, .wposes-main.wrap[data-tab="support"] .wposes-notice.important, .wposes-main.wrap[data-tab="support"] .dbrains-api-down {
+.wposes-main.wrap[data-tab=support] .fatal .error, .wposes-main.wrap[data-tab=support] .wposes-notice.important, .wposes-main.wrap[data-tab=support] .dbrains-api-down {
   display: block;
 }
-/* line 130, ../sass/styles.scss */
 .wposes-main.wrap .wposes-updated {
   display: none;
 }
-/* line 132, ../sass/styles.scss */
 .wposes-main.wrap .wposes-updated.wposes-notice, .wposes-main.wrap .wposes-updated.show {
   display: block;
 }
-/* line 137, ../sass/styles.scss */
 .wposes-main.wrap .alignleft {
   margin-right: 20px;
   margin-bottom: 20px;
 }
-/* line 142, ../sass/styles.scss */
 .wposes-main.wrap .spinner {
   min-width: 20px;
 }
-/* line 146, ../sass/styles.scss */
 .wposes-main.wrap .general-helper {
   border: 0;
   width: auto;
@@ -152,36 +123,31 @@
   color: #999;
   display: inline-block;
 }
-/* line 156, ../sass/styles.scss */
 .wposes-main.wrap .general-helper:after {
   content: "\f223";
   color: #999;
   display: inline-block;
   -webkit-font-smoothing: antialiased;
-  font: normal 22px/1 'dashicons';
+  font: normal 22px/1 "dashicons";
   vertical-align: top;
   top: auto;
   left: auto;
   position: relative;
 }
-/* line 168, ../sass/styles.scss */
 .wposes-main.wrap .helper-message {
   font-size: 14px;
   line-height: 1.4em;
   padding: 10px 16px;
-  -webkit-border-radius: 3px;
-          border-radius: 3px;
+  border-radius: 3px;
   background-color: #fff;
   position: absolute;
   width: 500px;
   z-index: 9999;
   display: none;
-  -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
 }
-/* line 181, ../sass/styles.scss */
 .wposes-main.wrap .helper-message:after {
-  content: '';
+  content: "";
   border-bottom: 8px solid transparent;
   border-right: 8px solid #fff;
   border-top: 8px solid transparent;
@@ -192,9 +158,8 @@
   top: 11px;
   width: 0;
 }
-/* line 194, ../sass/styles.scss */
 .wposes-main.wrap .helper-message.bottom:before {
-  content: '';
+  content: "";
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
   border-bottom: 8px solid #aaa;
@@ -207,9 +172,8 @@
   top: -9px;
   width: 0;
 }
-/* line 209, ../sass/styles.scss */
 .wposes-main.wrap .helper-message.bottom:after {
-  content: '';
+  content: "";
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
   border-bottom: 8px solid #fff;
@@ -222,209 +186,157 @@
   top: -8px;
   width: 0;
 }
-/* line 225, ../sass/styles.scss */
 .wposes-main.wrap .wposes-quota {
   position: relative;
   margin: 15px 0;
   padding: 1px 12px;
   background-color: #e3e3e3;
 }
-/* line 231, ../sass/styles.scss */
 .wposes-main.wrap .wposes-quota dl {
   margin: 12px 0;
   color: #666;
 }
-/* line 235, ../sass/styles.scss */
 .wposes-main.wrap .wposes-quota dl dt {
   float: left;
   clear: left;
   width: 120px;
   font-weight: bold;
 }
-/* line 242, ../sass/styles.scss */
 .wposes-main.wrap .wposes-quota dl:before {
   position: absolute;
   top: 12px;
   left: 12px;
   color: #aaa;
 }
-/* line 252, ../sass/styles.scss */
 .wposes-main.wrap .wposes-launch-setup-wizard {
   float: right;
   margin-top: 3px;
 }
-/* line 258, ../sass/styles.scss */
 .wposes-main.wrap #tab-start .wposes-logo {
   width: 150px;
 }
-/* line 262, ../sass/styles.scss */
 .wposes-main.wrap #tab-start .wposes-skip-to-settings {
   float: left;
   margin-top: -30px;
 }
-/* line 267, ../sass/styles.scss */
 .wposes-main.wrap #tab-start .clearfix {
   zoom: 1;
 }
-/* line 269, ../sass/styles.scss */
 .wposes-main.wrap #tab-start .clearfix:after {
   clear: both;
 }
-/* line 272, ../sass/styles.scss */
 .wposes-main.wrap #tab-start .clearfix.clearfix:before, .wposes-main.wrap #tab-start .clearfix.clearfix:after {
   content: "";
   display: table;
 }
-/* line 278, ../sass/styles.scss */
 .wposes-main.wrap #tab-start .wposes-activate-licence,
 .wposes-main.wrap #tab-start .wposes-remove-licence,
 .wposes-main.wrap #tab-start .spinner,
 .wposes-main.wrap #tab-start .wposes-defined-in-config {
   display: none;
 }
-/* line 285, ../sass/styles.scss */
 .wposes-main.wrap #tab-start .wposes-licence-input {
   width: 100%;
 }
-/* line 292, ../sass/styles.scss */
 .wposes-main.wrap #tab-setup-access-keys .wposes-access-keys .wposes-aws-logo,
 .wposes-main.wrap #tab-setup-access-keys .wposes-access-keys #save-aws-access-keys,
 .wposes-main.wrap #tab-setup-access-keys .wposes-access-keys .remove-keys {
   display: none;
 }
-/* line 298, ../sass/styles.scss */
 .wposes-main.wrap #tab-setup-access-keys .wposes-access-keys h3 {
   text-transform: none;
   font-weight: 600;
 }
-/* line 303, ../sass/styles.scss */
 .wposes-main.wrap #tab-setup-access-keys .wposes-access-keys th {
   white-space: nowrap;
 }
-/* line 309, ../sass/styles.scss */
 .wposes-main.wrap #tab-setup-access-keys .wposes-region-container td:first-child {
   display: none;
 }
-/* line 312, ../sass/styles.scss */
 .wposes-main.wrap #tab-setup-access-keys .wposes-region-container td {
   padding-top: 0;
 }
-/* line 315, ../sass/styles.scss */
 .wposes-main.wrap #tab-setup-access-keys .wposes-region-container td select {
   margin-top: 10px;
 }
-/* line 323, ../sass/styles.scss */
 .wposes-main.wrap #tab-verify-sender .wposes-setup-verify-input {
   width: 100%;
 }
-/* line 327, ../sass/styles.scss */
 .wposes-main.wrap #tab-verify-sender #wposes-email {
   margin-left: 20px;
 }
-/* line 334, ../sass/styles.scss */
 .wposes-main.wrap #tab-complete-verification .wposes-domain-dns .wposes-domain-name td {
   font-size: 16px;
   font-weight: bold;
   padding: 10px 0;
 }
-/* line 340, ../sass/styles.scss */
 .wposes-main.wrap #tab-complete-verification .wposes-domain-dns th {
   text-align: left;
 }
-/* line 345, ../sass/styles.scss */
 .wposes-main.wrap #tab-complete-verification .wposes-sender {
   font-weight: bold;
 }
-/* line 351, ../sass/styles.scss */
 .wposes-main.wrap #tab-network-settings .dashicons-yes:before {
   color: green;
 }
-/* line 355, ../sass/styles.scss */
 .wposes-main.wrap #tab-network-settings .dashicons-no-alt:before {
   color: red;
 }
-/* line 359, ../sass/styles.scss */
 .wposes-main.wrap #tab-network-settings .form-table tr td:first-child {
   width: 120px;
 }
-/* line 363, ../sass/styles.scss */
 .wposes-main.wrap #tab-network-settings #wposes-network-settings-table {
   margin-bottom: 15px;
 }
-/* line 366, ../sass/styles.scss */
 .wposes-main.wrap #tab-network-settings #wposes-network-settings-table th {
   font-weight: bold;
 }
-/* line 370, ../sass/styles.scss */
 .wposes-main.wrap #tab-network-settings #wposes-network-settings-table tr td:first {
   width: 200px;
 }
-/* line 376, ../sass/styles.scss */
 .wposes-main.wrap .wposes-wizard-controls {
   padding-top: 1em;
   border-top: 1px solid #ccc;
   margin-top: 1em;
 }
-/* line 381, ../sass/styles.scss */
 .wposes-main.wrap .wposes-wizard-controls .wposes-wizard-control-row {
-  padding-top: .25em;
-  padding-bottom: .25em;
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
 }
-/* line 386, ../sass/styles.scss */
 .wposes-main.wrap .wposes-wizard-controls .wposes-wizard-control-row-primary {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: horizontal;
-  -webkit-box-direction: reverse;
-  -webkit-flex-direction: row-reverse;
-      -ms-flex-direction: row-reverse;
-          flex-direction: row-reverse;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
+  flex-direction: row-reverse;
+  justify-content: space-between;
 }
-/* line 392, ../sass/styles.scss */
 .wposes-main.wrap .wposes-wizard-controls .wposes-wizard-control-row-secondary {
   text-align: right;
 }
-/* line 397, ../sass/styles.scss */
 .wposes-main.wrap .inline-message, .wposes-main.wrap .notification-message {
-  -webkit-border-radius: 0;
-          border-radius: 0;
+  border-radius: 0;
   border: 0;
-  -webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
-          box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
   padding: 10px 14px;
   font-size: 13px;
 }
-/* line 405, ../sass/styles.scss */
 .wposes-main.wrap .inline-message.error, .wposes-main.wrap .notification-message.error-notice {
   border-left: 4px solid #dd3d36;
   background-color: #fff;
 }
-/* line 410, ../sass/styles.scss */
 .wposes-main.wrap .inline-message.warning, .wposes-main.wrap .notification-message.warning-notice {
   background-color: #fff;
   border-left: 4px solid #ffba00;
 }
-/* line 415, ../sass/styles.scss */
 .wposes-main.wrap .inline-message.success, .wposes-main.wrap .notification-message.success-notice {
   border-left: 4px solid #7ad03a;
 }
 
-/* line 422, ../sass/styles.scss */
 .wposes-content > section {
   margin-bottom: 20px;
 }
-/* line 426, ../sass/styles.scss */
 .wposes-content > section + section.wposes-access-keys {
   padding-top: 20px;
   border-top: 1px solid #d3d3d3;
 }
-/* line 430, ../sass/styles.scss */
 .wposes-content > section + section.wposes-access-keys .wposes-section-heading {
   margin-top: 0;
 }
@@ -432,7 +344,6 @@
 /**
  * Settings
  */
-/* line 439, ../sass/styles.scss */
 .wposes-tab {
   display: none;
   position: relative;
@@ -442,88 +353,71 @@
   /* Triangle hack to make tooltip look like a speech bubble */
   /* Show tooltip content on hover */
 }
-/* line 445, ../sass/styles.scss */
 .wposes-tab .wposes-main-settings p {
   font-size: 13px;
 }
-/* line 447, ../sass/styles.scss */
 .wposes-tab .wposes-main-settings p a {
   color: #444;
 }
-/* line 454, ../sass/styles.scss */
 .wposes-tab .wposes-radio-group label {
   display: block;
   margin-bottom: 10px;
 }
-/* line 457, ../sass/styles.scss */
 .wposes-tab .wposes-radio-group label.disabled, .wposes-tab .wposes-radio-group label.disabled p {
   color: #bbb;
   cursor: default;
 }
-/* line 463, ../sass/styles.scss */
 .wposes-tab .wposes-radio-group p {
   padding-left: 25px;
   color: #6b6b6b;
   margin: 0;
   font-size: 12px;
 }
-/* line 468, ../sass/styles.scss */
 .wposes-tab .wposes-radio-group p.wposes-setting {
   margin-top: 5px;
 }
-/* line 474, ../sass/styles.scss */
 .wposes-tab .wposes-switch {
   position: relative;
   display: inline-block;
   padding: 2px;
   overflow: hidden;
-  -webkit-border-radius: 2px;
-          border-radius: 2px;
+  border-radius: 2px;
   background-color: #d4d3d3;
   cursor: pointer;
 }
-/* line 483, ../sass/styles.scss */
 .wposes-tab .wposes-switch.on {
   background-color: #ade7b5;
 }
-/* line 487, ../sass/styles.scss */
 .wposes-tab .wposes-switch span {
   visibility: hidden;
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   float: left;
   display: inline-block;
   height: 100%;
   font-size: 12px;
   line-height: 20px;
-  -webkit-border-radius: 2px;
-          border-radius: 2px;
+  border-radius: 2px;
   font-weight: bold;
   padding: 4px 8px;
   background: #fff;
   color: #8d8d8d;
   z-index: 1;
 }
-/* line 502, ../sass/styles.scss */
 .wposes-tab .wposes-switch span.on {
   color: #82d78b;
 }
-/* line 506, ../sass/styles.scss */
 .wposes-tab .wposes-switch span.checked {
   visibility: visible;
 }
-/* line 511, ../sass/styles.scss */
 .wposes-tab .wposes-switch.disabled {
   cursor: default;
   background: #e6e6e6;
 }
-/* line 515, ../sass/styles.scss */
 .wposes-tab .wposes-switch.disabled span {
   background: #f1f1f1;
   color: #d6d6d6;
 }
-/* line 521, ../sass/styles.scss */
-.wposes-tab .wposes-switch input[type="checkbox"] {
+.wposes-tab .wposes-switch input[type=checkbox] {
   position: absolute !important;
   top: 0;
   left: 0;
@@ -531,94 +425,73 @@
   filter: alpha(opacity=0);
   z-index: -1;
 }
-/* line 532, ../sass/styles.scss */
 .wposes-tab .wposes-setting.hide {
   display: none;
 }
-/* line 537, ../sass/styles.scss */
 .wposes-tab div.wposes-setting {
   margin-top: 4px;
 }
-/* line 541, ../sass/styles.scss */
 .wposes-tab h3 {
   font-weight: normal;
   text-transform: uppercase;
 }
-/* line 546, ../sass/styles.scss */
 .wposes-tab .form-table {
   margin: 0;
 }
-/* line 550, ../sass/styles.scss */
 .wposes-tab .form-table tr.wposes-border-bottom td {
   border-bottom: 1px solid #ddd;
   padding: 20px 0px;
 }
-/* line 554, ../sass/styles.scss */
 .wposes-tab .form-table tr.wposes-setting-title td {
   padding-bottom: 0;
 }
-/* line 557, ../sass/styles.scss */
 .wposes-tab .form-table tr.wposes-setting-title:first-child td {
   padding-top: 0;
 }
-/* line 560, ../sass/styles.scss */
 .wposes-tab .form-table tr:first-child td {
   padding-top: 0;
 }
-/* line 563, ../sass/styles.scss */
 .wposes-tab .form-table tr td {
   padding: 15px 0;
 }
-/* line 565, ../sass/styles.scss */
 .wposes-tab .form-table tr td:first-child {
   vertical-align: top;
   min-width: 120px;
 }
-/* line 570, ../sass/styles.scss */
 .wposes-tab .form-table tr td .wposes-notice:last-child {
   margin-bottom: 0;
 }
-/* line 574, ../sass/styles.scss */
 .wposes-tab .form-table tr td > p:first-child {
   margin-top: 0;
 }
-/* line 578, ../sass/styles.scss */
 .wposes-tab .form-table tr td #wposes-health-report-sub-settings {
   width: 100%;
 }
-/* line 582, ../sass/styles.scss */
 .wposes-tab .form-table tr td #wposes-health-report-sub-settings tr td {
   padding: 15px 0 0 0;
 }
-/* line 585, ../sass/styles.scss */
 .wposes-tab .form-table tr td #wposes-health-report-sub-settings tr td:first-child {
   width: 95px;
   min-width: 95px;
 }
-/* line 590, ../sass/styles.scss */
 .wposes-tab .form-table tr td #wposes-health-report-sub-settings tr td input[name=health-report-custom-recipients] {
   width: 100%;
 }
-/* line 596, ../sass/styles.scss */
 .wposes-tab .form-table tr td #wposes-health-report-sub-settings tr.wposes-health-report-custom-recipients-container td {
   padding: 5px 0 0 0;
 }
-/* line 605, ../sass/styles.scss */
 .wposes-tab .form-table h3 {
   padding: 0;
   margin: 0;
 }
-/* line 609, ../sass/styles.scss */
 .wposes-tab .form-table h4 {
   margin: 0;
 }
-/* line 614, ../sass/styles.scss */
 .wposes-tab .tooltip {
   position: relative;
   z-index: 2;
   cursor: pointer;
 }
-/* line 621, ../sass/styles.scss */
 .wposes-tab .tooltip:before,
 .wposes-tab .tooltip:after {
   visibility: hidden;
@@ -627,7 +500,6 @@
   opacity: 0;
   pointer-events: none;
 }
-/* line 631, ../sass/styles.scss */
 .wposes-tab .tooltip:before {
   position: absolute;
   bottom: 150%;
@@ -636,17 +508,15 @@
   margin-left: -250px;
   padding: 10px;
   width: 500px;
-  -webkit-border-radius: 3px;
-          border-radius: 3px;
+  border-radius: 3px;
   background-color: #000;
-  background-color: rgba(51, 51, 51, 0.9);
+  background-color: hsla(0deg, 0%, 20%, 0.9);
   color: #fff;
   content: attr(data-tooltip);
   text-align: center;
   font-size: 14px;
   line-height: 1.3;
 }
-/* line 650, ../sass/styles.scss */
 .wposes-tab .tooltip:after {
   position: absolute;
   bottom: 150%;
@@ -654,14 +524,13 @@
   margin-left: -5px;
   width: 0;
   border-top: 5px solid #000;
-  border-top: 5px solid rgba(51, 51, 51, 0.9);
+  border-top: 5px solid hsla(0deg, 0%, 20%, 0.9);
   border-right: 5px solid transparent;
   border-left: 5px solid transparent;
   content: " ";
   font-size: 0;
   line-height: 0;
 }
-/* line 666, ../sass/styles.scss */
 .wposes-tab .tooltip:hover:before,
 .wposes-tab .tooltip:hover:after {
   visibility: visible;
@@ -669,7 +538,6 @@
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
   opacity: 1;
 }
-/* line 674, ../sass/styles.scss */
 .wposes-tab .wposes-defined-in-config {
   background: #ccc;
   color: #fff;
@@ -678,28 +546,22 @@
   float: right;
   white-space: nowrap;
 }
-/* line 683, ../sass/styles.scss */
 .wposes-tab .wposes-defined-setting {
   color: #bbb;
 }
-/* line 686, ../sass/styles.scss */
 .wposes-tab .wposes-defined-setting label {
   cursor: default;
 }
-/* line 690, ../sass/styles.scss */
 .wposes-tab .wposes-defined-setting p .more-info a {
   color: #bbb;
 }
-/* line 694, ../sass/styles.scss */
 .wposes-tab .wposes-defined-setting .wposes-radio-group p {
   color: #bbb;
 }
-/* line 698, ../sass/styles.scss */
 .wposes-tab .wposes-defined-setting .wposes-notice {
   display: none !important;
 }
 
-/* line 712, ../sass/styles.scss */
 #tab-settings .wposes-field-wrap,
 #tab-general .wposes-field-wrap,
 #tab-verified-senders .wposes-field-wrap,
@@ -708,16 +570,9 @@
 #tab-aws-access-keys .wposes-field-wrap,
 #tab-setup-access-keys .wposes-field-wrap,
 #tab-configure-wp-offload-ses .wposes-field-wrap {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-  -webkit-align-items: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
 }
-/* line 716, ../sass/styles.scss */
 #tab-settings .wposes-field-wrap input,
 #tab-general .wposes-field-wrap input,
 #tab-verified-senders .wposes-field-wrap input,
@@ -728,7 +583,6 @@
 #tab-configure-wp-offload-ses .wposes-field-wrap input {
   width: 25em;
 }
-/* line 720, ../sass/styles.scss */
 #tab-settings .wposes-field-wrap button, #tab-settings .wposes-field-wrap .wposes-defined-in-config,
 #tab-general .wposes-field-wrap button,
 #tab-general .wposes-field-wrap .wposes-defined-in-config,
@@ -746,7 +600,6 @@
 #tab-configure-wp-offload-ses .wposes-field-wrap .wposes-defined-in-config {
   margin-left: 20px;
 }
-/* line 724, ../sass/styles.scss */
 #tab-settings .wposes-field-wrap .wposes-defined-in-config,
 #tab-general .wposes-field-wrap .wposes-defined-in-config,
 #tab-verified-senders .wposes-field-wrap .wposes-defined-in-config,
@@ -758,7 +611,6 @@
   display: none;
   margin-bottom: 0;
 }
-/* line 730, ../sass/styles.scss */
 #tab-settings .wposes-field-wrap.wposes-defined button,
 #tab-general .wposes-field-wrap.wposes-defined button,
 #tab-verified-senders .wposes-field-wrap.wposes-defined button,
@@ -769,7 +621,6 @@
 #tab-configure-wp-offload-ses .wposes-field-wrap.wposes-defined button {
   display: none;
 }
-/* line 733, ../sass/styles.scss */
 #tab-settings .wposes-field-wrap.wposes-defined .wposes-defined-in-config,
 #tab-general .wposes-field-wrap.wposes-defined .wposes-defined-in-config,
 #tab-verified-senders .wposes-field-wrap.wposes-defined .wposes-defined-in-config,
@@ -780,7 +631,6 @@
 #tab-configure-wp-offload-ses .wposes-field-wrap.wposes-defined .wposes-defined-in-config {
   display: inline-block;
 }
-/* line 738, ../sass/styles.scss */
 #tab-settings .wposes-field-wrap.wposes-saved-field .wposes-activate-licence,
 #tab-general .wposes-field-wrap.wposes-saved-field .wposes-activate-licence,
 #tab-verified-senders .wposes-field-wrap.wposes-saved-field .wposes-activate-licence,
@@ -791,7 +641,6 @@
 #tab-configure-wp-offload-ses .wposes-field-wrap.wposes-saved-field .wposes-activate-licence {
   display: none;
 }
-/* line 742, ../sass/styles.scss */
 #tab-settings .wposes-field-wrap.wposes-licence-not-entered .wposes-remove-licence,
 #tab-general .wposes-field-wrap.wposes-licence-not-entered .wposes-remove-licence,
 #tab-verified-senders .wposes-field-wrap.wposes-licence-not-entered .wposes-remove-licence,
@@ -802,7 +651,6 @@
 #tab-configure-wp-offload-ses .wposes-field-wrap.wposes-licence-not-entered .wposes-remove-licence {
   display: none;
 }
-/* line 747, ../sass/styles.scss */
 #tab-settings #wposes-refresh-verified-senders,
 #tab-general #wposes-refresh-verified-senders,
 #tab-verified-senders #wposes-refresh-verified-senders,
@@ -814,7 +662,6 @@
   float: right;
   cursor: pointer;
 }
-/* line 752, ../sass/styles.scss */
 #tab-settings #wposes-refresh-verified-senders.rotate,
 #tab-general #wposes-refresh-verified-senders.rotate,
 #tab-verified-senders #wposes-refresh-verified-senders.rotate,
@@ -823,14 +670,9 @@
 #tab-aws-access-keys #wposes-refresh-verified-senders.rotate,
 #tab-setup-access-keys #wposes-refresh-verified-senders.rotate,
 #tab-configure-wp-offload-ses #wposes-refresh-verified-senders.rotate {
-  -webkit-transform: rotate(360deg);
-      -ms-transform: rotate(360deg);
-          transform: rotate(360deg);
-  -webkit-transition: all .5s ease-in-out 0s;
-  -o-transition: all .5s ease-in-out 0s;
-  transition: all .5s ease-in-out 0s;
+  transform: rotate(360deg);
+  transition: all 0.5s ease-in-out 0s;
 }
-/* line 759, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap .tablenav.top,
 #tab-general .wposes-verified-senders-table-wrap .tablenav.top,
 #tab-verified-senders .wposes-verified-senders-table-wrap .tablenav.top,
@@ -841,7 +683,6 @@
 #tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap .tablenav.top {
   display: none;
 }
-/* line 763, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap .wp-list-table,
 #tab-general .wposes-verified-senders-table-wrap .wp-list-table,
 #tab-verified-senders .wposes-verified-senders-table-wrap .wp-list-table,
@@ -852,7 +693,6 @@
 #tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap .wp-list-table {
   table-layout: auto;
 }
-/* line 767, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap th,
 #tab-settings .wposes-verified-senders-table-wrap .form-table th,
 #tab-settings .wposes-verified-senders-table-wrap .wifefat th,
@@ -879,7 +719,6 @@
 #tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap .wifefat th {
   padding: 8px 10px;
 }
-/* line 773, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap th.sortable a,
 #tab-settings .wposes-verified-senders-table-wrap th.sorted a,
 #tab-general .wposes-verified-senders-table-wrap th.sortable a,
@@ -898,7 +737,6 @@
 #tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap th.sorted a {
   padding: 0;
 }
-/* line 778, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap td,
 #tab-general .wposes-verified-senders-table-wrap td,
 #tab-verified-senders .wposes-verified-senders-table-wrap td,
@@ -909,7 +747,6 @@
 #tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap td {
   padding: 8px 10px;
 }
-/* line 782, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap td.column-sender,
 #tab-general .wposes-verified-senders-table-wrap td.column-sender,
 #tab-verified-senders .wposes-verified-senders-table-wrap td.column-sender,
@@ -920,7 +757,6 @@
 #tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap td.column-sender {
   width: 100%;
 }
-/* line 786, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap td.column-actions,
 #tab-general .wposes-verified-senders-table-wrap td.column-actions,
 #tab-verified-senders .wposes-verified-senders-table-wrap td.column-actions,
@@ -932,7 +768,6 @@
   text-align: right;
   white-space: nowrap;
 }
-/* line 791, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap .column-type,
 #tab-general .wposes-verified-senders-table-wrap .column-type,
 #tab-verified-senders .wposes-verified-senders-table-wrap .column-type,
@@ -943,7 +778,6 @@
 #tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap .column-type {
   min-width: 50px;
 }
-/* line 795, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap .column-status,
 #tab-general .wposes-verified-senders-table-wrap .column-status,
 #tab-verified-senders .wposes-verified-senders-table-wrap .column-status,
@@ -954,7 +788,6 @@
 #tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap .column-status {
   min-width: 51px;
 }
-/* line 799, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap #type,
 #tab-settings .wposes-verified-senders-table-wrap #status,
 #tab-settings .wposes-verified-senders-table-wrap tfoot .column-type,
@@ -989,7 +822,6 @@
 #tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap tfoot .column-status {
   padding-right: 0px;
 }
-/* line 806, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap #actions,
 #tab-settings .wposes-verified-senders-table-wrap tfoot .column-actions,
 #tab-general .wposes-verified-senders-table-wrap #actions,
@@ -1008,40 +840,36 @@
 #tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap tfoot .column-actions {
   font-size: 0;
 }
-/* line 811, ../sass/styles.scss */
-#tab-settings .wposes-verified-senders-table-wrap .sender-Failed,
-#tab-general .wposes-verified-senders-table-wrap .sender-Failed,
-#tab-verified-senders .wposes-verified-senders-table-wrap .sender-Failed,
-#tab-send-test-email .wposes-verified-senders-table-wrap .sender-Failed,
-#tab-licence .wposes-verified-senders-table-wrap .sender-Failed,
-#tab-aws-access-keys .wposes-verified-senders-table-wrap .sender-Failed,
-#tab-setup-access-keys .wposes-verified-senders-table-wrap .sender-Failed,
-#tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap .sender-Failed {
+#tab-settings .wposes-verified-senders-table-wrap .sender-FAILED,
+#tab-general .wposes-verified-senders-table-wrap .sender-FAILED,
+#tab-verified-senders .wposes-verified-senders-table-wrap .sender-FAILED,
+#tab-send-test-email .wposes-verified-senders-table-wrap .sender-FAILED,
+#tab-licence .wposes-verified-senders-table-wrap .sender-FAILED,
+#tab-aws-access-keys .wposes-verified-senders-table-wrap .sender-FAILED,
+#tab-setup-access-keys .wposes-verified-senders-table-wrap .sender-FAILED,
+#tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap .sender-FAILED {
   color: red;
 }
-/* line 815, ../sass/styles.scss */
-#tab-settings .wposes-verified-senders-table-wrap .sender-Success,
-#tab-general .wposes-verified-senders-table-wrap .sender-Success,
-#tab-verified-senders .wposes-verified-senders-table-wrap .sender-Success,
-#tab-send-test-email .wposes-verified-senders-table-wrap .sender-Success,
-#tab-licence .wposes-verified-senders-table-wrap .sender-Success,
-#tab-aws-access-keys .wposes-verified-senders-table-wrap .sender-Success,
-#tab-setup-access-keys .wposes-verified-senders-table-wrap .sender-Success,
-#tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap .sender-Success {
+#tab-settings .wposes-verified-senders-table-wrap .sender-SUCCESS,
+#tab-general .wposes-verified-senders-table-wrap .sender-SUCCESS,
+#tab-verified-senders .wposes-verified-senders-table-wrap .sender-SUCCESS,
+#tab-send-test-email .wposes-verified-senders-table-wrap .sender-SUCCESS,
+#tab-licence .wposes-verified-senders-table-wrap .sender-SUCCESS,
+#tab-aws-access-keys .wposes-verified-senders-table-wrap .sender-SUCCESS,
+#tab-setup-access-keys .wposes-verified-senders-table-wrap .sender-SUCCESS,
+#tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap .sender-SUCCESS {
   color: green;
 }
-/* line 819, ../sass/styles.scss */
-#tab-settings .wposes-verified-senders-table-wrap .sender-Pending,
-#tab-general .wposes-verified-senders-table-wrap .sender-Pending,
-#tab-verified-senders .wposes-verified-senders-table-wrap .sender-Pending,
-#tab-send-test-email .wposes-verified-senders-table-wrap .sender-Pending,
-#tab-licence .wposes-verified-senders-table-wrap .sender-Pending,
-#tab-aws-access-keys .wposes-verified-senders-table-wrap .sender-Pending,
-#tab-setup-access-keys .wposes-verified-senders-table-wrap .sender-Pending,
-#tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap .sender-Pending {
+#tab-settings .wposes-verified-senders-table-wrap .sender-PENDING,
+#tab-general .wposes-verified-senders-table-wrap .sender-PENDING,
+#tab-verified-senders .wposes-verified-senders-table-wrap .sender-PENDING,
+#tab-send-test-email .wposes-verified-senders-table-wrap .sender-PENDING,
+#tab-licence .wposes-verified-senders-table-wrap .sender-PENDING,
+#tab-aws-access-keys .wposes-verified-senders-table-wrap .sender-PENDING,
+#tab-setup-access-keys .wposes-verified-senders-table-wrap .sender-PENDING,
+#tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap .sender-PENDING {
   color: orange;
 }
-/* line 823, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap .bulkactions,
 #tab-general .wposes-verified-senders-table-wrap .bulkactions,
 #tab-verified-senders .wposes-verified-senders-table-wrap .bulkactions,
@@ -1052,7 +880,6 @@
 #tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap .bulkactions {
   display: none;
 }
-/* line 827, ../sass/styles.scss */
 #tab-settings .wposes-verified-senders-table-wrap #wposes-add-new-verified-sender,
 #tab-general .wposes-verified-senders-table-wrap #wposes-add-new-verified-sender,
 #tab-verified-senders .wposes-verified-senders-table-wrap #wposes-add-new-verified-sender,
@@ -1063,7 +890,6 @@
 #tab-configure-wp-offload-ses .wposes-verified-senders-table-wrap #wposes-add-new-verified-sender {
   margin-top: 3px;
 }
-/* line 832, ../sass/styles.scss */
 #tab-settings #save-aws-access-keys,
 #tab-general #save-aws-access-keys,
 #tab-verified-senders #save-aws-access-keys,
@@ -1075,43 +901,34 @@
   margin-right: 10px;
 }
 
-/* line 838, ../sass/styles.scss */
 #tab-reports .wposes-need-help {
   margin-bottom: 15px;
 }
-/* line 843, ../sass/styles.scss */
 #tab-reports .tablenav.top label {
   vertical-align: baseline;
 }
-/* line 846, ../sass/styles.scss */
 #tab-reports .tablenav.top .bulkactions,
 #tab-reports .tablenav.top .tablenav-pages {
   display: none;
 }
-/* line 850, ../sass/styles.scss */
 #tab-reports .tablenav.top #wposes-reports-from,
 #tab-reports .tablenav.top #wposes-reports-to {
   width: 150px;
   height: 28px;
   margin-top: 0;
 }
-/* line 858, ../sass/styles.scss */
 #tab-reports .wp-list-table {
   table-layout: auto;
 }
-/* line 861, ../sass/styles.scss */
 #tab-reports .wp-list-table .column-subject {
   width: 300px;
 }
-/* line 866, ../sass/styles.scss */
 #tab-reports #wposes-reports-bg {
   background: url("../img/reporting-blur.png");
-  -webkit-background-size: cover;
-          background-size: cover;
+  background-size: cover;
   height: 366px;
   text-align: center;
 }
-/* line 872, ../sass/styles.scss */
 #tab-reports #wposes-reports-bg #wposes-reports-prompt {
   display: inline-block;
   margin-top: 85px;
@@ -1120,117 +937,90 @@
   border: 1px solid #232323;
   background-color: #fff;
 }
-/* line 880, ../sass/styles.scss */
 #tab-reports #wposes-reports-bg #wposes-reports-prompt h2 {
   margin-top: 0;
 }
 
-/* line 890, ../sass/styles.scss */
 .wposes-lite #tab-activity .tablenav .actions select, .wposes-lite #tab-activity .tablenav .actions input, .wposes-lite #tab-activity .tablenav .actions button {
-  opacity: .6;
+  opacity: 0.6;
   cursor: not-allowed;
 }
-/* line 895, ../sass/styles.scss */
 .wposes-lite #tab-activity .tablenav .actions .button:active,
 .wposes-lite #tab-activity .tablenav .actions .button:hover {
   border-color: #ccc;
   background: #f7f7f7;
-  -webkit-box-shadow: 0 1px 0 #ccc;
-          box-shadow: 0 1px 0 #ccc;
-  -webkit-transform: none;
-      -ms-transform: none;
-          transform: none;
+  box-shadow: 0 1px 0 #ccc;
+  transform: none;
   color: #555;
 }
 
-/* line 907, ../sass/styles.scss */
 #tab-activity .wposes-upgrade-helper {
   width: 250px;
 }
-/* line 911, ../sass/styles.scss */
 #tab-activity .subsubsub {
   margin: 0;
 }
-/* line 915, ../sass/styles.scss */
 #tab-activity .row-actions a.disabled {
   color: grey;
   cursor: not-allowed;
 }
-/* line 922, ../sass/styles.scss */
 #tab-activity .tablenav.top #wposes-subject-search,
 #tab-activity .tablenav.top #wposes-recipient-search {
   width: 115px;
   height: 26px;
 }
-/* line 928, ../sass/styles.scss */
 #tab-activity .tablenav.top .tablenav-pages {
   display: none;
 }
-/* line 933, ../sass/styles.scss */
 #tab-activity .tablenav .alignleft {
   margin: 0 8px 10px 0;
 }
-/* line 940, ../sass/styles.scss */
 #tab-activity .widefat .column-date {
   width: 100px;
 }
-/* line 943, ../sass/styles.scss */
 #tab-activity .widefat .column-subject {
   width: 275px;
 }
-/* line 946, ../sass/styles.scss */
 #tab-activity .widefat .column-status {
   width: 85px;
 }
-/* line 951, ../sass/styles.scss */
 #tab-activity .email-status-sent {
   color: green;
 }
-/* line 955, ../sass/styles.scss */
 #tab-activity .email-status-failed {
   color: red;
 }
-/* line 959, ../sass/styles.scss */
 #tab-activity .email-status-queued {
   color: orange;
 }
-/* line 963, ../sass/styles.scss */
 #tab-activity .email-status-cancelled {
   color: gray;
 }
 
-/* line 969, ../sass/styles.scss */
 #tab-send-test-email #wposes-test-email-address {
   width: 25em;
 }
-/* line 973, ../sass/styles.scss */
 #tab-send-test-email .spinner {
   float: none;
 }
 
-/* line 978, ../sass/styles.scss */
 #tab-support {
   min-height: 900px;
 }
-/* line 980, ../sass/styles.scss */
 #tab-support .wposes-sidebar {
   top: 11px;
 }
-/* line 984, ../sass/styles.scss */
 #tab-support .support-section {
   border-bottom: 1px solid #ccc;
   padding-bottom: 20px;
   margin-bottom: 20px;
 }
-/* line 989, ../sass/styles.scss */
 #tab-support .support-section h3 {
   font-size: 20px;
 }
-/* line 993, ../sass/styles.scss */
 #tab-support .support-section .categories li {
   list-style-type: none;
 }
-/* line 999, ../sass/styles.scss */
 #tab-support .debug textarea {
   width: 100%;
   min-height: 200px;
@@ -1241,7 +1031,6 @@
 /**
  * Sidebar
  */
-/* line 1011, ../sass/styles.scss */
 .wposes-sidebar {
   position: absolute;
   top: 44px;
@@ -1249,29 +1038,22 @@
   width: 292px;
   overflow: hidden;
   background: white;
-  -webkit-border-radius: 7px;
-          border-radius: 7px;
+  border-radius: 7px;
   border: 1px solid #D9E1EB;
-  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
-          box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
 }
-/* line 1022, ../sass/styles.scss */
 .wposes-sidebar .wposes-banner {
   background: #fef7d5 url(../img/oses-graphic.svg) left bottom/100% no-repeat;
   height: 206px;
   width: 292px;
   display: block;
 }
-/* line 1029, ../sass/styles.scss */
 .wposes-sidebar .wposes-banner:focus {
-  -webkit-box-shadow: none;
-          box-shadow: none;
+  box-shadow: none;
 }
-/* line 1033, ../sass/styles.scss */
 .wposes-sidebar .block {
   padding: 20px;
 }
-/* line 1037, ../sass/styles.scss */
 .wposes-sidebar .wposes-upgrade-details {
   background-color: #341f38;
   padding: 10px 20px 20px 20px;
@@ -1281,7 +1063,6 @@
   display: block;
   text-decoration: none;
 }
-/* line 1046, ../sass/styles.scss */
 .wposes-sidebar .wposes-upgrade-details h1 {
   font-size: 28px;
   color: #ffc539;
@@ -1291,7 +1072,6 @@
   font-weight: 200;
   line-height: 1;
 }
-/* line 1056, ../sass/styles.scss */
 .wposes-sidebar .wposes-upgrade-details h3 {
   color: #ffc539;
   font-weight: normal;
@@ -1300,24 +1080,20 @@
   -webkit-box-shadow: none;
   box-shadow: none;
 }
-/* line 1065, ../sass/styles.scss */
 .wposes-sidebar .wposes-upgrade-details ul {
   margin: 20px 0 0 0;
   list-style-type: none;
 }
-/* line 1069, ../sass/styles.scss */
 .wposes-sidebar .wposes-upgrade-details ul li {
   margin-bottom: 15px;
   line-height: 18px;
   padding-left: 25px;
   background: url(../img/icon-checked.svg) left center no-repeat;
 }
-/* line 1078, ../sass/styles.scss */
 .wposes-sidebar .subscribe {
   border-top: none;
   text-align: center;
 }
-/* line 1082, ../sass/styles.scss */
 .wposes-sidebar .subscribe h2 {
   padding: 0;
   margin: 0 0 20px 0;
@@ -1326,12 +1102,10 @@
   line-height: 1.2em;
   float: none;
 }
-/* line 1091, ../sass/styles.scss */
 .wposes-sidebar .subscribe h3 {
   font-size: 16px;
   margin: 0;
 }
-/* line 1095, ../sass/styles.scss */
 .wposes-sidebar .subscribe h3 a {
   background-color: #6d3894;
   color: white;
@@ -1341,57 +1115,46 @@
   letter-spacing: 1px;
   text-transform: uppercase;
   padding: 15px 50px;
-  -webkit-border-radius: 4px;
-          border-radius: 4px;
+  border-radius: 4px;
   margin-bottom: 6px;
   text-decoration: none;
   -webkit-box-shadow: 0 2px 0 #341f38;
   box-shadow: 0 2px 0 #341f38;
 }
-/* line 1110, ../sass/styles.scss */
 .wposes-sidebar .subscribe h3 a:hover {
   background: #66338C;
   -webkit-box-shadow: 0 2px 0 #56277A;
   box-shadow: 0 2px 0 #56277A;
 }
-/* line 1118, ../sass/styles.scss */
 .wposes-sidebar .subscribe .wposes-discount-applied {
   color: rgba(0, 0, 0, 0.4);
   font-size: 12px;
   line-height: 1.4em;
   margin-top: 10px;
 }
-/* line 1125, ../sass/styles.scss */
 .wposes-sidebar .subscribe .wposes-testimonial {
   text-align: left;
-  -webkit-border-radius: 7px;
-          border-radius: 7px;
+  border-radius: 7px;
   border: 1px solid #D9E1EB;
-  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
-          box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
   padding: 15px;
 }
-/* line 1132, ../sass/styles.scss */
 .wposes-sidebar .subscribe .wposes-testimonial .wposes-handle {
   font-weight: bold;
   color: #666;
 }
-/* line 1136, ../sass/styles.scss */
 .wposes-sidebar .subscribe .wposes-testimonial .wposes-handle .wposes-rating {
   float: right;
 }
-/* line 1141, ../sass/styles.scss */
 .wposes-sidebar .subscribe .wposes-testimonial .wposes-quote {
   color: #666;
 }
-/* line 1147, ../sass/styles.scss */
 .wposes-sidebar .credits {
   border-top: 0;
   background: #2e2e31;
   text-align: center;
   padding: 10px;
 }
-/* line 1153, ../sass/styles.scss */
 .wposes-sidebar .credits h4 {
   font-size: 11px;
   font-weight: normal;
@@ -1399,31 +1162,25 @@
   margin-top: 0;
   margin-bottom: 10px;
 }
-/* line 1161, ../sass/styles.scss */
 .wposes-sidebar .credits ul {
   display: inline-block;
   margin: 0;
 }
-/* line 1166, ../sass/styles.scss */
 .wposes-sidebar .credits li {
   overflow: hidden;
 }
-/* line 1170, ../sass/styles.scss */
 .wposes-sidebar .credits li:last-child {
   margin-bottom: 0;
 }
-/* line 1174, ../sass/styles.scss */
 .wposes-sidebar .credits img {
   float: left;
   margin-right: 10px;
 }
-/* line 1179, ../sass/styles.scss */
 .wposes-sidebar .credits span {
   float: left;
   display: block;
   line-height: 32px;
 }
-/* line 1185, ../sass/styles.scss */
 .wposes-sidebar .credits a {
   display: block;
   text-decoration: none;
@@ -1431,25 +1188,21 @@
   font-size: 12px;
   text-align: center;
 }
-/* line 1192, ../sass/styles.scss */
 .wposes-sidebar .credits a img {
   display: inline-block;
   vertical-align: middle;
   margin-right: 8px;
 }
-/* line 1198, ../sass/styles.scss */
 .wposes-sidebar .credits a span {
   display: inline-block;
   vertical-align: middle;
   font-size: 12px;
   line-height: 24px;
 }
-/* line 1205, ../sass/styles.scss */
 .wposes-sidebar .credits a:hover {
   color: #888;
 }
 @media screen and (max-width: 1052px) {
-  /* line 1011, ../sass/styles.scss */
   .wposes-sidebar {
     position: relative;
     top: auto;
@@ -1460,36 +1213,27 @@
 /**
  * Misc
  */
-/* line 1221, ../sass/styles.scss */
 [data-wposes-copy] {
-  -webkit-box-shadow: inset 0 0 0 1px #ade7b5;
-          box-shadow: inset 0 0 0 1px #ade7b5;
+  box-shadow: inset 0 0 0 1px #ade7b5;
   background-color: rgba(173, 231, 181, 0.25);
 }
 
-/* line 1227, ../sass/styles.scss */
 .wposes-click-to-copy [data-wposes-copy] {
   cursor: copy;
-  -webkit-transition: background-color .25s ease;
-  -o-transition: background-color .25s ease;
-  transition: background-color .25s ease;
+  transition: background-color 0.25s ease;
 }
-/* line 1230, ../sass/styles.scss */
 .wposes-click-to-copy [data-wposes-copy]:hover {
   background-color: #ade7b5;
 }
-/* line 1234, ../sass/styles.scss */
 .wposes-click-to-copy .wposes-click-to-copy-show {
   display: block !important;
 }
 
-/* line 1239, ../sass/styles.scss */
 .wposes-compatibility-notice.error {
   clear: both;
   margin: 5px 20px 5px 0;
 }
 
-/* line 1244, ../sass/styles.scss */
 .wposes-validation-error {
   display: block;
   margin-top: 2px;
@@ -1497,12 +1241,10 @@
   color: #a00;
 }
 
-/* line 1251, ../sass/styles.scss */
 .wposes-notice-toggle-content {
   max-height: 100px;
   overflow-y: scroll;
 }
-/* line 1255, ../sass/styles.scss */
 .wposes-notice-toggle-content .wposes-notice-toggle-list {
   margin-top: 0;
   margin-left: 0;
@@ -1510,41 +1252,34 @@
   color: #dc3232;
 }
 
-/* line 1263, ../sass/styles.scss */
 .wposes-need-help {
   background-color: white;
   font-size: 16px;
   font-weight: bold;
   padding: 1em;
 }
-/* line 1269, ../sass/styles.scss */
 .wposes-need-help a {
   text-decoration: none;
 }
 
-/* line 1274, ../sass/styles.scss */
 .wposes-aws-logo {
   color: white;
   background-color: #f7a80d;
   padding: 1em;
 }
 
-/* line 1281, ../sass/styles.scss */
 .wposes-settings h3 {
   font-size: 20px;
 }
-/* line 1285, ../sass/styles.scss */
 .wposes-settings p {
   font-size: 14px;
 }
 
-/* line 1290, ../sass/styles.scss */
 .wposes-addons,
 .wposes-tab .wposes-compatibility-notice {
   max-width: cover;
 }
 
-/* line 1295, ../sass/styles.scss */
 textarea.wposes-access-key-constants-snippet.code {
   width: 100%;
   white-space: pre;
@@ -1557,46 +1292,36 @@ textarea.wposes-access-key-constants-snippet.code {
 /**
  * Addons Tab
  */
-/* line 1308, ../sass/styles.scss */
 .wposes-addons .wposes-addons-list {
   margin: 20px 0 200px;
   padding-top: 5px;
 }
-/* line 1313, ../sass/styles.scss */
 .wposes-addons .wposes-addon {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
   padding: 20px;
   font-size: 14px;
 }
-/* line 1318, ../sass/styles.scss */
 .wposes-addons .wposes-addon-info {
   min-height: 100px;
 }
-/* line 1322, ../sass/styles.scss */
 .wposes-addons .wposes-addon-links {
   float: right;
 }
-/* line 1325, ../sass/styles.scss */
 .wposes-addons .wposes-addon-links span {
   padding: 4px 6px;
 }
-/* line 1330, ../sass/styles.scss */
 .wposes-addons .wposes-addon-icon {
   float: left;
   margin-right: 20px;
 }
-/* line 1335, ../sass/styles.scss */
 .wposes-addons .wposes-addon-details {
   white-space: nowrap;
 }
-/* line 1339, ../sass/styles.scss */
 .wposes-addons .wposes-addon-title, .wposes-addons .wposes-addon-description {
   font-weight: 100;
 }
-/* line 1344, ../sass/styles.scss */
 .wposes-addons .wposes-addon + .wposes-addon {
   margin-top: 20px;
 }
+
+/*# sourceMappingURL=styles.css.map */

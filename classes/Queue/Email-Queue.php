@@ -4,8 +4,6 @@ namespace DeliciousBrains\WP_Offload_SES\Queue;
 
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Queue;
 use DeliciousBrains\WP_Offload_SES\Queue\Jobs\Email_Job;
-use DeliciousBrains\WP_Offload_SES\Queue\Connection;
-use DeliciousBrains\WP_Offload_SES\Queue\Email_Cron;
 
 /**
  * Class Email_Queue
@@ -84,9 +82,9 @@ class Email_Queue extends Queue {
 	 * @param int $attempts
 	 * @param int $interval
 	 *
-	 * @return Cron
+	 * @return Email_Cron
 	 */
-	public function cron( $attempts = 3, $interval = 5 ) {
+	public function cron( $attempts = 3, $interval = 5 ): Email_Cron {
 		if ( is_null( $this->cron ) ) {
 			$this->cron = new Email_Cron( get_class( $this->connection ), $this->worker( $attempts ), $interval );
 			$this->cron->init();
@@ -100,7 +98,7 @@ class Email_Queue extends Queue {
 	 *
 	 * @return bool.
 	 */
-	public function maybe_process_queue() {
+	public function maybe_process_queue(): bool {
 		if ( ! isset( $_REQUEST['action'] ) || 'wposes_trigger_queue' !== $_REQUEST['action'] ) {
 			return false;
 		}
@@ -108,6 +106,8 @@ class Email_Queue extends Queue {
 		check_ajax_referer( 'wposes_trigger_queue', 'nonce' );
 
 		$this->cron->cron_worker();
+
+		return true;
 	}
 
 	/**
@@ -118,7 +118,7 @@ class Email_Queue extends Queue {
 	 *
 	 * @return int|bool
 	 */
-	public function process_email( $email_id, $subsite_id = 0 ) {
+	public function process_email( int $email_id, int $subsite_id = 0 ) {
 		if ( 0 === $subsite_id ) {
 			$subsite_id = get_current_blog_id();
 		}

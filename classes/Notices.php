@@ -265,7 +265,7 @@ class Notices {
 	/**
 	 * Un-dismiss a notice for all users that have dismissed it.
 	 *
-	 * @param string $notice_id The ID of the notice to be un-dimissed.
+	 * @param string $notice_id The ID of the notice to be un-dismissed.
 	 */
 	public function undismiss_notice_for_all( $notice_id ) {
 		$args = array(

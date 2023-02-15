@@ -34,7 +34,7 @@
 					orderby: wposes_verified_senders.__query( query, 'orderby' ) || 'sender'
 				};
 				wposes_verified_senders.update( data );
-			});
+			} );
 			// Page number input
 			$( 'input[name=paged]' ).on( 'keyup', function( e ) {
 				// If user hit enter, we don't want to submit the form
@@ -59,17 +59,17 @@
 				timer = window.setTimeout( function() {
 					wposes_verified_senders.update( data );
 				}, delay );
-			});
+			} );
 		},
 		/**
 		 * AJAX call
 		 *
 		 * Send the call and replace table parts with updated version!
 		 *
-		 * @param	object	data The data to pass through AJAX
+		 * @param {object} data The data to pass through AJAX
 		 */
 		update: function( data ) {
-			$.ajax({
+			$.ajax( {
 				// /wp-admin/admin-ajax.php
 				url: ajaxurl,
 				// Add action and nonce to our collected data
@@ -113,25 +113,26 @@
 					// Init back our event handlers
 					wposes_verified_senders.init();
 				}
-			});
+			} );
 		},
+
 		/**
 		 * Filter the URL Query to extract variables
 		 *
 		 * @see http://css-tricks.com/snippets/javascript/get-url-variables/
 		 *
-		 * @param    string    query The URL query part containing the variables
-		 * @param    string    variable Name of the variable we want to get
+		 * @param {string} query The URL query part containing the variables
+		 * @param {string} variable Name of the variable we want to get
 		 *
-		 * @return   string|boolean The variable value if available, false else.
+		 * @return string|boolean The variable value if available, false else.
 		 */
 		__query: function( query, variable ) {
 			var vars = query.split( '&' );
 			for ( var i = 0; i < vars.length; i++ ) {
 				var pair = vars[ i ].split( '=' );
 
-				if ( pair[0] === variable ) {
-					return pair[1];
+				if ( pair[ 0 ] === variable ) {
+					return pair[ 1 ];
 				}
 			}
 			return false;
@@ -139,7 +140,7 @@
 	};
 
 	/**
-	 * The object that handles the verify senders modal.
+	 * The object that handles the Verify Senders modal.
 	 */
 	wposes.Tools.VerifySender = {
 
@@ -151,14 +152,14 @@
 		modalContainer: '.wposes-verify-sender-prompt',
 
 		/**
-		 * Whether or not the modal is currently open.
+		 * Whether the modal is currently open.
 		 *
 		 * {bool}
 		 */
 		modalOpen: false,
 
 		/**
-		 * Show the verify sender prompt.
+		 * Show the Verify Sender prompt.
 		 */
 		showPrompt: function() {
 			wposesModal.setDismissibleState( true );
@@ -184,8 +185,8 @@
 				sender_field = $( '#wposes-verify-email' );
 			}
 
-			if ( ! sender_field[0].checkValidity() ) {
-				sender_field[0].reportValidity();
+			if ( !sender_field[ 0 ].checkValidity() ) {
+				sender_field[ 0 ].reportValidity();
 				return;
 			}
 
@@ -197,8 +198,8 @@
 		/**
 		 * Send a verification request to Amazon.
 		 *
-		 * @param string sender
-		 * @param string sender_type
+		 * @param {string} sender
+		 * @param {string} sender_type
 		 */
 		sendVerificationRequest: function( sender, sender_type ) {
 			$.ajax( {
@@ -223,23 +224,31 @@
 		/**
 		 * Handle the response to the verification request.
 		 *
-		 * @param string sender
-		 * @param string sender_type
-		 * @param object response
+		 * @param {string} sender
+		 * @param {string} sender_type
+		 * @param {object} response
 		 */
 		handleVerificationResponse: function( sender, sender_type, response ) {
-			wposes_verified_senders.update();
+			wposes_verified_senders.update( {} );
 
 			// Open the modal if not already
-			if ( ! wposes.Tools.VerifySender.modalOpen ) {
+			if ( !wposes.Tools.VerifySender.modalOpen ) {
 				wposes.Tools.VerifySender.showPrompt();
 			}
 
 			if ( response.errors ) {
+				console.log( response.errors );
 				$( '.wposes-verification-errors' ).html( Object.values( response.errors ).join( ' ' ) ).show();
 			} else if ( 'domain' === sender_type ) {
-				$( '#wposes-dns-name' ).html( '_amazonses.' + sender );
-				$( '#wposes-dns-value' ).html( response.VerificationToken );
+				$( '#wposes-update-dns table tbody' ).empty();
+				for ( const token of response.VerificationTokens ) {
+					$( '#wposes-update-dns table tbody' ).append(
+						'<tr>' +
+						'<td><code data-wposes-copy>' + token + '._domainkey.' + sender + '</code></td>' +
+						'<td><code data-wposes-copy>' + token + '.dkim.amazonses.com</code></td>' +
+						'</tr>'
+					);
+				}
 				$( '#wposes-verified-sender-form' ).removeClass().addClass( 'wposes-update-dns' );
 			} else {
 				$( '#wposes-verified-sender-form' ).removeClass().addClass( 'wposes-confirm-email' );
@@ -249,12 +258,12 @@
 		},
 
 		/**
-		 * Show the delete sender confirmation prompt.
+		 * Show the Delete Sender confirmation prompt.
 		 *
-		 * @param string sender
+		 * @param {string} sender
 		 */
 		deleteSenderPrompt: function( sender ) {
-			if ( ! wposes.Tools.VerifySender.modalOpen ) {
+			if ( !wposes.Tools.VerifySender.modalOpen ) {
 				wposes.Tools.VerifySender.showPrompt();
 				$( '#wposes-verified-sender-form' ).removeClass().addClass( 'wposes-delete-sender' );
 			}
@@ -282,7 +291,7 @@
 				},
 				success: function( data, textStatus, jqXHR ) {
 					wposes.Tools.VerifySender.hidePrompt();
-					wposes_verified_senders.update();
+					wposes_verified_senders.update( {} );
 				}
 			} );
 		},
@@ -310,7 +319,7 @@
 			$( this ).addClass( 'rotate' ).on( 'transitionend', function() {
 				$( this ).removeClass( 'rotate' );
 			} );
-			wposes_verified_senders.update();
+			wposes_verified_senders.update( {} );
 		} );
 
 		// Open the Add New Sender Modal
@@ -332,9 +341,9 @@
 			event.preventDefault();
 
 			var sender = $( this ).data( 'sender' );
-			var token = $( this ).data( 'token' );
+			var tokens = $( this ).data( 'tokens' );
 
-			wposes.Tools.VerifySender.handleVerificationResponse( sender, 'domain', { 'VerificationToken': token } );
+			wposes.Tools.VerifySender.handleVerificationResponse( sender, 'domain', { 'VerificationTokens': tokens } );
 		} );
 
 		// Resend the verification request for an email address

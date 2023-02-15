@@ -1,8 +1,6 @@
 # AWS SDK for PHP - Version 3
 
-[![@awsforphp on Twitter](http://img.shields.io/badge/twitter-%40awsforphp-blue.svg?style=flat)](https://twitter.com/awsforphp)
 [![Total Downloads](https://img.shields.io/packagist/dt/aws/aws-sdk-php.svg?style=flat)](https://packagist.org/packages/aws/aws-sdk-php)
-[![Build Status](https://img.shields.io/travis/aws/aws-sdk-php.svg?style=flat)](https://travis-ci.org/aws/aws-sdk-php)
 [![Apache 2 License](https://img.shields.io/packagist/l/aws/aws-sdk-php.svg?style=flat)](http://aws.amazon.com/apache-2-0/)
 [![Gitter](https://badges.gitter.im/aws/aws-sdk-php.svg)](https://gitter.im/aws/aws-sdk-php?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![codecov](https://codecov.io/gh/aws/aws-sdk-php/branch/master/graph/badge.svg)](https://codecov.io/gh/aws/aws-sdk-php)
@@ -26,11 +24,11 @@ Jump To:
 
 1. **Sign up for AWS** – Before you begin, you need to
    sign up for an AWS account and retrieve your [AWS credentials][docs-signup].
-1. **Minimum requirements** – To run the SDK, your system will need to meet the
+2. **Minimum requirements** – To run the SDK, your system will need to meet the
    [minimum requirements][docs-requirements], including having **PHP >= 5.5**.
    We highly recommend having it compiled with the cURL extension and cURL
    7.16.2+ compiled with a TLS backend (e.g., NSS or OpenSSL).
-1. **Install the SDK** – Using [Composer] is the recommended way to install the
+3. **Install the SDK** – Using [Composer] is the recommended way to install the
    AWS SDK for PHP. The SDK is available via [Packagist] under the
    [`aws/aws-sdk-php`][install-packagist] package. If Composer is installed globally on your system, you can run the following in the base directory of your project to add the SDK as a dependency:
    ```
@@ -40,10 +38,14 @@ Jump To:
    [Installation section of the User Guide][docs-installation] for more
    detailed information about installing the SDK through Composer and other
    means.
-1. **Using the SDK** – The best way to become familiar with how to use the SDK
+4. **Using the SDK** – The best way to become familiar with how to use the SDK
    is to read the [User Guide][docs-guide]. The
    [Getting Started Guide][docs-quickstart] will help you become familiar with
    the basic concepts.
+5. **Beta: Removing unused services** — To date, there are over 300 AWS services available for use with this SDK.
+   You will likely not need them all. If you use Composer and would like to learn more about this feature,
+    please read the [linked documentation][docs-script-composer].
+
 
 ## Quick Examples
 
@@ -92,6 +94,14 @@ Please use these community resources for getting help. We use the GitHub issues 
 This SDK implements AWS service APIs. For general issues regarding the AWS services and their limitations, you may also take a look at the [Amazon Web Services Discussion Forums](https://forums.aws.amazon.com/).
 
 
+## Maintenance and support for SDK major versions
+
+For information about maintenance and support for SDK major versions and their underlying dependencies, see the following in the [AWS SDKs and Tools Shared Configuration and Credentials Reference Guide](https://docs.aws.amazon.com/credref/latest/refdocs/overview.html):
+
+* [AWS SDKs and Tools Maintenance Policy](https://docs.aws.amazon.com/credref/latest/refdocs/maint-policy.html)
+* [AWS SDKs and Tools Version Support Matrix](https://docs.aws.amazon.com/credref/latest/refdocs/version-support-matrix.html)
+
+
 ### Opening Issues
 
 If you encounter a bug with `aws-sdk-php` we would like to hear about it. Search the existing issues and try to make sure your problem doesn’t already exist before opening a new issue. It’s helpful if you include the version of `aws-sdk-php`, PHP version and OS you’re using. Please include a stack trace and a simple workflow to reproduce the case when appropriate, too.
@@ -133,7 +143,6 @@ We work hard to provide a high-quality and useful SDK for our AWS services, and 
 * [Forum][sdk-forum] – Ask questions, get help, and give feedback
 * [Issues][sdk-issues] – Report issues, submit pull requests, and get involved
   (see [Apache 2.0 License][sdk-license])
-* [@awsforphp][sdk-twitter] – Follow us on Twitter
 
 ## Related AWS Projects
 
@@ -154,7 +163,6 @@ We work hard to provide a high-quality and useful SDK for our AWS services, and 
 [sdk-issues]: https://github.com/aws/aws-sdk-php/issues
 [sdk-license]: http://aws.amazon.com/apache2.0/
 [sdk-blog]: https://aws.amazon.com/blogs/developer/category/php/
-[sdk-twitter]: https://twitter.com/awsforphp
 [sdk-sample]: http://aws.amazon.com/developers/getting-started/php
 
 [install-packagist]: https://packagist.org/packages/aws/aws-sdk-php
@@ -182,6 +190,7 @@ We work hard to provide a high-quality and useful SDK for our AWS services, and 
 [docs-s3-transfer]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/s3-transfer.html
 [docs-s3-multipart]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/s3-multipart-upload.html
 [docs-s3-encryption]: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/s3-encryption-client.html
+[docs-script-composer]: https://github.com/aws/aws-sdk-php/tree/master/src/Script/Composer
 
 [aws]: http://aws.amazon.com
 [aws-iam-credentials]: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/UsingIAM.html#UsingIAMrolesWithAmazonEC2Instances

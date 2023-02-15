@@ -31,7 +31,7 @@ class Cron
      */
     public function __construct($id, $worker, $interval)
     {
-        $this->id = strtolower(str_replace('\\', '_', $id));
+        $this->id = \strtolower(\str_replace('\\', '_', $id));
         $this->worker = $worker;
         $this->interval = $interval;
     }
@@ -42,10 +42,10 @@ class Cron
      */
     protected function is_enabled()
     {
-        if (defined('DISABLE_WP_QUEUE_CRON') && DISABLE_WP_QUEUE_CRON) {
-            return false;
+        if (\defined('DISABLE_WP_QUEUE_CRON') && \DISABLE_WP_QUEUE_CRON) {
+            return \false;
         }
-        return true;
+        return \true;
     }
     /**
      * Init cron class.
@@ -55,15 +55,15 @@ class Cron
     public function init()
     {
         if (!$this->is_enabled()) {
-            return false;
+            return \false;
         }
-        add_filter('cron_schedules', array($this, 'schedule_cron'));
-        add_action($this->id, array($this, 'cron_worker'));
+        add_filter('cron_schedules', [$this, 'schedule_cron']);
+        add_action($this->id, [$this, 'cron_worker']);
         if (!wp_next_scheduled($this->id)) {
             // Schedule health check
-            wp_schedule_event(time(), $this->id, $this->id);
+            wp_schedule_event(\time(), $this->id, $this->id);
         }
-        return true;
+        return \true;
     }
     /**
      * Add interval to cron schedules.
@@ -74,7 +74,7 @@ class Cron
      */
     public function schedule_cron($schedules)
     {
-        $schedules[$this->id] = array('interval' => MINUTE_IN_SECONDS * $this->interval, 'display' => sprintf(__('Every %d Minutes'), $this->interval));
+        $schedules[$this->id] = ['interval' => MINUTE_IN_SECONDS * $this->interval, 'display' => \sprintf(__('Every %d Minutes'), $this->interval)];
         return $schedules;
     }
     /**
@@ -85,7 +85,7 @@ class Cron
         if ($this->is_worker_locked()) {
             return;
         }
-        $this->start_time = time();
+        $this->start_time = \time();
         $this->lock_worker();
         while (!$this->time_exceeded() && !$this->memory_exceeded()) {
             if (!$this->worker->process()) {
@@ -108,7 +108,7 @@ class Cron
      */
     protected function lock_worker()
     {
-        set_site_transient($this->id, time(), 300);
+        set_site_transient($this->id, \time(), 300);
     }
     /**
      * Unlock the cron worker.
@@ -129,10 +129,10 @@ class Cron
     {
         $memory_limit = $this->get_memory_limit() * 0.8;
         // 80% of max memory
-        $current_memory = memory_get_usage(true);
-        $return = false;
+        $current_memory = \memory_get_usage(\true);
+        $return = \false;
         if ($current_memory >= $memory_limit) {
-            $return = true;
+            $return = \true;
         }
         return apply_filters('wp_queue_cron_memory_exceeded', $return);
     }
@@ -143,8 +143,8 @@ class Cron
      */
     protected function get_memory_limit()
     {
-        if (function_exists('ini_get')) {
-            $memory_limit = ini_get('memory_limit');
+        if (\function_exists('ini_get')) {
+            $memory_limit = \ini_get('memory_limit');
         } else {
             $memory_limit = '256M';
         }
@@ -152,7 +152,7 @@ class Cron
             // Unlimited, set to 1GB
             $memory_limit = '1000M';
         }
-        return intval($memory_limit) * 1024 * 1024;
+        return wp_convert_hr_to_bytes($memory_limit);
     }
     /**
      * Time exceeded
@@ -166,9 +166,9 @@ class Cron
     {
         $finish = $this->start_time + apply_filters('wp_queue_cron_time_limit', 20);
         // 20 seconds
-        $return = false;
-        if (time() >= $finish) {
-            $return = true;
+        $return = \false;
+        if (\time() >= $finish) {
+            $return = \true;
         }
         return apply_filters('wp_queue_cron_time_exceeded', $return);
     }

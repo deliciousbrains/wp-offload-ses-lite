@@ -25,15 +25,18 @@
 					if ( 'domain' === sender_type ) {
 						$( '.wposes-domain-dns' ).html(
 							'<tr>' +
-								'<th>Type</th>' +
-								'<th>Name</th>' +
-								'<th>Value</th>' +
-							'<tr>' +
-								'<td>TXT</td>' +
-								'<td><code data-wposes-copy>_amazonses.' + sender + '</code></td>' +
-								'<td><code data-wposes-copy>' + data['VerificationToken'] + '</code></td>' +
+							'<th>Name</th>' +
+							'<th>Value</th>' +
 							'</tr>'
 						);
+						for( const token of data.VerificationTokens) {
+							$( '.wposes-domain-dns' ).append(
+								'<tr>' +
+								'<td><code data-wposes-copy>' + token + '._domainkey.' + sender + '</code></td>' +
+								'<td><code data-wposes-copy>' + token + '.dkim.amazonses.com</code></td>' +
+								'</tr>'
+							);
+						}
 					}
 
 					$( '.wposes-sender' ).html( sender );

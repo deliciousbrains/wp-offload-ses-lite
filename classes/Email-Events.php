@@ -283,7 +283,7 @@ class Email_Events {
 		}
 
 		// Redirect.
-		$response->header( 'Cache-Control', 'no-store, no-chache, must-revalidate, max-age=0' );
+		$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
 		$response->header( 'Pragma', 'no-cache' );
 		$response->set_status( 301 );
 		$response->header( 'Location', urldecode( $args['email_click_url'] ) );

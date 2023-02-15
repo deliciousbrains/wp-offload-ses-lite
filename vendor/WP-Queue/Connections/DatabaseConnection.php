@@ -5,7 +5,7 @@ namespace DeliciousBrains\WP_Offload_SES\WP_Queue\Connections;
 use DeliciousBrains\WP_Offload_SES\Carbon\Carbon;
 use Exception;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Job;
-class DatabaseConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\ConnectionInterface
+class DatabaseConnection implements ConnectionInterface
 {
     /**
      * @var \wpdb
@@ -38,11 +38,11 @@ class DatabaseConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Con
      *
      * @return bool|int
      */
-    public function push(\DeliciousBrains\WP_Offload_SES\WP_Queue\Job $job, $delay = 0)
+    public function push(Job $job, $delay = 0)
     {
-        $result = $this->database->insert($this->jobs_table, array('job' => serialize($job), 'available_at' => $this->datetime($delay), 'created_at' => $this->datetime()));
+        $result = $this->database->insert($this->jobs_table, ['job' => \serialize($job), 'available_at' => $this->datetime($delay), 'created_at' => $this->datetime()]);
         if (!$result) {
-            return false;
+            return \false;
         }
         return $this->database->insert_id;
     }
@@ -56,8 +56,8 @@ class DatabaseConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Con
         $this->release_reserved();
         $sql = $this->database->prepare("\n\t\t\tSELECT * FROM {$this->jobs_table}\n\t\t\tWHERE reserved_at IS NULL\n\t\t\tAND available_at <= %s\n\t\t\tORDER BY available_at\n\t\t\tLIMIT 1\n\t\t", $this->datetime());
         $raw_job = $this->database->get_row($sql);
-        if (is_null($raw_job)) {
-            return false;
+        if (\is_null($raw_job)) {
+            return \false;
         }
         $job = $this->vitalize_job($raw_job);
         $this->reserve($job);
@@ -72,11 +72,11 @@ class DatabaseConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Con
      */
     public function delete($job)
     {
-        $where = array('id' => $job->id());
+        $where = ['id' => $job->id()];
         if ($this->database->delete($this->jobs_table, $where)) {
-            return true;
+            return \true;
         }
-        return false;
+        return \false;
     }
     /**
      * Release a job back onto the queue.
@@ -87,12 +87,12 @@ class DatabaseConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Con
      */
     public function release($job)
     {
-        $data = array('job' => serialize($job), 'attempts' => $job->attempts(), 'reserved_at' => null);
-        $where = array('id' => $job->id());
+        $data = ['job' => \serialize($job), 'attempts' => $job->attempts(), 'reserved_at' => null];
+        $where = ['id' => $job->id()];
         if ($this->database->update($this->jobs_table, $data, $where)) {
-            return true;
+            return \true;
         }
-        return false;
+        return \false;
     }
     /**
      * Push a job onto the failure queue.
@@ -102,14 +102,14 @@ class DatabaseConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Con
      *
      * @return bool
      */
-    public function failure($job, \Exception $exception)
+    public function failure($job, Exception $exception)
     {
-        $insert = $this->database->insert($this->failures_table, array('job' => serialize($job), 'error' => $this->format_exception($exception), 'failed_at' => $this->datetime()));
+        $insert = $this->database->insert($this->failures_table, ['job' => \serialize($job), 'error' => $this->format_exception($exception), 'failed_at' => $this->datetime()]);
         if ($insert) {
             $this->delete($job);
-            return true;
+            return \true;
         }
-        return false;
+        return \false;
     }
     /**
      * Get total jobs in the queue.
@@ -138,8 +138,8 @@ class DatabaseConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Con
      */
     protected function reserve($job)
     {
-        $data = array('reserved_at' => $this->datetime());
-        $this->database->update($this->jobs_table, $data, array('id' => $job->id()));
+        $data = ['reserved_at' => $this->datetime()];
+        $this->database->update($this->jobs_table, $data, ['id' => $job->id()]);
     }
     /**
      * Release reserved jobs back onto the queue.
@@ -159,12 +159,12 @@ class DatabaseConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Con
      */
     protected function vitalize_job($raw_job)
     {
-        $job = unserialize($raw_job->job);
+        $job = \unserialize($raw_job->job);
         $job->set_id($raw_job->id);
         $job->set_attempts($raw_job->attempts);
-        $job->set_reserved_at(empty($raw_job->reserved_at) ? null : new \DeliciousBrains\WP_Offload_SES\Carbon\Carbon($raw_job->reserved_at));
-        $job->set_available_at(new \DeliciousBrains\WP_Offload_SES\Carbon\Carbon($raw_job->available_at));
-        $job->set_created_at(new \DeliciousBrains\WP_Offload_SES\Carbon\Carbon($raw_job->created_at));
+        $job->set_reserved_at(empty($raw_job->reserved_at) ? null : new Carbon($raw_job->reserved_at));
+        $job->set_available_at(new Carbon($raw_job->available_at));
+        $job->set_created_at(new Carbon($raw_job->created_at));
         return $job;
     }
     /**
@@ -176,8 +176,8 @@ class DatabaseConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Con
      */
     protected function datetime($offset = 0)
     {
-        $timestamp = time() + $offset;
-        return gmdate('Y-m-d H:i:s', $timestamp);
+        $timestamp = \time() + $offset;
+        return \gmdate('Y-m-d H:i:s', $timestamp);
     }
     /**
      * Format an exception error string.
@@ -186,9 +186,9 @@ class DatabaseConnection implements \DeliciousBrains\WP_Offload_SES\WP_Queue\Con
      *
      * @return string
      */
-    protected function format_exception(\Exception $exception)
+    protected function format_exception(Exception $exception)
     {
-        $string = get_class($exception);
+        $string = \get_class($exception);
         if (!empty($exception->getMessage())) {
             $string .= " : {$exception->getMessage()}";
         }

@@ -118,8 +118,9 @@ class Activity_List_Table extends \WP_List_Table {
 	 * @param array $email The array of info about the email.
 	 */
 	public function column_cb( $email ) {
+	    $id = esc_attr( $email['id'] );
 		?>
-		<input id="cb-select-<?php echo $email['id']; ?>" type="checkbox" name="email[]" value="<?php echo $email['id']; ?>" />
+		<input id="cb-select-<?php echo $id; ?>" type="checkbox" name="email[]" value="<?php echo $id; ?>" />
 		<?php
 	}
 
@@ -146,11 +147,11 @@ class Activity_List_Table extends \WP_List_Table {
 	public function column_subject( $email ) {
 		global $wp_offload_ses;
 
-		$subject = $email['subject'];
+		$subject = esc_html( $email['subject'] );
 		$actions = $wp_offload_ses->get_email_action_links( $email['id'], $email['status'] );
 
 		if ( $wp_offload_ses->is_pro() ) {
-			$subject = '<a href="#activity" class="wposes-view-email wposes-subject-link" data-email="' . $email['id'] . '">' . $email['subject'] . '</a>';
+			$subject = '<a href="#activity" class="wposes-view-email wposes-subject-link" data-email="' . esc_attr( $email['id'] ) . '">' . $subject . '</a>';
 		}
 
 		return $subject . $this->row_actions( $actions );
@@ -168,7 +169,7 @@ class Activity_List_Table extends \WP_List_Table {
 			return implode( ', ', $email['recipient'] );
 		}
 
-		return $email['recipient'];
+		return esc_html( $email['recipient'] );
 	}
 
 	/**

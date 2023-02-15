@@ -14,7 +14,7 @@ interface ConnectionInterface
      *
      * @return bool|int
      */
-    public function push(\DeliciousBrains\WP_Offload_SES\WP_Queue\Job $job, $delay = 0);
+    public function push(Job $job, $delay = 0);
     /**
      * Retrieve a job from the queue.
      *
@@ -39,9 +39,9 @@ interface ConnectionInterface
      * @param Job       $job
      * @param Exception $exception
      *
-     * @return
+     * @return bool
      */
-    public function failure($job, \Exception $exception);
+    public function failure($job, Exception $exception);
     /**
      * Get total jobs in the queue.
      *

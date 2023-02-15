@@ -3,7 +3,7 @@
 Plugin Name: WP Offload SES Lite
 Description: Automatically send WordPress mail through Amazon SES (Simple Email Service).
 Author: Delicious Brains
-Version: 1.4.4
+Version: 1.6.0
 Author URI: https://deliciousbrains.com/
 Network: True
 Text Domain: wp-offload-ses
@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$GLOBALS['wposes_meta']['wp-ses']['version'] = '1.4.4';
+$GLOBALS['wposes_meta']['wp-ses']['version'] = '1.6.0';
 
 if ( ! class_exists( 'DeliciousBrains\WP_Offload_SES\Compatibility_Check' ) ) {
 	require_once wposes_lite_get_plugin_dir_path() . '/classes/Compatibility-Check.php';
@@ -68,6 +68,11 @@ function wp_offload_ses_lite_init() {
 	}
 
 	$abspath = wposes_lite_get_plugin_dir_path();
+
+	// Prevent error in Guzzle when PHP doesn't have the intl extension.
+	if ( ! function_exists( 'idn_to_ascii' ) && ! defined( 'IDNA_DEFAULT' ) ) {
+		define( 'IDNA_DEFAULT', 0 );
+	}
 
 	// Load autoloaders.
 	require_once $abspath . '/vendor/Aws3/aws-autoloader.php';

@@ -2,7 +2,7 @@
 /**
  * Log emails for WP Offload SES.
  *
- * @author Delicious Brains
+ * @author  Delicious Brains
  * @package WP Offload SES
  */
 
@@ -115,7 +115,7 @@ class Email_Log {
 	 *
 	 * @return array|bool
 	 */
-	public function get_email( $id ) {
+	public function get_email( int $id ) {
 		$sql = $this->database->prepare( "SELECT * FROM {$this->log_table} WHERE email_id = %d", $id );
 		$row = $this->database->get_row( $sql, ARRAY_A );
 
@@ -124,6 +124,10 @@ class Email_Log {
 		}
 
 		$row = array_map( 'maybe_unserialize', $row );
+
+		if ( ! empty( $row['email_headers'] ) ) {
+			$row['email_headers'] = Utils::sanitize_email_headers( $row['email_headers'] );
+		}
 
 		return $row;
 	}

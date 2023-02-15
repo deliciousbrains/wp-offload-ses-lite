@@ -8,9 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
-use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
-use DeliciousBrains\WP_Offload_SES\Email;
-use DeliciousBrains\WP_Offload_SES\SES_API;
+use DateTime;
+use Exception;
+use phpmailerException;
+use WPDB;
 
 /**
  * Class Pro_Health_Report.
@@ -18,7 +19,6 @@ use DeliciousBrains\WP_Offload_SES\SES_API;
  * @since 1.4.0
  */
 class Health_Report {
-
 	/**
 	 * Stores the ID used for cron events.
 	 *
@@ -27,9 +27,16 @@ class Health_Report {
 	protected $cron_id;
 
 	/**
+	 * Stores the ID used for network cron events.
+	 *
+	 * @var string
+	 */
+	protected $network_cron_id;
+
+	/**
 	 * Stores the WordPress database class.
 	 *
-	 * @var \WPDB
+	 * @var WPDB
 	 */
 	protected $database;
 
@@ -72,6 +79,8 @@ class Health_Report {
 	 * Constructs the Health_Report class.
 	 *
 	 * @param WP_Offload_SES $wp_offload_ses The main WP Offload SES class.
+	 *
+	 * @throws Exception
 	 */
 	public function __construct( WP_Offload_SES $wp_offload_ses ) {
 		global $wpdb;
@@ -97,10 +106,12 @@ class Health_Report {
 	 * @param string $cron The cron to use.
 	 *
 	 * @return bool
+	 * @throws Exception
 	 */
-	public function init( $cron ) {
+	public function init( string $cron ): bool {
 		if ( ! $this->is_enabled() ) {
 			wp_clear_scheduled_hook( $cron, array( $this->is_network_report ) );
+
 			return false;
 		}
 
@@ -110,12 +121,14 @@ class Health_Report {
 		// Invalid send time.
 		if ( ! $send_time ) {
 			wp_clear_scheduled_hook( $cron, array( $this->is_network_report ) );
+
 			return false;
 		}
 
 		// Not scheduled yet.
 		if ( ! $next_scheduled ) {
 			wp_schedule_single_event( $send_time, $cron, array( $this->is_network_report ) );
+
 			return true;
 		}
 
@@ -144,31 +157,32 @@ class Health_Report {
 	 * @param string $offset Offsets the current time.
 	 *
 	 * @return int|bool
+	 * @throws Exception
 	 */
-	public function get_next_send_time( $offset = '' ) {
+	public function get_next_send_time( string $offset = '' ) {
 		$frequency = $this->get_frequency();
 		$time      = current_time( 'mysql' );
 		$format    = 'Y-m-d H:i:s';
 
 		if ( '' !== $offset ) {
-			$date   = \DateTime::createFromFormat( $format, $time );
-			$offset = $date->modify( $offset );
-			$time   = $date->format( $format );
+			$date = DateTime::createFromFormat( $format, $time );
+			$date = $date->modify( $offset );
+			$time = $date->format( $format );
 		}
 
 		switch ( $frequency ) {
 			case 'monthly':
-				$date        = \DateTime::createFromFormat( $format, $time );
+				$date        = DateTime::createFromFormat( $format, $time );
 				$day_to_send = $date->modify( 'first day of next month' );
 				break;
 			case 'daily':
-				$date        = \DateTime::createFromFormat( $format, $time );
+				$date        = DateTime::createFromFormat( $format, $time );
 				$day_to_send = $date->modify( '+1 day' );
 				break;
 			case 'weekly':
 			default:
 				$week_start_end = get_weekstartend( $time );
-				$week_end       = new \DateTime( '@' . $week_start_end['end'] );
+				$week_end       = new DateTime( '@' . $week_start_end['end'] );
 				$day_to_send    = $week_end->modify( '+1 day' );
 				break;
 		}
@@ -194,7 +208,7 @@ class Health_Report {
 	 *
 	 * @return bool
 	 */
-	public function is_enabled() {
+	public function is_enabled(): bool {
 		$is_enabled = $this->wposes->settings->get_setting( 'enable-health-report', false );
 
 		if ( ! is_multisite() ) {
@@ -216,16 +230,12 @@ class Health_Report {
 		}
 
 		// Subsite isn't overriding.
-		if ( $subsite_settings_enabled && ! $overriding_network_settings ) {
+		if ( ! $overriding_network_settings ) {
 			return $is_network_enabled;
 		}
 
 		// Subsite is overriding, OK to use subsite settings.
-		if ( $subsite_settings_enabled && $overriding_network_settings ) {
-			return $is_enabled;
-		}
-
-		return false;
+		return $is_enabled;
 	}
 
 	/**
@@ -233,8 +243,8 @@ class Health_Report {
 	 *
 	 * @param bool $network If this is a network report.
 	 */
-	public function set_network_report( $network = true ) {
-		$this->is_network_report = (bool) $network;
+	public function set_network_report( bool $network = true ) {
+		$this->is_network_report = $network;
 	}
 
 	/**
@@ -242,8 +252,8 @@ class Health_Report {
 	 *
 	 * @return bool
 	 */
-	public function is_network_report() {
-		return (bool) $this->is_network_report;
+	public function is_network_report(): bool {
+		return $this->is_network_report;
 	}
 
 	/**
@@ -251,7 +261,7 @@ class Health_Report {
 	 *
 	 * @return bool
 	 */
-	public function is_subsite_report() {
+	public function is_subsite_report(): bool {
 		if ( ! is_multisite() ) {
 			return false;
 		}
@@ -263,10 +273,11 @@ class Health_Report {
 	 * Sends the report.
 	 *
 	 * @param bool $network If this is a network report.
-	 * 
+	 *
 	 * @return bool
+	 * @throws phpmailerException
 	 */
-	public function send( $network = false ) {
+	public function send( bool $network = false ): bool {
 		$this->set_network_report( $network );
 
 		if ( ! $this->should_send() ) {
@@ -297,7 +308,7 @@ class Health_Report {
 	 *
 	 * @return bool
 	 */
-	public function should_send() {
+	public function should_send(): bool {
 		if ( ! $this->wposes->settings->get_setting( 'send-via-ses' ) || ! $this->is_enabled() ) {
 			return false;
 		}
@@ -310,7 +321,7 @@ class Health_Report {
 	 *
 	 * @return array
 	 */
-	public function get_available_frequencies() {
+	public function get_available_frequencies(): array {
 		return array(
 			'daily'   => __( 'Daily (upgrade required)', 'wp-offload-ses' ),
 			'weekly'  => __( 'Weekly', 'wp-offload-ses' ),
@@ -323,7 +334,7 @@ class Health_Report {
 	 *
 	 * @return array
 	 */
-	public function get_available_recipients() {
+	public function get_available_recipients(): array {
 		return array(
 			'site-admins' => __( 'Site Admins', 'wp-offload-ses' ),
 			'custom'      => __( 'Custom (upgrade required)', 'wp-offload-ses' ),
@@ -335,7 +346,7 @@ class Health_Report {
 	 *
 	 * @return string
 	 */
-	public function get_reporting_period() {
+	public function get_reporting_period(): string {
 		$frequency = $this->get_frequency();
 		$text      = array(
 			'daily'   => __( 'day', 'wp-offload-ses' ),
@@ -355,7 +366,7 @@ class Health_Report {
 	 *
 	 * @return string
 	 */
-	public function get_frequency() {
+	public function get_frequency(): string {
 		if ( $this->is_network_report() ) {
 			return $this->wposes->settings->get_network_setting( 'health-report-frequency', 'weekly' );
 		}
@@ -368,7 +379,9 @@ class Health_Report {
 	 *
 	 * @return array
 	 */
-	public function get_recipients() {
+	public function get_recipients(): array {
+		$recipients = array();
+
 		if ( $this->is_network_report() ) {
 			$admins      = array();
 			$site_admins = get_site_option( 'site_admins' );
@@ -376,8 +389,7 @@ class Health_Report {
 				$admins[] = get_user_by( 'slug', $admin );
 			}
 		} else {
-			$recipients = array();
-			$admins     = get_users( 'role=Administrator' );	
+			$admins = get_users( 'role=Administrator' );
 		}
 
 		foreach ( $admins as $admin ) {
@@ -391,15 +403,16 @@ class Health_Report {
 	 * Gets the report start date.
 	 *
 	 * @return string
+	 * @throws Exception
 	 */
-	public function get_report_start_date() {
+	public function get_report_start_date(): string {
 		$frequency  = $this->get_frequency();
 		$end_date   = $this->get_report_end_date();
-		$start_date = new \Datetime( $end_date );
+		$start_date = new Datetime( $end_date );
 
-		switch( $frequency ) {
+		switch ( $frequency ) {
 			case 'daily':
-				$start_date = $start_date;
+				// Just use start date as is.
 				break;
 			case 'monthly':
 				$start_date = $start_date->modify( 'first day of this month' );
@@ -418,9 +431,9 @@ class Health_Report {
 	 *
 	 * @return string
 	 */
-	public function get_report_end_date() {
+	public function get_report_end_date(): string {
 		$format = 'Y-m-d H:i:s';
-		$date   = \DateTime::createFromFormat( $format, current_time( 'mysql' ) );
+		$date   = DateTime::createFromFormat( $format, current_time( 'mysql' ) );
 
 		$date->modify( '-1 day' );
 
@@ -432,7 +445,7 @@ class Health_Report {
 	 *
 	 * @return int
 	 */
-	public function get_week_start() {
+	public function get_week_start(): int {
 		return get_option( 'start_of_week', 1 );
 	}
 
@@ -441,7 +454,7 @@ class Health_Report {
 	 *
 	 * @return string
 	 */
-	public function get_plugin_name() {
+	public function get_plugin_name(): string {
 		return __( 'WP Offload SES Lite', 'wp-offload-ses' );
 	}
 
@@ -450,9 +463,10 @@ class Health_Report {
 	 *
 	 * @return string
 	 */
-	public function get_plugin_logo() {
+	public function get_plugin_logo(): string {
 		$src = $this->wposes->plugins_url( 'assets/img/SES-circle.png' );
 		$src = apply_filters( 'as3cf_get_asset', $src );
+
 		return '<img width="50" alt="" style="width: 50px; display: block;" src="' . esc_url( $src ) . '" />';
 	}
 
@@ -463,10 +477,10 @@ class Health_Report {
 	 *
 	 * @return string
 	 */
-	public function get_view_full_report_link( $which ) {
+	public function get_view_full_report_link( string $which ): string {
 		$args = array(
 			'hash'   => 'activity',
-			'status' => 'sent' === $which ? 'sent' : 'failed'
+			'status' => 'sent' === $which ? 'sent' : 'failed',
 		);
 
 		$method = $this->is_subsite_report() ? 'self' : 'network';
@@ -483,12 +497,12 @@ class Health_Report {
 	 *
 	 * @return string
 	 */
-	public function get_report_subject() {
+	public function get_report_subject(): string {
 		$domain = Utils::current_base_domain();
 
 		if ( is_multisite() && ! is_main_site() ) {
 			$parts  = parse_url( home_url() );
-			$url    = $parts['host'] . ( isset( $parts['path'] ) ? $parts['path'] : '' );
+			$url    = $parts['host'] . ( $parts['path'] ?? '' );
 			$domain = untrailingslashit( $url );
 		}
 
@@ -503,25 +517,24 @@ class Health_Report {
 	 * Gets the date range used in the email header.
 	 *
 	 * @return string
+	 * @throws Exception
 	 */
-	public function get_report_date_range() {
+	public function get_report_date_range(): string {
 		$frequency = $this->get_frequency();
 		$format    = get_option( 'date_format' );
-		$start     = new \DateTime( $this->get_report_start_date() );
-		$end       = new \DateTime( $this->get_report_end_date() );
+		$start     = new DateTime( $this->get_report_start_date() );
+		$end       = new DateTime( $this->get_report_end_date() );
 
 		if ( 'daily' === $frequency ) {
 			// Daily frequency doesn't require a range.
 			return $start->format( $format );
 		}
 
-		$range = sprintf(
+		return sprintf(
 			__( '%1$s through %2$s', 'wp-offload-ses' ),
 			$start->format( $format ),
 			$end->format( $format )
 		);
-
-		return $range;
 	}
 
 	/**
@@ -529,13 +542,14 @@ class Health_Report {
 	 * during the report period.
 	 *
 	 * @return int
+	 * @throws Exception
 	 */
-	public function get_total_subjects_sent() {
+	public function get_total_subjects_sent(): int {
 		$subsite_sql = '';
 
 		if ( $this->is_subsite_report() ) {
-			$subsite_id  = (int) get_current_blog_id();
-			$subsite_sql = "AND emails.subsite_id = {$subsite_id}";
+			$subsite_id  = get_current_blog_id();
+			$subsite_sql = "AND emails.subsite_id = $subsite_id";
 		}
 
 		$query = $this->database->prepare(
@@ -557,13 +571,14 @@ class Health_Report {
 	 * the table in the health report.
 	 *
 	 * @return array
+	 * @throws Exception
 	 */
-	public function get_sent_emails() {
+	public function get_sent_emails(): array {
 		$subsite_sql = '';
 
 		if ( $this->is_subsite_report() ) {
-			$subsite_id  = (int) get_current_blog_id();
-			$subsite_sql = "AND emails.subsite_id = {$subsite_id}";
+			$subsite_id  = get_current_blog_id();
+			$subsite_sql = "AND emails.subsite_id = $subsite_id";
 		}
 
 		$query = $this->database->prepare(
@@ -584,8 +599,8 @@ class Health_Report {
 		$sent_emails = $this->database->get_results( $query, ARRAY_A );
 
 		return array_map(
-			function( $value ) {
-				$upgrade_url = $this->wposes->dbrains_url(
+			function ( $value ) {
+				$upgrade_url  = $this->wposes->dbrains_url(
 					'/wp-offload-ses/',
 					array(
 						'utm_campaign' => 'WP+Offload+SES+Upgrade',
@@ -612,13 +627,14 @@ class Health_Report {
 	 * during the report period.
 	 *
 	 * @return int
+	 * @throws Exception
 	 */
-	public function get_total_email_failures() {
+	public function get_total_email_failures(): int {
 		$subsite_sql = '';
 
 		if ( $this->is_subsite_report() ) {
-			$subsite_id  = (int) get_current_blog_id();
-			$subsite_sql = "AND emails.subsite_id = {$subsite_id}";
+			$subsite_id  = get_current_blog_id();
+			$subsite_sql = "AND emails.subsite_id = $subsite_id";
 		}
 
 		$query = $this->database->prepare(
@@ -640,13 +656,14 @@ class Health_Report {
 	 * used to populate the table in the health report.
 	 *
 	 * @return array
+	 * @throws Exception
 	 */
-	public function get_failed_emails() {
+	public function get_failed_emails(): array {
 		$subsite_sql = '';
 
 		if ( $this->is_subsite_report() ) {
-			$subsite_id  = (int) get_current_blog_id();
-			$subsite_sql = "AND emails.subsite_id = {$subsite_id}";
+			$subsite_id  = get_current_blog_id();
+			$subsite_sql = "AND emails.subsite_id = $subsite_id";
 		}
 
 		$query = $this->database->prepare(

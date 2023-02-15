@@ -2,14 +2,11 @@
 /**
  * Builds an email to be sent.
  *
- * @author Delicious Brains
+ * @author  Delicious Brains
  * @package WP Offload SES
  */
 
 namespace DeliciousBrains\WP_Offload_SES;
-
-use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
-use DeliciousBrains\WP_Offload_SES\Utils;
 
 /**
  * Class Email
@@ -83,7 +80,7 @@ class Email {
 
 	/**
 	 * Gets the PHP Mailer instance.
-	 * 
+	 *
 	 * Backwards-compatibility for pre-5.5 versions of WordPress.
 	 *
 	 * @return PHPMailer
@@ -145,7 +142,8 @@ class Email {
 	 *
 	 * @param string $email The email address to add if unverified.
 	 */
-	private function maybe_log_unverified_sender( $email ) {
+	private function maybe_log_unverified_sender( string $email ) {
+		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
 		if ( ! $wp_offload_ses->is_verified_email_address( $email ) ) {
@@ -237,24 +235,14 @@ class Email {
 	 * @param string|array $headers Headers to include in the email.
 	 */
 	private function headers( $headers ) {
+		$headers = Utils::sanitize_email_headers( $headers );
+
 		if ( empty( $headers ) ) {
 			return;
 		}
 
-		// Handle newline-delimited string list of headers.
-		if ( ! is_array( $headers ) ) {
-			$headers = trim( str_replace( "\r\n", "\n", $headers ) );
-			$headers = explode( "\n", $headers );
-		}
-
 		foreach ( $headers as $header ) {
-			$header = explode( ':', trim( $header ), 2 );
-
-			if ( ! is_array( $header ) || 2 !== count( $header ) ) {
-				continue;
-			}
-
-			list( $name, $content ) = $header;
+			list( $name, $content ) = explode( ':', trim( $header ), 2 );
 			$name    = trim( $name );
 			$content = trim( $content );
 			$this->handle_headers( $name, $content );
@@ -333,19 +321,28 @@ class Email {
 	 * @param string $type    Cc by default.
 	 */
 	private function header_cc( $content, $type = 'cc' ) {
-		$recipient = $this->maybe_split_recipient( $content );
+		// They could be in CSV format.
+		$ccs = explode( ',', $content );
 
-		try {
-			switch ( $type ) {
-				case 'cc':
-					$this->mail->addCC( $recipient['email'], $recipient['name'] );
-					break;
-				case 'bcc':
-					$this->mail->addBCC( $recipient['email'], $recipient['name'] );
-					break;
-			}
-		} catch ( \Exception $e ) {
+		if ( empty( $ccs ) ) {
 			return;
+		}
+
+		foreach ( $ccs as $cc ) {
+			$recipient = $this->maybe_split_recipient( trim( $cc ) );
+
+			try {
+				switch ( $type ) {
+					case 'cc':
+						$this->mail->addCC( $recipient['email'], $recipient['name'] );
+						break;
+					case 'bcc':
+						$this->mail->addBCC( $recipient['email'], $recipient['name'] );
+						break;
+				}
+			} catch ( \Exception $e ) {
+				return;
+			}
 		}
 	}
 
@@ -397,7 +394,7 @@ class Email {
 		foreach ( $stored_attachments as $attachment ) {
 			try {
 				$this->mail->AddAttachment( $attachment['path'], $attachment['filename'] );
-			} catch( \Exception $e ) {
+			} catch ( \Exception $e ) {
 				continue;
 			}
 		}
@@ -483,7 +480,7 @@ class Email {
 			$this->mail->Body = $wp_offload_ses->get_email_events()->filter_email_content( $this->email_id, $this->mail->Body );
 		}
 
-		// Fires after PHPMailer is initalized.
+		// Fires after PHPMailer is initialized.
 		do_action_ref_array( 'phpmailer_init', array( &$this->mail ) );
 
 		try {
@@ -497,6 +494,59 @@ class Email {
 		}
 
 		return $this->mail->getSentMIMEMessage();
+	}
+
+	/**
+	 * Filters the email body to make it safe for viewing in the email modal.
+	 *
+	 * @param string $unsafe The unsafe code for the email body.
+	 *
+	 * @return string The sanitized email, or an empty string on failure.
+	 */
+	public function sanitize_email_body( $unsafe ) {
+		if ( ! is_string( $unsafe ) ) {
+			return '';
+		}
+
+		/**
+		 * We first parse things manually here since `wp_kses()` removes
+		 * the offending tags, but leaves the content intact. While this wouldn't
+		 * be a big deal for JS since that is quite rare to see in legitimate emails, style tags
+		 * are becoming more common in HTML emails these days - and I don't wanna hear about
+		 * code showing up in the email modal in support!
+		 *
+		 * We can't just allow style tags in `wp_kses()` via the `wp_kses_allowed_html` filter
+		 * since there are technically some XSS attacks that use CSS as a vector, and `wp_kses()`
+		 * will only check style attributes, not entire inline stylesheets in style tags.
+		 */
+		$document              = new \DOMDocument();
+		$libxml_previous_state = libxml_use_internal_errors( true );
+		$loaded                = $document->loadHTML( $unsafe );
+
+		if ( false === $loaded ) {
+			return '';
+		}
+
+		$tags_to_remove = array( 'script', 'style', 'head' );
+
+		foreach ( $tags_to_remove as $tag ) {
+			$nodes = $document->getElementsByTagName( $tag );
+
+			while ( $node = $nodes->item( 0 ) ) {
+				$node->parentNode->removeChild( $node );
+			}
+		}
+
+		$still_unsafe = $document->saveHTML();
+
+		libxml_clear_errors();
+		libxml_use_internal_errors( $libxml_previous_state );
+
+		if ( false === $still_unsafe ) {
+			return '';
+		}
+
+		return wp_kses_post( $still_unsafe );
 	}
 
 	/**
@@ -515,7 +565,7 @@ class Email {
 		$this->charset();
 		$this->return_path();
 
-		$to          = implode( ', ',  array_keys( $this->mail->getAllRecipientAddresses() ) );
+		$to          = implode( ', ', array_keys( $this->mail->getAllRecipientAddresses() ) );
 		$opens       = '';
 		$clicks      = '';
 		$status      = '';
@@ -524,9 +574,11 @@ class Email {
 		$actions     = $wp_offload_ses->get_email_action_links( $email_data['id'], $email_data['status'] );
 		unset( $actions['view'] );
 
+		$body = $this->sanitize_email_body( $this->mail->Body );
+
 		// Maybe add HTML line breaks.
 		if ( 'text/html' !== $this->mail->ContentType ) {
-			$this->mail->Body = nl2br( $this->mail->Body );
+			$body = nl2br( $body );
 		}
 
 		if ( isset( $email_data['status_i18n'] ) ) {
@@ -566,7 +618,7 @@ class Email {
 
 		$attachment_links = $wp_offload_ses->get_attachments()->get_attachment_links( $email_data['id'] );
 		if ( ! empty( $attachment_links ) ) {
-			$attachments =  '<hr />' . _n( 'Attachment: ', 'Attachments: ', count( $attachment_links ), 'wp-offload-ses' ) . implode( ', ', $attachment_links );
+			$attachments = '<hr />' . _n( 'Attachment: ', 'Attachments: ', count( $attachment_links ), 'wp-offload-ses' ) . implode( ', ', $attachment_links );
 		}
 		?>
 		<div id="wposes-email-wrap">
@@ -575,7 +627,7 @@ class Email {
 			<span id="wposes-email-to"><?php printf( __( 'To: %s', 'wp-offload-ses' ), $to ); ?></span>
 			<span id="wposes-email-sent"><?php echo $sent; ?></span>
 
-			<div id="wposes-email-content"><?php echo $this->mail->Body; ?></div>
+			<div id="wposes-email-content"><?php echo $body; ?></div>
 
 			<span id="wposes-email-attachments"><?php echo $attachments; ?></span>
 

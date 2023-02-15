@@ -18,7 +18,7 @@ class Queue
      *
      * @param ConnectionInterface $connection
      */
-    public function __construct(\DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\ConnectionInterface $connection)
+    public function __construct(ConnectionInterface $connection)
     {
         $this->connection = $connection;
     }
@@ -30,7 +30,7 @@ class Queue
      *
      * @return bool|int
      */
-    public function push(\DeliciousBrains\WP_Offload_SES\WP_Queue\Job $job, $delay = 0)
+    public function push(Job $job, $delay = 0)
     {
         return $this->connection->push($job, $delay);
     }
@@ -44,8 +44,8 @@ class Queue
      */
     public function cron($attempts = 3, $interval = 5)
     {
-        if (is_null($this->cron)) {
-            $this->cron = new \DeliciousBrains\WP_Offload_SES\WP_Queue\Cron(get_class($this->connection), $this->worker($attempts), $interval);
+        if (\is_null($this->cron)) {
+            $this->cron = new Cron(\get_class($this->connection), $this->worker($attempts), $interval);
             $this->cron->init();
         }
         return $this->cron;
@@ -59,6 +59,6 @@ class Queue
      */
     public function worker($attempts)
     {
-        return new \DeliciousBrains\WP_Offload_SES\WP_Queue\Worker($this->connection, $attempts);
+        return new Worker($this->connection, $attempts);
     }
 }

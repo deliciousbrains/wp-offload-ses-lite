@@ -18,7 +18,7 @@ class DocModel
      */
     public function __construct(array $docs)
     {
-        if (!extension_loaded('tidy')) {
+        if (!\extension_loaded('tidy')) {
             throw new \RuntimeException('The "tidy" PHP extension is required.');
         }
         $this->docs = $docs;
@@ -85,7 +85,12 @@ class DocModel
             $result = $d['base'];
         }
         if (isset($d['append'])) {
-            $result .= $d['append'];
+            if (!isset($d['excludeAppend']) || !\in_array($parentName, $d['excludeAppend'])) {
+                $result .= $d['append'];
+            }
+        }
+        if (isset($d['appendOnly']) && \in_array($parentName, $d['appendOnly']['shapes'])) {
+            $result .= $d['appendOnly']['message'];
         }
         return $this->clean($result);
     }
@@ -95,7 +100,7 @@ class DocModel
             return '';
         }
         $tidy = new \tidy();
-        $tidy->parseString($content, ['indent' => true, 'doctype' => 'omit', 'output-html' => true, 'show-body-only' => true, 'drop-empty-paras' => true, 'drop-font-tags' => true, 'drop-proprietary-attributes' => true, 'hide-comments' => true, 'logical-emphasis' => true]);
+        $tidy->parseString($content, ['indent' => \true, 'doctype' => 'omit', 'output-html' => \true, 'show-body-only' => \true, 'drop-empty-paras' => \true, 'drop-font-tags' => \true, 'drop-proprietary-attributes' => \true, 'hide-comments' => \true, 'logical-emphasis' => \true]);
         $tidy->cleanRepair();
         return (string) $content;
     }

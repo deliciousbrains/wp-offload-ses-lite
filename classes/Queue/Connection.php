@@ -2,10 +2,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES\Queue;
 
-use DeliciousBrains\WP_Offload_SES\Queue\Jobs\Email_Job;
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\DatabaseConnection;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Job;
+use Exception;
 
 /**
  * Class Connection
@@ -72,7 +72,7 @@ class Connection extends DatabaseConnection {
 		$data  = array(
 			'job'         => serialize( $job ),
 			'attempts'    => $job->attempts(),
-			'reserved_at' => null
+			'reserved_at' => null,
 		);
 		$where = array( 'id' => $job->id() );
 
@@ -88,12 +88,12 @@ class Connection extends DatabaseConnection {
 	/**
 	 * Push a job onto the failure queue and mark the email as failed in the email log.
 	 *
-	 * @param Email_Job  $job       The job that failed.
-	 * @param \Exception $exception The exception that caused the failure.
+	 * @param Job       $job       The job that failed.
+	 * @param Exception $exception The exception that caused the failure.
 	 *
 	 * @return bool
 	 */
-	public function failure( $job, \Exception $exception ) {
+	public function failure( $job, Exception $exception ): bool {
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
@@ -183,18 +183,24 @@ class Connection extends DatabaseConnection {
 	/**
 	 * Get total jobs in the queue.
 	 *
+	 * @param bool $unreserved If we should just get the # of unreserved jobs.
+	 *
 	 * @return int
 	 */
-	public function jobs() {
+	public function jobs( $unreserved = false ) {
 		global $wp_offload_ses;
 
-		$sql = "SELECT COUNT(*) FROM {$this->jobs_table}";
+		$sql = "SELECT COUNT(*) FROM {$this->jobs_table} WHERE 1=1";
+
+		if ( $unreserved ) {
+			$sql .= ' AND reserved_at IS NULL';
+		}
 
 		if ( is_multisite() ) {
 			$subsite_settings_enabled = (bool) $wp_offload_ses->settings->get_setting( 'enable-subsite-settings', false );
 
 			if ( $subsite_settings_enabled ) {
-				$sql = $this->database->prepare( "SELECT COUNT(*) FROM {$this->jobs_table} WHERE subsite_id = %d", get_current_blog_id() );
+				$sql .= $this->database->prepare( ' AND subsite_id = %d', get_current_blog_id() );
 			}
 		}
 

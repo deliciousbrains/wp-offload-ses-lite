@@ -50,8 +50,8 @@ class Utils {
 	/**
 	 * Parses a URL into its components. Compatible with PHP < 5.4.7.
 	 *
-	 * @param string  $url The URL to parse.
-	 * @param int     $component PHP_URL_ constant for URL component to return.
+	 * @param string $url       The URL to parse.
+	 * @param int    $component PHP_URL_ constant for URL component to return.
 	 *
 	 * @return mixed An array of the parsed components, mixed for a requested component, or false on error.
 	 */
@@ -249,4 +249,74 @@ class Utils {
 		);
 	}
 
+	/**
+	 * Convert headers to an array if not already.
+	 *
+	 * @param mixed $headers
+	 *
+	 * @return array
+	 */
+	public static function headers_to_array( $headers ): array {
+		if ( empty( $headers ) || ( ! is_string( $headers ) && ! is_array( $headers ) ) ) {
+			return array();
+		}
+
+		// Handle newline-delimited string list of headers.
+		if ( ! is_array( $headers ) ) {
+			$headers = trim( str_replace( "\r\n", "\n", $headers ) );
+			$headers = explode( "\n", $headers );
+		}
+
+		return $headers;
+	}
+
+	/**
+	 * Get an array of header strings with cleaned up formatting.
+	 *
+	 * We use a very light touch, only cleaning up formatting problems
+	 * known to cause emails to be rejected by SES.
+	 *
+	 * @param mixed $headers
+	 *
+	 * @return array
+	 */
+	public static function sanitize_email_headers( $headers ): array {
+		$new_headers = array();
+		$headers     = static::headers_to_array( $headers );
+
+		if ( empty( $headers ) ) {
+			return $new_headers;
+		}
+
+		foreach ( $headers as $header ) {
+			$header = explode( ':', trim( $header ), 2 );
+
+			if ( ! is_array( $header ) || 2 !== count( $header ) ) {
+				continue;
+			}
+
+			list( $name, $content ) = $header;
+			$name    = trim( $name );
+			$content = trim( $content );
+
+			switch ( strtolower( $name ) ) {
+				case 'content-type':
+					$charset_pos = stripos( $content, 'charset=' );
+
+					if ( false !== $charset_pos && 0 < $charset_pos ) {
+						list( $type, $charset ) = explode( 'charset=', str_ireplace( 'charset=', 'charset=', $content ) );
+						$type          = trim( trim( $type, " \t;" ) );
+						$charset       = trim( trim( $charset, " \t;" ) );
+						$new_headers[] = join( ': ', array( $name, join( '; charset=', array( $type, $charset ) ) ) );
+					} else {
+						$new_headers[] = join( ': ', array( $name, trim( trim( $content, " \t;" ) ) ) );
+					}
+					break;
+				default:
+					$new_headers[] = join( ': ', array( $name, trim( trim( $content, " \t;" ) ) ) );
+			}
+		}
+
+		return $new_headers;
+	}
 }

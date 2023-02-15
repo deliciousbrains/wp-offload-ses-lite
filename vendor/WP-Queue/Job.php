@@ -29,11 +29,11 @@ abstract class Job
     /**
      * @var bool
      */
-    private $released = false;
+    private $released = \false;
     /**
      * @var bool
      */
-    private $failed = false;
+    private $failed = \false;
     /**
      * Handle job logic.
      */
@@ -106,7 +106,7 @@ abstract class Job
      *
      * @param Carbon $available_at
      */
-    public function set_available_at(\DeliciousBrains\WP_Offload_SES\Carbon\Carbon $available_at)
+    public function set_available_at(Carbon $available_at)
     {
         $this->available_at = $available_at;
     }
@@ -124,7 +124,7 @@ abstract class Job
      *
      * @param Carbon $created_at
      */
-    public function set_created_at(\DeliciousBrains\WP_Offload_SES\Carbon\Carbon $created_at)
+    public function set_created_at(Carbon $created_at)
     {
         $this->created_at = $created_at;
     }
@@ -133,7 +133,7 @@ abstract class Job
      */
     public function release()
     {
-        $this->released = true;
+        $this->released = \true;
         $this->attempts += 1;
     }
     /**
@@ -150,7 +150,7 @@ abstract class Job
      */
     public function fail()
     {
-        $this->failed = true;
+        $this->failed = \true;
     }
     /**
      * Has the job failed?
@@ -168,11 +168,11 @@ abstract class Job
      */
     public function __sleep()
     {
-        $object_props = get_object_vars($this);
-        $excluded_props = array('id', 'attempts', 'reserved_at', 'available_at', 'created_at', 'released', 'failed');
+        $object_props = \get_object_vars($this);
+        $excluded_props = ['id', 'attempts', 'reserved_at', 'available_at', 'created_at', 'released', 'failed'];
         foreach ($excluded_props as $prop) {
             unset($object_props[$prop]);
         }
-        return array_keys($object_props);
+        return \array_keys($object_props);
     }
 }

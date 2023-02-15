@@ -10,12 +10,12 @@ use DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\StreamInterface as Psr7
  *
  * @codeCoverageIgnore
  */
-class GuzzleStream implements \DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Stream\StreamInterface
+class GuzzleStream implements GuzzleStreamInterface
 {
     use StreamDecoratorTrait;
     /** @var Psr7StreamInterface */
     private $stream;
-    public function __construct(\DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\StreamInterface $stream)
+    public function __construct(Psr7StreamInterface $stream)
     {
         $this->stream = $stream;
     }

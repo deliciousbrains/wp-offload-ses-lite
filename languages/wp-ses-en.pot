@@ -1,0 +1,1595 @@
+# Copyright (C) 2023 Delicious Brains
+# This file is distributed under the same license as the WP Offload SES plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Offload SES 1.6.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-ses\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2023-02-15T09:07:39+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.7.1\n"
+"X-Domain: wp-offload-ses\n"
+
+#. Plugin Name of the plugin
+msgid "WP Offload SES"
+msgstr ""
+
+#. Description of the plugin
+msgid "Automatically send WordPress mail through Amazon SES (Simple Email Service)."
+msgstr ""
+
+#. Author of the plugin
+msgid "Delicious Brains"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://deliciousbrains.com/"
+msgstr ""
+
+#: classes/Activity-List-Table.php:78
+msgid "Date"
+msgstr ""
+
+#: classes/Activity-List-Table.php:79
+#: view/health-report/sent-table.php:4
+msgid "Subject"
+msgstr ""
+
+#: classes/Activity-List-Table.php:80
+msgid "Recipient"
+msgstr ""
+
+#: classes/Activity-List-Table.php:81
+#: classes/Verified-Senders-List-Table.php:58
+msgid "Status"
+msgstr ""
+
+#: classes/Activity-List-Table.php:325
+msgid "No emails found. Check back later!"
+msgstr ""
+
+#: classes/Activity-List-Table.php:335
+#: classes/WP-Offload-SES.php:735
+msgid "Send"
+msgstr ""
+
+#: classes/Activity-List-Table.php:336
+#: classes/WP-Offload-SES.php:729
+#: view/modals/delete-email.php:11
+#: view/modals/verify-sender.php:68
+msgid "Cancel"
+msgstr ""
+
+#: classes/Activity-List-Table.php:337
+#: classes/WP-Offload-SES.php:739
+msgid "Delete Permanently"
+msgstr ""
+
+#: classes/Activity-List-Table.php:368
+msgid "All %s"
+msgstr ""
+
+#: classes/Activity-List-Table.php:375
+msgid "Sent %s"
+msgstr ""
+
+#: classes/Activity-List-Table.php:379
+msgid "Failed %s"
+msgstr ""
+
+#: classes/Activity-List-Table.php:383
+msgid "Queued %s"
+msgstr ""
+
+#: classes/Activity-List-Table.php:387
+msgid "Cancelled %s"
+msgstr ""
+
+#: classes/Activity-List-Table.php:551
+msgid "All Subjects"
+msgstr ""
+
+#: classes/Activity-List-Table.php:552
+msgid "All Recipients"
+msgstr ""
+
+#: classes/Activity-List-Table.php:553
+msgid "Filter"
+msgstr ""
+
+#: classes/Activity-List-Table.php:572
+msgid "All dates"
+msgstr ""
+
+#: classes/Amazon-Web-Services.php:179
+msgid "You must first <a href=\"%s\">set your AWS access keys</a> to use this plugin."
+msgstr ""
+
+#: classes/Command-Pool.php:132
+#: classes/Command-Pool.php:168
+msgid "Failed to retrieve the job while executing the command pool."
+msgstr ""
+
+#: classes/Compatibility-Check.php:386
+msgid "a PHP version less than 5.5"
+msgstr ""
+
+#: classes/Compatibility-Check.php:390
+msgid "no SimpleXML PHP module"
+msgstr ""
+
+#: classes/Compatibility-Check.php:394
+msgid "no XMLWriter PHP module"
+msgstr ""
+
+#: classes/Compatibility-Check.php:398
+msgid "no PHP cURL library activated"
+msgstr ""
+
+#: classes/Compatibility-Check.php:404
+msgid "a cURL version less than 7.16.2"
+msgstr ""
+
+#: classes/Compatibility-Check.php:419
+msgid "cURL compiled without"
+msgstr ""
+
+#: classes/Compatibility-Check.php:424
+msgid "the function curl_multi_exec disabled"
+msgstr ""
+
+#: classes/Compatibility-Check.php:442
+msgid "The official Amazon&nbsp;Web&nbsp;Services SDK requires PHP 5.5+ with SimpleXML and XMLWriter modules, and cURL 7.16.2+ compiled with OpenSSL and zlib. Your server currently has"
+msgstr ""
+
+#: classes/Email-Events.php:266
+#: classes/Email-Events.php:271
+#: classes/Email-Events.php:307
+#: classes/Email-Events.php:312
+msgid "The request you made was invalid."
+msgstr ""
+
+#: classes/Email-Log.php:233
+msgid "After 7 days"
+msgstr ""
+
+#: classes/Email-Log.php:234
+msgid "After 30 days"
+msgstr ""
+
+#: classes/Email-Log.php:235
+msgid "After 60 days"
+msgstr ""
+
+#: classes/Email-Log.php:236
+msgid "After 90 days"
+msgstr ""
+
+#: classes/Email-Log.php:237
+msgid "After 6 months"
+msgstr ""
+
+#: classes/Email-Log.php:238
+msgid "After 1 year"
+msgstr ""
+
+#: classes/Email-Log.php:239
+msgid "After 2 years"
+msgstr ""
+
+#: classes/Email.php:585
+msgid "Status: %s"
+msgstr ""
+
+#: classes/Email.php:590
+msgid "Sent: %1$s at %2$s"
+msgstr ""
+
+#: classes/Email.php:598
+msgid "Opens: %1$d (Last Opened %2$s at %3$s)"
+msgstr ""
+
+#: classes/Email.php:611
+msgid "Clicks: %1$d (Last Clicked %2$s at %3$s)"
+msgstr ""
+
+#: classes/Email.php:621
+msgid "Attachment: "
+msgid_plural "Attachments: "
+msgstr[0] ""
+msgstr[1] ""
+
+#: classes/Email.php:626
+msgid "From: %1$s &lt;%2$s&gt;"
+msgstr ""
+
+#: classes/Email.php:627
+msgid "To: %s"
+msgstr ""
+
+#: classes/Health-Report.php:326
+msgid "Daily (upgrade required)"
+msgstr ""
+
+#: classes/Health-Report.php:327
+msgid "Weekly"
+msgstr ""
+
+#: classes/Health-Report.php:328
+msgid "Monthly"
+msgstr ""
+
+#: classes/Health-Report.php:339
+#: view/tabs/settings/network-settings.php:108
+msgid "Site Admins"
+msgstr ""
+
+#: classes/Health-Report.php:340
+msgid "Custom (upgrade required)"
+msgstr ""
+
+#: classes/Health-Report.php:352
+msgid "day"
+msgstr ""
+
+#: classes/Health-Report.php:353
+msgid "week"
+msgstr ""
+
+#: classes/Health-Report.php:354
+msgid "month"
+msgstr ""
+
+#: classes/Health-Report.php:361
+msgid "reporting period"
+msgstr ""
+
+#: classes/Health-Report.php:458
+msgid "WP Offload SES Lite"
+msgstr ""
+
+#: classes/Health-Report.php:491
+msgid "View Full Report"
+msgstr ""
+
+#: classes/Health-Report.php:510
+msgid "[WP Offload SES] %1$s email sending health for %2$s"
+msgstr ""
+
+#: classes/Health-Report.php:534
+msgid "%1$s through %2$s"
+msgstr ""
+
+#: classes/Health-Report.php:613
+#: view/sidebar.php:13
+msgid "Upgrade"
+msgstr ""
+
+#: classes/Notices.php:460
+msgid "Error dismissing notice."
+msgstr ""
+
+#: classes/Notices.php:476
+msgid "Invalid notice ID."
+msgstr ""
+
+#: classes/Queue/Queue-Status.php:189
+msgid "<strong>WP Offload SES</strong> &mdash; WP Cron does not appear to be working correctly."
+msgstr ""
+
+#: classes/Queue/Queue-Status.php:195
+#: classes/Queue/Queue-Status.php:261
+msgid "There is currently %d email in the queue that may not be sent until this is resolved."
+msgid_plural "There are currently %d emails in the queue that may not be sent until this is resolved."
+msgstr[0] ""
+msgstr[1] ""
+
+#: classes/Queue/Queue-Status.php:202
+#: classes/Queue/Queue-Status.php:268
+msgid "Please see our <a href=\"%s\">cron setup doc</a> for more details."
+msgstr ""
+
+#: classes/Queue/Queue-Status.php:247
+msgid "WP Offload SES - Cron not running"
+msgstr ""
+
+#: classes/Queue/Queue-Status.php:248
+msgid "Hi,"
+msgstr ""
+
+#: classes/Queue/Queue-Status.php:251
+msgid "You're receiving this email because WP Cron doesn't appear to be running on %s."
+msgstr ""
+
+#: classes/Queue/Queue-Status.php:284
+msgid "There was an error trying to send the cron alert."
+msgstr ""
+
+#: classes/Queue/Worker.php:67
+msgid "There was an error retrieving the job while processing the queue."
+msgstr ""
+
+#: classes/Queue/Worker.php:106
+msgid "There was an error constructing the job while processing the queue."
+msgstr ""
+
+#: classes/SES-API.php:70
+msgid "US East (N. Virginia)"
+msgstr ""
+
+#: classes/SES-API.php:71
+msgid "US East (Ohio)"
+msgstr ""
+
+#: classes/SES-API.php:72
+msgid "US West (N. California)"
+msgstr ""
+
+#: classes/SES-API.php:73
+msgid "US West (Oregon)"
+msgstr ""
+
+#: classes/SES-API.php:74
+msgid "Canada (Central)"
+msgstr ""
+
+#: classes/SES-API.php:75
+msgid "Europe (Ireland)"
+msgstr ""
+
+#: classes/SES-API.php:76
+msgid "Europe (London)"
+msgstr ""
+
+#: classes/SES-API.php:77
+msgid "Europe (Paris)"
+msgstr ""
+
+#: classes/SES-API.php:78
+msgid "Europe (Frankfurt)"
+msgstr ""
+
+#: classes/SES-API.php:79
+msgid "Europe (Stockholm)"
+msgstr ""
+
+#: classes/SES-API.php:80
+msgid "Europe (Milan)"
+msgstr ""
+
+#: classes/SES-API.php:81
+msgid "Africa (Cape Town)"
+msgstr ""
+
+#: classes/SES-API.php:82
+msgid "Asia Pacific (Mumbai)"
+msgstr ""
+
+#: classes/SES-API.php:83
+msgid "Asia Pacific (Seoul)"
+msgstr ""
+
+#: classes/SES-API.php:84
+msgid "Asia Pacific (Singapore)"
+msgstr ""
+
+#: classes/SES-API.php:85
+msgid "Asia Pacific (Sydney)"
+msgstr ""
+
+#: classes/SES-API.php:86
+msgid "Asia Pacific (Tokyo)"
+msgstr ""
+
+#: classes/SES-API.php:87
+msgid "Middle East (Bahrain)"
+msgstr ""
+
+#: classes/SES-API.php:88
+msgid "South America (São Paulo)"
+msgstr ""
+
+#: classes/SES-API.php:162
+msgid "There was an error attempting to receive your SES identities."
+msgstr ""
+
+#: classes/SES-API.php:202
+msgid "There was an error deleting the provided identity."
+msgstr ""
+
+#: classes/SES-API.php:222
+msgid "There was an error retrieving the details of your \"%s\" SES identity."
+msgstr ""
+
+#: classes/SES-API.php:248
+msgid "There was an error attempting to validate the domain."
+msgstr ""
+
+#: classes/SES-API.php:271
+msgid "There was an error attempting to validate the email address."
+msgstr ""
+
+#: classes/Settings.php:429
+#: view/access-keys.php:71
+#: view/access-keys.php:88
+msgid "defined in wp-config.php"
+msgstr ""
+
+#: classes/Verified-Senders-List-Table.php:56
+msgid "Sender"
+msgstr ""
+
+#: classes/Verified-Senders-List-Table.php:57
+msgid "Type"
+msgstr ""
+
+#: classes/Verified-Senders-List-Table.php:59
+#: view/health-report/failures-table.php:8
+msgid "Actions"
+msgstr ""
+
+#: classes/Verified-Senders-List-Table.php:119
+msgid "Remove"
+msgstr ""
+
+#: classes/Verified-Senders-List-Table.php:123
+msgid "View DNS"
+msgstr ""
+
+#: classes/Verified-Senders-List-Table.php:125
+msgid "Resend Verification"
+msgstr ""
+
+#: classes/Verified-Senders-List-Table.php:148
+msgid "No verified senders found."
+msgstr ""
+
+#: classes/Verified-Senders-List-Table.php:156
+msgid "+ Add New"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:334
+msgid "WP Offload SES Activation"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:335
+msgid "WP Offload SES Lite and WP Offload SES cannot both be active. We've automatically deactivated WP Offload SES Lite."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:337
+msgid "WP Offload SES Lite Activation"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:338
+msgid "WP Offload SES Lite and WP Offload SES cannot both be active. We've automatically deactivated WP Offload SES."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:402
+msgid "Getting diagnostic info..."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:403
+msgid "Error getting diagnostic info: "
+msgstr ""
+
+#: classes/WP-Offload-SES.php:406
+msgid "Please enter a valid domain name (without http:// or https://"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:407
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:408
+#: classes/WP-Offload-SES.php:859
+#: view/access-keys.php:83
+msgctxt "placeholder for hidden access key, 39 char max"
+msgid "-- not shown --"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:409
+msgid "Please enter a valid email address that has been verified with Amazon SES."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:518
+msgid "Settings"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:553
+msgctxt "Show the reports tab"
+msgid "Reports"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:554
+msgctxt "Show the activity tab"
+msgid "Activity"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:555
+msgctxt "Show the settings tab"
+msgid "Settings"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:557
+msgctxt "Show the setup wizard"
+msgid "Setup"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:561
+msgctxt "Show the support tab"
+msgid "Support"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:584
+msgctxt "Show the network settings tab"
+msgid "Network Settings"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:588
+msgctxt "Show the general settings tab"
+msgid "General"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:591
+msgctxt "Show the verified senders tab"
+msgid "Verified Senders"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:595
+msgctxt "Show the send test email tab"
+msgid "Send Test Email"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:598
+msgctxt "Show the AWS access keys tab"
+msgid "AWS Access Keys"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:627
+msgid "Offload SES Lite"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:630
+msgid "Offload SES"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:692
+msgid "Sent"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:695
+msgid "Queued"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:698
+msgid "Failed"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:701
+msgid "Cancelled"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:722
+msgid "View Email"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:726
+msgid "Resend"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:732
+msgid "Retry"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:836
+msgid "Access keys updated successfully."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:842
+msgid "All access key constants must be removed before keys can be set in the database."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:853
+msgid "The Access Key ID must be set."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:864
+msgid "The Secret Access Key must be at least 40 characters long."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:875
+msgid "The provided access keys are invalid."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:895
+msgid "Access keys removed from the database successfully."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:1017
+msgid "WP Offload SES Test Email"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:1019
+msgid ""
+"Hi %s,\n"
+"\n"
+"Are you seeing this email? You are? Well awesome - that means you're all set to start sending emails from your site via Amazon SES 🎉"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:1039
+msgid "Cheatin&#8217; eh?"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:1043
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:1070
+msgid "We've noticed that emails are being sent from the following unverified email addresses:"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:1079
+msgid "Please <a href=\"%s\">verify these email addresses</a> with Amazon, or use an email address that has already been verified."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:1099
+msgid "Your AWS Access Keys are invalid, please check the credentials you have defined in your wp-config.php and refresh this page."
+msgstr ""
+
+#: classes/WP-Offload-SES.php:1141
+#: classes/WP-Offload-SES.php:1170
+msgid "Cheatin' eh?"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:1239
+msgid "More&nbsp;info&nbsp;&raquo;"
+msgstr ""
+
+#: classes/WP-Offload-SES.php:1265
+msgid "<strong>WP Offload SES &mdash; </strong> One or more emails have failed to send. <a href=\"%s\">View failures in the Activity tab</a> or <a href=\"%s\">check out our doc for debugging failed emails</a>."
+msgstr ""
+
+#: view/access-keys.php:14
+msgid "AWS Access Keys"
+msgstr ""
+
+#: view/access-keys.php:18
+msgid "You have enabled the use of IAM roles for Amazon EC2 instances."
+msgstr ""
+
+#: view/access-keys.php:25
+msgid "Please check your wp-config.php file as it looks like one of your defines is missing or incorrect."
+msgstr ""
+
+#: view/access-keys.php:31
+msgid "You&#8217;ve already defined your AWS access keys in your wp-config.php. If you&#8217;d prefer to manage them here and store them in the database (<a href=\"%s\">not recommended</a>), simply remove the lines from your wp-config."
+msgstr ""
+
+#: view/access-keys.php:37
+msgid "We recommend defining your Access Keys in wp-config.php so long as you don&#8217;t commit it to source control (you shouldn&#8217;t be). Simply copy the following snippet and replace the stars with the keys."
+msgstr ""
+
+#: view/access-keys.php:47
+msgid "You&#8217;re storing your Access Keys in the database (<a href=\"%s\">not recommended</a>).</a>"
+msgstr ""
+
+#: view/access-keys.php:51
+msgid "If you&#8217;d rather store your Access Keys in the database, <a href=\"#\" data-wposes-toggle-access-keys-form>click here to reveal a form.</a>"
+msgstr ""
+
+#: view/access-keys.php:61
+msgid "Access Key ID"
+msgstr ""
+
+#: view/access-keys.php:78
+msgid "Secret Access Key"
+msgstr ""
+
+#: view/access-keys.php:98
+msgid "This will store your AWS access keys in the database (not recommended)."
+msgstr ""
+
+#: view/access-keys.php:107
+msgid "Save Access Keys"
+msgstr ""
+
+#: view/access-keys.php:109
+msgid "Remove Keys"
+msgstr ""
+
+#: view/debug-info.php:2
+msgid "Diagnostic Info"
+msgstr ""
+
+#: view/debug-info.php:12
+msgctxt "Download to your computer"
+msgid "Download"
+msgstr ""
+
+#: view/health-report/email-failures.php:15
+msgid "Email Failures"
+msgstr ""
+
+#: view/health-report/email-failures.php:21
+msgid "Showing %1$s of %2$s emails that failed to send in the past %3$s"
+msgstr ""
+
+#: view/health-report/emails-sent.php:9
+#: view/health-report/sent-table.php:5
+msgid "Emails Sent"
+msgstr ""
+
+#: view/health-report/emails-sent.php:14
+msgid "Showing %1$s of %2$s different subject lines sent in the past %3$s"
+msgstr ""
+
+#: view/health-report/failures-table.php:7
+msgid "Email"
+msgstr ""
+
+#: view/health-report/failures-table.php:48
+msgid "(no recipients)"
+msgstr ""
+
+#: view/health-report/footer.php:6
+msgid "You received this email because the Email Sending Health Report is enabled in your %s settings. Simply turn it off to stop these emails."
+msgstr ""
+
+#: view/health-report/header.php:4
+msgid "Email Sending Health"
+msgstr ""
+
+#: view/health-report/no-emails-sent.php:5
+msgid "No Emails Sent"
+msgstr ""
+
+#: view/health-report/no-emails-sent.php:9
+msgid "Your site hasn't sent any emails this past %s.<br />If this is unusual you should probably check if your site is broken."
+msgstr ""
+
+#: view/health-report/no-failures.php:5
+msgid "Look Ma, no failures, woohoo! 🎉"
+msgstr ""
+
+#: view/health-report/no-failures.php:9
+msgid "No news is good news when it comes to email sending failures.<br />Your site doesn't have any outstanding failures from this past %s."
+msgstr ""
+
+#: view/health-report/sent-table.php:6
+msgid "Open Count"
+msgstr ""
+
+#: view/health-report/sent-table.php:7
+msgid "Click Count"
+msgstr ""
+
+#: view/health-report/upgrade.php:5
+msgid "Want a better handle on your email failures?"
+msgstr ""
+
+#: view/health-report/upgrade.php:6
+msgid "Upgrade to WP Offload SES and get these awesome email failure handling features"
+msgstr ""
+
+#: view/health-report/upgrade.php:14
+msgid "Auto-Retry Email Sending Failures"
+msgstr ""
+
+#: view/health-report/upgrade.php:15
+msgid "Every Amazon SES account has a max send rate. If you try to send more emails per second than your account rate, Amazon SES will return an error and refuse to send the email which could result in dropped emails if not handled properly. WP Offload SES is aware of your SES account's send rate and will stay within the limit, but in the event of a failed send (e.g. a networking issue) the robust queue system will retry sending those emails and keep track of failures."
+msgstr ""
+
+#: view/health-report/upgrade.php:19
+msgid "Manually Retry Email Sending Failures"
+msgstr ""
+
+#: view/health-report/upgrade.php:20
+msgid "Let's say there was a networking issue that prevented your site from connecting to Amazon SES to send your email. WP Offload SES will automatically retry sending a few times before giving up and calling it a failure. If that happens, you can simply retry those failures once connectivity to Amazon SES is restored. With WP Offload SES none of your emails will get dropped into the ether because of a failure."
+msgstr ""
+
+#: view/health-report/upgrade.php:25
+msgid "Upgrading also gets you..."
+msgstr ""
+
+#: view/health-report/upgrade.php:31
+msgid "Email support"
+msgstr ""
+
+#: view/health-report/upgrade.php:32
+msgid "Open &amp; click reporting"
+msgstr ""
+
+#: view/health-report/upgrade.php:33
+msgid "Search for any email"
+msgstr ""
+
+#: view/health-report/upgrade.php:34
+msgid "View a specific email"
+msgstr ""
+
+#: view/health-report/upgrade.php:35
+msgid "Analyze engagement for a specific email"
+msgstr ""
+
+#: view/health-report/upgrade.php:40
+msgid "Get 20% Off!"
+msgstr ""
+
+#: view/health-report/upgrade.php:41
+msgid "Click below to get 20% off your first year of WP Offload SES and gain access to pro features."
+msgstr ""
+
+#: view/health-report/upgrade.php:53
+msgid "Get WP Offload SES Now"
+msgstr ""
+
+#: view/modals/delete-email.php:4
+#: view/modals/delete-email.php:14
+msgid "Delete Email"
+msgstr ""
+
+#: view/modals/delete-email.php:5
+#: view/modals/delete-email.php:15
+msgid "Delete Emails"
+msgstr ""
+
+#: view/modals/delete-email.php:7
+msgid "Are you sure you want to delete the email %s?"
+msgstr ""
+
+#: view/modals/delete-email.php:8
+msgid "Are you sure you want to delete the selected emails?"
+msgstr ""
+
+#: view/modals/health-report-prompt.php:13
+msgid "Upgrade for Daily Health Reports"
+msgstr ""
+
+#: view/modals/health-report-prompt.php:14
+msgid "Upgrade for Custom Recipients"
+msgstr ""
+
+#: view/modals/health-report-prompt.php:19
+msgid "WP Offload SES Lite includes weekly and monthly email sending health reports. <a href=\"%s\">Upgrade</a> to WP Offload SES for daily health reports."
+msgstr ""
+
+#: view/modals/health-report-prompt.php:28
+msgid "WP Offload SES Lite includes the ability to send email sending health reports to site admins. <a href=\"%s\">Upgrade</a> to WP Offload SES to send health reports to a list of custom recipients."
+msgstr ""
+
+#: view/modals/health-report-prompt.php:34
+#: view/modals/tracking-prompt.php:14
+msgid "OK"
+msgstr ""
+
+#: view/modals/tracking-prompt.php:3
+msgid "Upgrade to View Reports"
+msgstr ""
+
+#: view/modals/tracking-prompt.php:8
+msgid "Enabling tracking in the Lite version of this plugin will save statistics to the database, but you must <a href=\"%s\" target=\"_blank\">upgrade</a> to view those statistics in the Reports tab."
+msgstr ""
+
+#: view/modals/verify-sender.php:5
+msgid "Add Verified Sender"
+msgstr ""
+
+#: view/modals/verify-sender.php:6
+#: view/modals/verify-sender.php:72
+msgid "Delete Sender"
+msgstr ""
+
+#: view/modals/verify-sender.php:11
+#: view/setup/verify-sender.php:15
+msgid "Verify Domain (recommended)"
+msgstr ""
+
+#: view/modals/verify-sender.php:13
+#: view/setup/verify-sender.php:17
+msgid "Verify Email Address"
+msgstr ""
+
+#: view/modals/verify-sender.php:17
+msgid "Domain:"
+msgstr ""
+
+#: view/modals/verify-sender.php:18
+msgid "Email Address:"
+msgstr ""
+
+#: view/modals/verify-sender.php:19
+#: view/setup/verify-sender.php:23
+msgid "Please enter a valid domain name (without http:// or https://)."
+msgstr ""
+
+#: view/modals/verify-sender.php:24
+msgid "Enter a domain above to generate the necessary CNAME records for the domain."
+msgstr ""
+
+#: view/modals/verify-sender.php:25
+msgid "Enter the email address that you want to verify with Amazon SES."
+msgstr ""
+
+#: view/modals/verify-sender.php:31
+msgid "A confirmation email has been sent to %s."
+msgstr ""
+
+#: view/modals/verify-sender.php:32
+#: view/setup/complete-verification.php:34
+msgid "Click the link in the email to add this email address as a verified sender."
+msgstr ""
+
+#: view/modals/verify-sender.php:36
+msgid "A verification request has been sent for %s."
+msgstr ""
+
+#: view/modals/verify-sender.php:37
+msgid "Please update your DNS to add the following CNAME records:"
+msgstr ""
+
+#: view/modals/verify-sender.php:42
+msgid "Name"
+msgstr ""
+
+#: view/modals/verify-sender.php:43
+#: view/tabs/settings/network-settings.php:31
+msgid "Value"
+msgstr ""
+
+#: view/modals/verify-sender.php:53
+#: view/setup/complete-verification.php:23
+msgid "For more information on updating the DNS, please see <a href=\"%s\" target=\"_blank\">Amazon SES Domain Verification CNAME Records</a>."
+msgstr ""
+
+#: view/modals/verify-sender.php:61
+msgid "Are you sure you want to remove %s from your verified senders? You will no longer be able to use this sender with SES."
+msgstr ""
+
+#: view/modals/verify-sender.php:70
+msgid "Verify Sender"
+msgstr ""
+
+#: view/modals/verify-sender.php:71
+msgid "Continue"
+msgstr ""
+
+#: view/notice.php:18
+msgid "Hide"
+msgstr ""
+
+#: view/notice.php:18
+msgid "Show"
+msgstr ""
+
+#: view/settings/delete-logs.php:10
+#: view/tabs/settings/network-settings.php:153
+msgid "Delete Logs"
+msgstr ""
+
+#: view/settings/delete-logs.php:18
+msgid "Logs are stored to track email open and click counts."
+msgstr ""
+
+#: view/settings/delete-logs.php:21
+msgid "Logs are automatically stored in this server's database to help you keep track of what your site sends through Amazon SES. Select how long you want to keep logs on the server."
+msgstr ""
+
+#: view/settings/enable-subsite-settings.php:8
+msgid "Enable Subsite Settings"
+msgstr ""
+
+#: view/settings/enable-subsite-settings.php:10
+msgid "Let subsites configure their own settings."
+msgstr ""
+
+#: view/settings/enable-subsite-settings.php:13
+msgid "When enabled, subsites will be able to configure their own settings. If no settings are configured for a subsite, the subsite will use the network-level settings configured on this page."
+msgstr ""
+
+#: view/settings/health-report.php:12
+#: view/tabs/settings/network-settings.php:72
+msgid "Email Sending Health Report"
+msgstr ""
+
+#: view/settings/health-report.php:14
+msgid "An emailed report summarizing recent email successes, failures, and statistics."
+msgstr ""
+
+#: view/settings/health-report.php:23
+msgid "Frequency"
+msgstr ""
+
+#: view/settings/health-report.php:28
+msgid "Daily reports will be sent the next day. Weekly reports will send out at the beginning of the week, and monthly reports will be sent on the first day of the month."
+msgstr ""
+
+#: view/settings/health-report.php:41
+msgid "Recipients"
+msgstr ""
+
+#: view/settings/health-report.php:64
+msgid "Comma separated list of email addresses."
+msgstr ""
+
+#: view/settings/health-report.php:67
+msgid "<a href=\"%s\">Upgrade</a> to define a custom list of report recipients."
+msgstr ""
+
+#: view/settings/region.php:8
+#: view/setup/access-keys.php:6
+#: view/tabs/settings/network-settings.php:123
+msgid "Region"
+msgstr ""
+
+#: view/settings/region.php:13
+msgid "Select a region that you want to use with Amazon SES. For performance purposes, it's best to pick the region closest to the server this site is running on."
+msgstr ""
+
+#: view/settings/reply-to.php:8
+#: view/tabs/settings/network-settings.php:141
+msgid "Reply To"
+msgstr ""
+
+#: view/settings/reply-to.php:16
+msgid "The optional reply-to email address for outgoing mail. Leave blank to get this from the email headers."
+msgstr ""
+
+#: view/settings/reply-to.php:19
+msgid "Leaving this blank will let other plugins set the reply-to header on a per-plugin basis. If you'd like to override the reply-to for all emails, enter an email address here."
+msgstr ""
+
+#: view/settings/return-path.php:8
+#: view/tabs/settings/network-settings.php:147
+msgid "Return Path"
+msgstr ""
+
+#: view/settings/return-path.php:16
+msgid "Bounces and email complaints are sent to this address."
+msgstr ""
+
+#: view/settings/return-path.php:19
+msgid "Amazon requires that you have a process for handling email bounces and complaints. Entering a verified email here to receive notifications about these events fulfills that requirement."
+msgstr ""
+
+#: view/settings/wp-notification-email.php:9
+#: view/tabs/settings/network-settings.php:129
+msgid "WordPress Notification Email"
+msgstr ""
+
+#: view/settings/wp-notification-email.php:19
+msgid "This overrides the %s email address that WordPress uses as the From for notifications."
+msgstr ""
+
+#: view/settings/wp-notification-email.php:26
+msgid "By default, WordPress sends notifications from %s. If you don't have that email setup to send through Amazon SES, enter an email address here to be used instead."
+msgstr ""
+
+#: view/settings/wp-notification-name.php:8
+#: view/tabs/settings/network-settings.php:135
+msgid "WordPress Notification Name"
+msgstr ""
+
+#: view/settings/wp-notification-name.php:15
+msgid "This overrides the From name of \"WordPress\" that WordPress uses by default for notifications."
+msgstr ""
+
+#: view/setup/access-keys.php:16
+msgid "Next: Move out of Sandbox Mode"
+msgstr ""
+
+#: view/setup/complete-verification.php:2
+msgid "Complete Verification"
+msgstr ""
+
+#: view/setup/complete-verification.php:7
+msgid "The domain %1$s has been added to your Amazon SES account and is pending verification. To complete verification, you will need to update the DNS for %2$s with the following CNAME records:"
+msgstr ""
+
+#: view/setup/complete-verification.php:14
+msgid "Log in to your DNS provider and navigate to the DNS records."
+msgstr ""
+
+#: view/setup/complete-verification.php:15
+msgid "Add new <strong>CNAME</strong> records with the below names and values."
+msgstr ""
+
+#: view/setup/complete-verification.php:29
+msgid "Once updated, it can take some time for the DNS to propagate and for Amazon to verify the domain. Feel free to finish configuring the plugin in the meantime."
+msgstr ""
+
+#: view/setup/complete-verification.php:33
+msgid "A confirmation email has been sent from Amazon to %s."
+msgstr ""
+
+#: view/setup/complete-verification.php:41
+msgid "Next: Configure WP Offload SES"
+msgstr ""
+
+#: view/setup/configure-wp-offload-ses.php:6
+msgid "Configure WP Offload SES"
+msgstr ""
+
+#: view/setup/configure-wp-offload-ses.php:7
+msgid "Configure the settings below to finish setting up the plugin."
+msgstr ""
+
+#: view/setup/configure-wp-offload-ses.php:25
+msgid "Save and Complete Setup"
+msgstr ""
+
+#: view/setup/create-iam-user.php:2
+msgid "Create an IAM User"
+msgstr ""
+
+#: view/setup/create-iam-user.php:4
+msgid "First you'll need to create an IAM user to get the access keys you need to use WP Offload SES. If you already have your AWS access keys and are confident you've set them up with the correct permissions, you can skip this step."
+msgstr ""
+
+#: view/setup/create-iam-user.php:9
+msgid "<a href=\"%1$s\" target=\"_blank\">Login to the AWS console</a> and navigate to <a href=\"%2$s\" target=\"_blank\">the IAM Users page</a>."
+msgstr ""
+
+#: view/setup/create-iam-user.php:15
+msgid "Click the <strong>Add user</strong> button."
+msgstr ""
+
+#: view/setup/create-iam-user.php:16
+msgid "Enter a name for the user in the <strong>User name</strong> field."
+msgstr ""
+
+#: view/setup/create-iam-user.php:17
+msgid "Under <strong>Select AWS access type</strong> select the checkbox for <strong>Programmatic access</strong>."
+msgstr ""
+
+#: view/setup/create-iam-user.php:18
+msgid "Click the <strong>Next: Permissions</strong> button."
+msgstr ""
+
+#: view/setup/create-iam-user.php:19
+msgid "Click <strong>Attach existing policies directly</strong> in the <strong>Set Permissions</strong> section."
+msgstr ""
+
+#: view/setup/create-iam-user.php:20
+msgid "Type <strong>AmazonSESFullAccess</strong> in the search bar and check the box to add the permission."
+msgstr ""
+
+#: view/setup/create-iam-user.php:21
+msgid "Click the <strong>Next: Tags</strong> button at the bottom of the page."
+msgstr ""
+
+#: view/setup/create-iam-user.php:22
+msgid "Click the <strong>Next: Review</strong> button at the bottom of the page."
+msgstr ""
+
+#: view/setup/create-iam-user.php:23
+msgid "Click the <strong>Create user</strong> button."
+msgstr ""
+
+#: view/setup/create-iam-user.php:26
+msgid "You will be shown the security credentials for the user, which consists of an <strong>Access Key ID</strong> and a <strong>Secret Access Key</strong>. Amazon will not show these again so copy them somewhere safe, or download them as a .csv file. If you lose them, you can always create a new set of keys from the console but you cannot retrieve the secret key again later."
+msgstr ""
+
+#: view/setup/create-iam-user.php:32
+msgid "Next: Enter Access Keys"
+msgstr ""
+
+#: view/setup/nav.php:5
+msgid "Back to Previous Step"
+msgstr ""
+
+#: view/setup/nav.php:10
+msgid "Step %s of %s"
+msgstr ""
+
+#: view/setup/nav.php:13
+msgid "Skip to Settings"
+msgstr ""
+
+#: view/setup/sandbox-mode.php:2
+msgid "Sandbox Mode"
+msgstr ""
+
+#: view/setup/sandbox-mode.php:4
+msgid "By default, all new Amazon SES accounts are placed into sandbox mode, which means that you can only send emails to email addresses that are verified with Amazon. To move out of sandbox mode and send emails to any address, you'll need to put in a request with Amazon to move to production."
+msgstr ""
+
+#: view/setup/sandbox-mode.php:7
+msgid "Login to your Amazon console and <a href=\"%s\" target=\"_blank\">open an SES Sending Limits Increase case</a>."
+msgstr ""
+
+#: view/setup/sandbox-mode.php:9
+msgid "In the form, make sure you provide the following information:"
+msgstr ""
+
+#: view/setup/sandbox-mode.php:11
+msgid "Region: Set this to %s, the same region that you selected in the previous step."
+msgstr ""
+
+#: view/setup/sandbox-mode.php:12
+msgid "Limit: Select \"Desired Daily Sending Quota\" and try to estimate the number of emails your site will send per day as the limit value (rounding up is fine)."
+msgstr ""
+
+#: view/setup/sandbox-mode.php:13
+msgid "Mail Type: Select \"Transactional\" from the drop down list."
+msgstr ""
+
+#: view/setup/sandbox-mode.php:14
+msgid "My email-sending-complies with the AWS Services Terms and AUP: Yes"
+msgstr ""
+
+#: view/setup/sandbox-mode.php:15
+msgid "I only send to recipients who have specifically requested my mail: Yes"
+msgstr ""
+
+#: view/setup/sandbox-mode.php:16
+msgid "I have a process to handle bounces and complaints: Yes"
+msgstr ""
+
+#: view/setup/sandbox-mode.php:17
+msgid "Use Case Description: Describe the types of emails that your site will be sending."
+msgstr ""
+
+#: view/setup/sandbox-mode.php:22
+msgid "Once you submit the form, Amazon will review your request and send you an email letting you know if it has been approved and your account has been moved out of sandbox mode. Amazon usually reviews your request within one business day."
+msgstr ""
+
+#: view/setup/sandbox-mode.php:24
+msgid "You can continue setting up this plugin in the meantime by continuing to the next step."
+msgstr ""
+
+#: view/setup/sandbox-mode.php:30
+msgid "Next: Verify Sender"
+msgstr ""
+
+#: view/setup/start.php:6
+msgid "Thanks for installing WP Offload SES! 🎉"
+msgstr ""
+
+#: view/setup/start.php:7
+msgid "This setup wizard will guide you through the initial setup of the plugin. Once complete, your site will start sending emails through Amazon SES."
+msgstr ""
+
+#: view/setup/start.php:8
+msgid "If you'd rather configure everything manually, you can <a href=\"%s\">skip setup</a> and enter the settings for the plugin."
+msgstr ""
+
+#: view/setup/start.php:12
+msgid "Amazon SES Setup"
+msgstr ""
+
+#: view/setup/start.php:14
+msgid "The following steps will walk you through the process of setting up the WP Offload SES plugin. Each step is clearly outlined with screenshots to guide you through these processes:"
+msgstr ""
+
+#: view/setup/start.php:17
+msgid "Getting your AWS Access Keys and using them with this plugin"
+msgstr ""
+
+#: view/setup/start.php:18
+msgid "Moving your Amazon SES account out of sandbox mode"
+msgstr ""
+
+#: view/setup/start.php:19
+msgid "Validating a sender or domain to use Amazon SES"
+msgstr ""
+
+#: view/setup/start.php:20
+msgid "Configuring the plugin to send emails over Amazon SES"
+msgstr ""
+
+#: view/setup/start.php:23
+msgid "The whole process usually takes 15-30 minutes, depending on your pace and external factors like DNS propagation and Amazons' account verification."
+msgstr ""
+
+#: view/setup/start.php:28
+msgid "Text that looks like <code data-wposes-copy>this</code> can be clicked to copy it to your clipboard for easy pasting. <code data-wposes-copy>Try me!</code>"
+msgstr ""
+
+#: view/setup/start.php:33
+msgid "When you're ready to begin, click <strong>Get Started</strong> below."
+msgstr ""
+
+#: view/setup/start.php:36
+msgid "When you're ready to begin, enter your license key and click <strong>Get Started</strong> below."
+msgstr ""
+
+#: view/setup/start.php:53
+msgid "Get Started"
+msgstr ""
+
+#: view/setup/verify-sender.php:2
+msgid "Verify Email Sender"
+msgstr ""
+
+#: view/setup/verify-sender.php:5
+msgid "There was an error verifying the provided sender. Please make sure that your access keys are correct and try again."
+msgstr ""
+
+#: view/setup/verify-sender.php:8
+msgid "Now you'll need to verify a sender that you want to send mail through Amazon SES. A sender is simply any email address you'll be using in the \"From\" address of outbound emails."
+msgstr ""
+
+#: view/setup/verify-sender.php:9
+msgid "You can verify individual email addresses, but if you have multiple email addresses on the same domain that will be sending mail, we recommend verifying a domain."
+msgstr ""
+
+#: view/setup/verify-sender.php:10
+msgid "How would you like to verify your sender? You can always add more senders later."
+msgstr ""
+
+#: view/setup/verify-sender.php:20
+msgid "What domain would you like to verify?"
+msgstr ""
+
+#: view/setup/verify-sender.php:21
+msgid "What email address would you like to verify?"
+msgstr ""
+
+#: view/setup/verify-sender.php:32
+msgid "Next: Complete Verification"
+msgstr ""
+
+#: view/sidebar.php:14
+msgid "Get a bundle of features with an upgrade to WP Offload SES"
+msgstr ""
+
+#: view/sidebar.php:16
+msgid "Email&nbsp;support"
+msgstr ""
+
+#: view/sidebar.php:17
+msgid "Open and click&nbsp;reporting"
+msgstr ""
+
+#: view/sidebar.php:18
+msgid "Auto-retry email sending&nbsp;failures"
+msgstr ""
+
+#: view/sidebar.php:19
+msgid "Manually retry email sending&nbsp;failures"
+msgstr ""
+
+#: view/sidebar.php:20
+msgid "Manually resend any sent&nbsp;emails"
+msgstr ""
+
+#: view/sidebar.php:21
+msgid "Search for any&nbsp;email"
+msgstr ""
+
+#: view/sidebar.php:22
+msgid "View a specific&nbsp;email"
+msgstr ""
+
+#: view/sidebar.php:23
+msgid "Analyze engagement for a specific&nbsp;email"
+msgstr ""
+
+#: view/sidebar.php:28
+msgid "Get 20% off your first year of&nbsp;WP Offload SES!"
+msgstr ""
+
+#: view/sidebar.php:31
+msgid "Get The Discount"
+msgstr ""
+
+#: view/sidebar.php:35
+msgid "* Discount applied automatically"
+msgstr ""
+
+#: view/sidebar.php:54
+msgid "Created & maintained by"
+msgstr ""
+
+#: view/tabs/activity.php:8
+msgid "<a href=\"%s\">Upgrade</a> to WP Offload SES to search, view, cancel, and resend emails."
+msgstr ""
+
+#: view/tabs/reports.php:20
+msgid "<a href=\"%s\">Define your AWS keys</a> to view reports and send statistics."
+msgstr ""
+
+#: view/tabs/reports.php:31
+msgid "Sending Quota:"
+msgstr ""
+
+#: view/tabs/reports.php:32
+msgid "%s email per 24 hour period"
+msgid_plural "%s emails per 24 hour period"
+msgstr[0] ""
+msgstr[1] ""
+
+#: view/tabs/reports.php:33
+msgid "Max Send Rate:"
+msgstr ""
+
+#: view/tabs/reports.php:34
+msgid "%s email per second"
+msgid_plural "%s emails per second"
+msgstr[0] ""
+msgstr[1] ""
+
+#: view/tabs/reports.php:35
+msgid "Total Sent:"
+msgstr ""
+
+#: view/tabs/reports.php:36
+msgid "%s email sent during the previous 24 hours"
+msgid_plural "%s emails sent during the previous 24 hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: view/tabs/reports.php:37
+msgid "Quota Used:"
+msgstr ""
+
+#: view/tabs/reports.php:38
+msgid "%d%%"
+msgstr ""
+
+#: view/tabs/reports.php:40
+msgid "Increase Sending Limits"
+msgstr ""
+
+#: view/tabs/reports.php:59
+msgid "Activate Your License"
+msgstr ""
+
+#: view/tabs/reports.php:60
+msgid "To view reports, queue emails, and gain access to email support."
+msgstr ""
+
+#: view/tabs/reports.php:61
+msgid "Enter License Key"
+msgstr ""
+
+#: view/tabs/reports.php:70
+msgid "Upgrade to WP Offload SES"
+msgstr ""
+
+#: view/tabs/reports.php:71
+msgid "And get access to detailed reports, click and open tracking, and more."
+msgstr ""
+
+#: view/tabs/reports.php:72
+msgid "Upgrade Now"
+msgstr ""
+
+#: view/tabs/settings/general.php:3
+msgid "General Settings"
+msgstr ""
+
+#: view/tabs/settings/general.php:30
+msgid "Send Mail Using SES"
+msgstr ""
+
+#: view/tabs/settings/general.php:32
+msgid "Route all outgoing emails through SES."
+msgstr ""
+
+#: view/tabs/settings/general.php:44
+#: view/tabs/settings/network-settings.php:48
+msgid "Enable Open Tracking"
+msgstr ""
+
+#: view/tabs/settings/general.php:46
+msgid "Log when an email is opened."
+msgstr ""
+
+#: view/tabs/settings/general.php:50
+msgid "When enabled, WP Offload SES will insert a transparent 1x1 pixel into emails so email opens can be tracked."
+msgstr ""
+
+#: view/tabs/settings/general.php:53
+msgid " Upgrade to WP Offload SES Pro to view open tracking reports."
+msgstr ""
+
+#: view/tabs/settings/general.php:68
+#: view/tabs/settings/network-settings.php:60
+msgid "Enable Click Tracking"
+msgstr ""
+
+#: view/tabs/settings/general.php:70
+msgid "Log any links clicked in emails."
+msgstr ""
+
+#: view/tabs/settings/general.php:74
+msgid "When enabled, WP Offload SES will alter the links in emails sent so that clicks can be tracked before redirecting the recipient to the original link destination."
+msgstr ""
+
+#: view/tabs/settings/general.php:77
+msgid " Upgrade to WP Offload SES Pro to view click tracking reports."
+msgstr ""
+
+#: view/tabs/settings/general.php:105
+msgid "Save Changes"
+msgstr ""
+
+#: view/tabs/settings/general.php:106
+msgid "Launch Setup Wizard"
+msgstr ""
+
+#: view/tabs/settings/network-settings.php:3
+msgid "Network Settings"
+msgstr ""
+
+#: view/tabs/settings/network-settings.php:19
+msgid "Override Network Settings"
+msgstr ""
+
+#: view/tabs/settings/network-settings.php:21
+msgid "Override the below network settings for this subsite."
+msgstr ""
+
+#: view/tabs/settings/network-settings.php:30
+msgid "Network Setting"
+msgstr ""
+
+#: view/tabs/settings/network-settings.php:36
+msgid "Send via SES"
+msgstr ""
+
+#: view/tabs/settings/network-settings.php:87
+msgid "Health Report Frequency"
+msgstr ""
+
+#: view/tabs/settings/network-settings.php:100
+msgid "Health Report Recipients"
+msgstr ""
+
+#: view/tabs/settings/network-settings.php:106
+msgid "Custom"
+msgstr ""
+
+#: view/tabs/settings/network-settings.php:115
+msgid "Health Report Custom Recipients"
+msgstr ""
+
+#: view/tabs/settings/network-settings.php:155
+msgid "%d days"
+msgstr ""
+
+#: view/tabs/settings/network-settings.php:161
+msgid "Save changes"
+msgstr ""
+
+#: view/tabs/settings/send-test-email.php:3
+#: view/tabs/settings/send-test-email.php:19
+msgid "Send Test Email"
+msgstr ""
+
+#: view/tabs/settings/send-test-email.php:6
+msgid "Please note: If your account is still in sandbox mode, it must be sent to one of the verified senders or the owner of the SES account. Emails sent via this form will not be logged or show up in reports."
+msgstr ""
+
+#: view/tabs/settings/send-test-email.php:8
+msgid "Email Address"
+msgstr ""
+
+#: view/tabs/settings/send-test-email.php:13
+msgid "Message sent!"
+msgstr ""
+
+#: view/tabs/settings/verified-senders.php:6
+msgid "Verified Senders"
+msgstr ""
+
+#: view/wordpress-org-support.php:2
+msgid "As this is a free plugin, we do not provide support."
+msgstr ""
+
+#: view/wordpress-org-support.php:4
+msgid "You may ask the WordPress community for help by posting to the <a href=\"%s\">WordPress.org support forum</a>. Response time can range from a few days to a few weeks and will likely be from a non-developer."
+msgstr ""
+
+#: view/wordpress-org-support.php:10
+msgid "If you want a <strong>timely response via email from a developer</strong> who works on this plugin, <a href=\"%s\">upgrade</a> and send us an email."
+msgstr ""
+
+#: view/wordpress-org-support.php:12
+msgid "If you've found a bug, please <a href=\"%s\">submit an issue on GitHub</a>."
+msgstr ""

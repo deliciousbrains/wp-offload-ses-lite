@@ -35,7 +35,7 @@ class Worker
     {
         $job = $this->connection->pop();
         if (!$job) {
-            return false;
+            return \false;
         }
         $exception = null;
         try {
@@ -45,19 +45,17 @@ class Worker
         }
         if ($job->attempts() >= $this->attempts) {
             if (empty($exception)) {
-                $exception = new \DeliciousBrains\WP_Offload_SES\WP_Queue\Exceptions\WorkerAttemptsExceededException();
+                $exception = new WorkerAttemptsExceededException();
             }
             $job->fail();
         }
         if ($job->failed()) {
             $this->connection->failure($job, $exception);
+        } elseif ($job->released()) {
+            $this->connection->release($job);
         } else {
-            if ($job->released()) {
-                $this->connection->release($job);
-            } else {
-                $this->connection->delete($job);
-            }
+            $this->connection->delete($job);
         }
-        return true;
+        return \true;
     }
 }

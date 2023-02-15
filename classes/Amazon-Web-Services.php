@@ -2,8 +2,7 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
-use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Ses\SesClient;
-
+use DeliciousBrains\WP_Offload_SES\Aws3\Aws\SesV2\SesV2Client;
 use Exception;
 
 /**
@@ -16,7 +15,7 @@ class Amazon_Web_Services {
 	/**
 	 * The AWS client.
 	 *
-	 * @var object
+	 * @var SesV2Client
 	 */
 	private $client;
 
@@ -32,18 +31,18 @@ class Amazon_Web_Services {
 	 *
 	 * @param WP_Offload_SES $wp_offload_ses The main WP Offload SES class.
 	 */
-	public function __construct( $wp_offload_ses ) {
+	public function __construct( WP_Offload_SES $wp_offload_ses ) {
 		$this->wposes = $wp_offload_ses;
 	}
 
 	/**
-	 * Whether or not IAM access keys are needed.
+	 * Whether IAM access keys are needed.
 	 *
 	 * Keys are needed if we are not using EC2 roles or not defined/set yet.
 	 *
 	 * @return bool
 	 */
-	public function needs_access_keys() {
+	public function needs_access_keys(): bool {
 		if ( $this->use_ec2_iam_roles() ) {
 			return false;
 		}
@@ -56,7 +55,7 @@ class Amazon_Web_Services {
 	 *
 	 * @return bool
 	 */
-	public function are_access_keys_set() {
+	public function are_access_keys_set(): bool {
 		return $this->get_access_key_id() && $this->get_secret_access_key();
 	}
 
@@ -67,7 +66,7 @@ class Amazon_Web_Services {
 	 *
 	 * @return string
 	 */
-	public function get_access_key_id() {
+	public function get_access_key_id(): string {
 		if ( $this->is_any_access_key_constant_defined() ) {
 			$constant = $this->access_key_id_constant();
 
@@ -78,13 +77,13 @@ class Amazon_Web_Services {
 	}
 
 	/**
-	 * Get the AWS secret from a constant or the settings
+	 * Get the AWS secret from a constant or the settings.
 	 *
 	 * Falls back to settings only if neither constant is defined.
 	 *
 	 * @return string
 	 */
-	public function get_secret_access_key() {
+	public function get_secret_access_key(): string {
 		if ( $this->is_any_access_key_constant_defined() ) {
 			$constant = $this->secret_access_key_constant();
 
@@ -99,18 +98,19 @@ class Amazon_Web_Services {
 	 *
 	 * @return bool
 	 */
-	public static function is_any_access_key_constant_defined() {
+	public static function is_any_access_key_constant_defined(): bool {
 		return static::access_key_id_constant() || static::secret_access_key_constant();
 	}
 
 	/**
 	 * Allows the AWS client factory to use the IAM role for EC2 instances
-	 * instead of key/secret for credentials
+	 * instead of key/secret for credentials.
+	 *
 	 * http://docs.aws.amazon.com/aws-sdk-php/guide/latest/credentials.html#instance-profile-credentials
 	 *
 	 * @return bool
 	 */
-	public function use_ec2_iam_roles() {
+	public function use_ec2_iam_roles(): bool {
 		$constant = $this->use_ec2_iam_role_constant();
 
 		return $constant && constant( $constant );
@@ -165,20 +165,24 @@ class Amazon_Web_Services {
 
 	/**
 	 * Instantiate a new AWS service client for the AWS SDK
-	 * using the defined AWS key and secret
+	 * using the defined AWS key and secret.
 	 *
-	 * @param array $args The arguements needed to intiate the client.
+	 * @param array $args The arguments needed to initiate the client.
 	 *
-	 * @return SesClient
-	 * @throws \Exception If the access keys aren't defined.
+	 * @return SesV2Client
+	 * @throws Exception If the access keys aren't defined.
 	 */
-	public function get_client( array $args ) {
+	public function get_client( array $args ): SesV2Client {
 		if ( $this->needs_access_keys() ) {
-			throw new \Exception( sprintf( __( 'You must first <a href="%s">set your AWS access keys</a> to use this plugin.', 'wp-offload-ses' ), $this->wposes->get_plugin_page_url( array(), 'self' ) . '#settings' ) );
+			throw new Exception(
+				sprintf(
+					__( 'You must first <a href="%s">set your AWS access keys</a> to use this plugin.', 'wp-offload-ses' ),
+					$this->wposes->get_plugin_page_url( array(), 'self' ) . '#settings'
+				)
+			);
 		}
 
 		if ( is_null( $this->client ) ) {
-
 			if ( ! $this->use_ec2_iam_roles() ) {
 				$args = array_merge(
 					array(
@@ -191,10 +195,11 @@ class Amazon_Web_Services {
 				);
 			}
 
-			$args['version'] = '2010-12-01';
-			$args            = apply_filters( 'aws_get_client_args', $args );
+			$args['version']           = '2019-09-27';
+			$args['signature_version'] = 'v4';
+			$args                      = apply_filters( 'aws_get_client_args', $args );
 
-			$this->client = new SesClient( $args );
+			$this->client = new SesV2Client( $args );
 		}
 
 		return $this->client;

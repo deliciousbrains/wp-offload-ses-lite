@@ -2,14 +2,11 @@
 /**
  * Handle settings for WP Offload SES
  *
- * @author Delicious Brains
+ * @author  Delicious Brains
  * @package WP Offload SES
  */
 
 namespace DeliciousBrains\WP_Offload_SES;
-
-use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
-use DeliciousBrains\WP_Offload_SES\Utils;
 
 /**
  * Class Settings
@@ -59,7 +56,7 @@ class Settings {
 	 * @param string $settings_key      The settings key used in the database.
 	 * @param string $settings_constant The settings constant used in defines.
 	 */
-	public function __construct( $settings_key, $settings_constant ) {
+	public function __construct( string $settings_key, string $settings_constant ) {
 		$this->settings_key      = $settings_key;
 		$this->settings_constant = $settings_constant;
 	}
@@ -71,7 +68,7 @@ class Settings {
 	 *
 	 * @return array
 	 */
-	public function get_settings( $force = false ) {
+	public function get_settings( bool $force = false ): array {
 		if ( is_null( $this->settings ) || $force ) {
 			if ( is_multisite() ) {
 				$network_settings = $this->get_network_settings( $force );
@@ -97,7 +94,7 @@ class Settings {
 	 *
 	 * @return array
 	 */
-	public function get_network_settings( $force = false ) {
+	public function get_network_settings( bool $force = false ): array {
 		if ( is_null( $this->network_settings ) || $force ) {
 			$this->network_settings = $this->filter_settings( get_site_option( $this->settings_key, array() ) );
 		}
@@ -112,7 +109,7 @@ class Settings {
 	 *
 	 * @return array
 	 */
-	public function get_defined_settings( $force = false ) {
+	public function get_defined_settings( bool $force = false ): array {
 		if ( is_null( $this->defined_settings ) || $force ) {
 			$this->defined_settings = array();
 
@@ -158,7 +155,7 @@ class Settings {
 	 *
 	 * @return array
 	 */
-	public function get_wpses_defined_settings() {
+	public function get_wpses_defined_settings(): array {
 		$constants = array(
 			'aws-access-key-id'     => 'WP_SES_ACCESS_KEY',
 			'aws-secret-access-key' => 'WP_SES_SECRET_KEY',
@@ -197,11 +194,10 @@ class Settings {
 	 *
 	 * @return mixed
 	 */
-	public function get_defined_setting( $key, $default = '' ) {
+	public function get_defined_setting( string $key, $default = '' ) {
 		$defined_settings = $this->get_defined_settings();
-		$setting          = isset( $defined_settings[ $key ] ) ? $defined_settings[ $key ] : $default;
 
-		return $setting;
+		return $defined_settings[ $key ] ?? $default;
 	}
 
 	/**
@@ -230,7 +226,7 @@ class Settings {
 	 * @param mixed  $value      Value the option is being initialized with.
 	 * @param int    $network_id ID of the network.
 	 */
-	public function settings_constant_added( $option, $value, $network_id ) {
+	public function settings_constant_added( string $option, $value, int $network_id ) {
 		$db_settings = get_site_option( $this->settings_key, array() );
 		$this->settings_constant_changed( $option, $value, $db_settings, $network_id );
 	}
@@ -243,7 +239,7 @@ class Settings {
 	 * @param mixed  $old_settings Old value of the option.
 	 * @param int    $network_id   ID of the network.
 	 */
-	public function settings_constant_changed( $option, $new_settings, $old_settings, $network_id ) {
+	public function settings_constant_changed( string $option, $new_settings, $old_settings, int $network_id ) {
 		$old_settings = $old_settings ?: array();
 
 		foreach ( $this->get_settings_whitelist() as $setting ) {
@@ -273,14 +269,14 @@ class Settings {
 	}
 
 	/**
-	 * Filter the plugin settings array
+	 * Filter the plugin settings array.
 	 *
 	 * @param array $settings         The single site/network admin settings to filter.
 	 * @param array $subsite_settings Optional settings for a subsite.
 	 *
 	 * @return array $settings
 	 */
-	public function filter_settings( $settings, $subsite_settings = array() ) {
+	public function filter_settings( array $settings, array $subsite_settings = array() ): array {
 		$defined_settings = $this->get_defined_settings();
 
 		// Maybe add subsite settings.
@@ -318,36 +314,39 @@ class Settings {
 	 *
 	 * @return array
 	 */
-	public function get_settings_whitelist( $settings_whitelist = array() ) {
-		$settings_whitelist = array(
-			'send-via-ses',
-			'region',
-			'default-email',
-			'default-email-name',
-			'reply-to',
-			'return-path',
-			'log-duration',
-			'completed-setup',
-			'enable-open-tracking',
-			'enable-click-tracking',
-			'enable-subsite-settings',
-			'override-network-settings',
-			'enable-health-report',
-			'health-report-frequency',
-			'health-report-recipients',
-			'health-report-custom-recipients',
-		);
+	public function get_settings_whitelist( array $settings_whitelist = array() ): array {
+		if ( empty( $settings_whitelist ) ) {
+			$settings_whitelist = array(
+				'send-via-ses',
+				'region',
+				'default-email',
+				'default-email-name',
+				'reply-to',
+				'return-path',
+				'log-duration',
+				'completed-setup',
+				'enable-open-tracking',
+				'enable-click-tracking',
+				'enable-subsite-settings',
+				'override-network-settings',
+				'enable-health-report',
+				'health-report-frequency',
+				'health-report-recipients',
+				'health-report-custom-recipients',
+			);
+		}
+
 		return apply_filters( 'wposes_settings_whitelist', $settings_whitelist );
 	}
 
 	/**
 	 * List of settings that should skip full sanitize.
 	 *
-	 * @param array $skip_sanitize_settings Settings to skip santitization.
+	 * @param array $skip_sanitize_settings Settings to skip sanitization.
 	 *
 	 * @return array
 	 */
-	public function get_skip_sanitize_settings( $skip_sanitize_settings = array() ) {
+	public function get_skip_sanitize_settings( array $skip_sanitize_settings = array() ): array {
 		return apply_filters( 'wposes_skip_sanitize_settings', $skip_sanitize_settings );
 	}
 
@@ -359,7 +358,7 @@ class Settings {
 	 *
 	 * @return string
 	 */
-	public function sanitize_setting( $key, $value ) {
+	public function sanitize_setting( string $key, $value ): string {
 		$skip_sanitize = $this->get_skip_sanitize_settings();
 		if ( in_array( $key, $skip_sanitize ) ) {
 			$value = wp_strip_all_tags( $value );
@@ -374,17 +373,13 @@ class Settings {
 	 * Get a specific setting.
 	 *
 	 * @param string $key     The key of the setting to get.
-	 * @param string $default The default value if not found.
+	 * @param mixed  $default The default value if not found.
 	 *
-	 * @return string
+	 * @return mixed
 	 */
-	public function get_setting( $key, $default = '' ) {
+	public function get_setting( string $key, $default = '' ) {
 		$this->get_settings();
-		if ( isset( $this->settings[ $key ] ) ) {
-			$setting = $this->settings[ $key ];
-		} else {
-			$setting = $default;
-		}
+		$setting = $this->settings[ $key ] ?? $default;
 
 		return apply_filters( 'wposes_get_setting', $setting, $key );
 	}
@@ -393,29 +388,25 @@ class Settings {
 	 * Get a specific network setting.
 	 *
 	 * @param string $key     The key of the setting to get.
-	 * @param string $default The default value if not found.
+	 * @param mixed  $default The default value if not found.
 	 *
-	 * @return string
+	 * @return mixed
 	 */
-	public function get_network_setting( $key, $default = '' ) {
+	public function get_network_setting( string $key, $default = '' ) {
 		$this->get_network_settings();
-		if ( isset( $this->network_settings[ $key ] ) ) {
-			$network_setting = $this->network_settings[ $key ];
-		} else {
-			$network_setting = $default;
-		}
+		$network_setting = $this->network_settings[ $key ] ?? $default;
 
 		return apply_filters( 'wposes_get_network_setting', $network_setting, $key );
 	}
 
 	/**
-	 * Gets arguements used to render a setting view.
+	 * Gets arguments used to render a setting view.
 	 *
 	 * @param string $key Key of the setting.
 	 *
 	 * @return array
 	 */
-	public function get_setting_args( $key ) {
+	public function get_setting_args( string $key ): array {
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
@@ -446,7 +437,7 @@ class Settings {
 	 *
 	 * @param string $key The key of the setting to delete.
 	 */
-	public function remove_setting( $key ) {
+	public function remove_setting( string $key ) {
 		$this->get_settings();
 		if ( isset( $this->settings[ $key ] ) ) {
 			unset( $this->settings[ $key ] );
@@ -471,7 +462,7 @@ class Settings {
 	 *
 	 * @return bool
 	 */
-	public function set_default_settings() {
+	public function set_default_settings(): bool {
 		global $wp_offload_ses;
 
 		// Set up weekly health reports for lite.
@@ -499,7 +490,7 @@ class Settings {
 	 * @param string $key   The key of the setting to set.
 	 * @param mixed  $value The value of the setting to set.
 	 */
-	public function set_setting( $key, $value ) {
+	public function set_setting( string $key, $value ) {
 		$this->get_settings();
 
 		$this->settings[ $key ] = $value;
@@ -511,7 +502,7 @@ class Settings {
 	 * @param string $key   The key of the setting to set.
 	 * @param mixed  $value The value of the setting to set.
 	 */
-	public function set_network_setting( $key, $value ) {
+	public function set_network_setting( string $key, $value ) {
 		$this->get_network_settings();
 
 		$this->network_settings[ $key ] = $value;
@@ -522,21 +513,21 @@ class Settings {
 	 *
 	 * @param array $settings The settings to set.
 	 */
-	public function set_settings( $settings ) {
+	public function set_settings( array $settings ) {
 		$this->settings = $settings;
 	}
 
 	/**
 	 * Bulk set the network settings array.
 	 *
-	 * @param array $settings The settings to set.
+	 * @param array $network_settings The settings to set.
 	 */
-	public function set_network_settings( $network_settings ) {
+	public function set_network_settings( array $network_settings ) {
 		$this->network_settings = $network_settings;
 	}
 
 	/**
-	 * Save the settings to the database
+	 * Save the settings to the database.
 	 */
 	public function save_settings() {
 		if ( is_array( $this->settings ) ) {
@@ -555,12 +546,11 @@ class Settings {
 	 *
 	 * @return bool
 	 */
-	public function update_site_option( $option, $value, $autoload = true ) {
+	public function update_site_option( string $option, $value, bool $autoload = true ): bool {
 		if ( is_multisite() && Utils::is_network_admin() ) {
 			return update_site_option( $option, $value );
 		}
 
 		return update_option( $option, $value, $autoload );
 	}
-
 }

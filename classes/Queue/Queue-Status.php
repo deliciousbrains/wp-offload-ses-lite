@@ -3,11 +3,10 @@
 namespace DeliciousBrains\WP_Offload_SES\Queue;
 
 use DeliciousBrains\WP_Offload_SES\Email;
-use DeliciousBrains\WP_Offload_SES\Notices;
 use DeliciousBrains\WP_Offload_SES\Utils;
 use DeliciousBrains\WP_Offload_SES\Error;
-use DeliciousBrains\WP_Offload_SES\Queue\Connection;
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
+use Exception;
 
 class Queue_Status {
 
@@ -30,7 +29,7 @@ class Queue_Status {
 	 *
 	 * @param WP_Offload_SES $wp_offload_ses
 	 */
-	public function __construct( $wp_offload_ses ) {
+	public function __construct( WP_Offload_SES $wp_offload_ses ) {
 		global $wpdb;
 
 		$this->connection     = new Connection( $wpdb );
@@ -46,7 +45,7 @@ class Queue_Status {
 	 *
 	 * @return int
 	 */
-	public function get_last_cron_check() {
+	public function get_last_cron_check(): int {
 		return (int) get_option( 'wposes_last_cron_check', 0 );
 	}
 
@@ -56,7 +55,7 @@ class Queue_Status {
 	 *
 	 * @return int
 	 */
-	public function get_last_cron_run() {
+	public function get_last_cron_run(): int {
 		return (int) get_option( 'wposes_last_cron_run', 0 );
 	}
 
@@ -64,7 +63,7 @@ class Queue_Status {
 	 * Gets the time of the next scheduled event,
 	 * or false if it hasn't been scheduled.
 	 *
-	 * @return string|bool
+	 * @return bool|int
 	 */
 	public function get_next_scheduled() {
 		return wp_next_scheduled( 'deliciousbrains_wp_offload_ses_queue_connection' );
@@ -75,7 +74,7 @@ class Queue_Status {
 	 *
 	 * @return int
 	 */
-	public function get_total_jobs() {
+	public function get_total_jobs(): int {
 		return $this->connection->jobs();
 	}
 
@@ -84,7 +83,7 @@ class Queue_Status {
 	 *
 	 * @return int
 	 */
-	public function get_total_failures() {
+	public function get_total_failures(): int {
 		return $this->connection->failed_jobs();
 	}
 
@@ -93,8 +92,8 @@ class Queue_Status {
 	 *
 	 * @return bool
 	 */
-	public function is_wp_cron_enabled() {
-		return ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) ? false : true;
+	public function is_wp_cron_enabled(): bool {
+		return ! ( ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) );
 	}
 
 	/**
@@ -102,8 +101,8 @@ class Queue_Status {
 	 *
 	 * @return bool
 	 */
-	public function is_alternate_wp_cron() {
-		return ( defined( 'ALTERNATE_WP_CRON' ) && ALTERNATE_WP_CRON ) ? true : false;
+	public function is_alternate_wp_cron(): bool {
+		return defined( 'ALTERNATE_WP_CRON' ) && ALTERNATE_WP_CRON;
 	}
 
 	/**
@@ -111,7 +110,7 @@ class Queue_Status {
 	 *
 	 * @return bool
 	 */
-	public function should_check_status() {
+	public function should_check_status(): bool {
 		// If the site isn't configured to send email, definitely not.
 		if ( ! $this->wp_offload_ses->settings->get_setting( 'send-via-ses', false ) ) {
 			return false;
@@ -130,10 +129,11 @@ class Queue_Status {
 	}
 
 	/**
-	 * Makes sure the cron is running, raises an alert
-	 * if not.
+	 * Makes sure the cron is running, raises an alert if not.
+	 *
+	 * @return bool
 	 */
-	public function check_status() {
+	public function check_status(): bool {
 		if ( get_transient( 'wposes_doing_cron_check' ) || ! $this->should_check_status() ) {
 			return false;
 		}
@@ -173,23 +173,25 @@ class Queue_Status {
 				$this->wp_offload_ses->get_notices()->remove_notice_by_id( 'wposes_cron_error' );
 			}
 
-			// Update the last check so we know we don't need to check again.
+			// Update the last check, so we know we don't need to check again.
 			update_option( 'wposes_last_cron_check', time() );
 		}
 
 		delete_transient( 'wposes_doing_cron_check' );
+
+		return true;
 	}
 
 	/**
 	 * Notify admins about a cron issue.
 	 */
 	public function add_cron_error_notice() {
-		$message  = __( '<strong>WP Offload SES</strong> &mdash; WP Cron does not appear to be working correctly.', 'wp-offload-ses' );
-		$count    = $this->get_total_jobs();
-		
+		$message = __( '<strong>WP Offload SES</strong> &mdash; WP Cron does not appear to be working correctly.', 'wp-offload-ses' );
+		$count   = $this->get_total_jobs();
+
 		if ( 0 !== $count ) {
 			$message .= ' ';
-			$message .=sprintf(
+			$message .= sprintf(
 				_n( 'There is currently %d email in the queue that may not be sent until this is resolved.', 'There are currently %d emails in the queue that may not be sent until this is resolved.', $count, 'wp-offload-ses' ),
 				$count
 			);
@@ -209,22 +211,22 @@ class Queue_Status {
 		$this->wp_offload_ses->get_notices()->add_notice(
 			$message,
 			array(
-				'type'                  => 'error',
-				'only_show_to_user'     => false,
-				'flash'                 => false,
-				'remove_on_dismiss'     => true,
-				'custom_id'             => 'wposes_cron_error',
-				'subsite'               => true,
+				'type'              => 'error',
+				'only_show_to_user' => false,
+				'flash'             => false,
+				'remove_on_dismiss' => true,
+				'custom_id'         => 'wposes_cron_error',
+				'subsite'           => true,
 			)
 		);
 	}
 
 	/**
-	 * Send an email to admin about cron issue if we haven't already.
+	 * Email admin about cron issue if we haven't already.
 	 *
 	 * @return bool
 	 */
-	public function maybe_send_cron_error_email() {
+	public function maybe_send_cron_error_email(): bool {
 		/**
 		 * Filter to disable the cron error email. Useful on development sites
 		 * where a dedicated server cron isn't necessary.
@@ -250,12 +252,12 @@ class Queue_Status {
 			$url,
 			$this->get_total_jobs()
 		);
-	
+
 		$count = $this->get_total_jobs();
 
 		if ( 0 !== $count ) {
 			$message .= ' ';
-			$message .=sprintf(
+			$message .= sprintf(
 				_n( 'There is currently %d email in the queue that may not be sent until this is resolved.', 'There are currently %d emails in the queue that may not be sent until this is resolved.', $count, 'wp-offload-ses' ),
 				$count
 			);
@@ -277,7 +279,7 @@ class Queue_Status {
 			$email  = new Email( $to, $subject, $message, 'Content-Type: text/html', '' );
 			$raw    = $email->prepare();
 			$result = $this->wp_offload_ses->get_ses_api()->send_email( $raw );
-		} catch ( \Exception $e ) {
+		} catch ( Exception $e ) {
 			// Log the error and move on...
 			new Error( Error::$send_cron_email, __( 'There was an error trying to send the cron alert.', 'wp-offload-ses' ) );
 		}
@@ -285,11 +287,10 @@ class Queue_Status {
 		// Make sure we don't keep sending these out.
 		update_option( 'wposes_cron_error_email', true );
 
-		if ( ! $result ) {
+		if ( empty( $result ) || is_wp_error( $result ) ) {
 			return false;
 		}
 
 		return true;
 	}
-
 }

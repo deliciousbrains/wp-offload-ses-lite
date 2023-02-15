@@ -8,14 +8,13 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
-use DeliciousBrains\WP_Offload_SES\Queue\Jobs\Email_Job;
-use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
+use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Command;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandPool;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\ResultInterface;
-use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Ses\Exception\SesException;
+use DeliciousBrains\WP_Offload_SES\Aws3\Aws\SesV2\Exception\SesV2Exception;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise\PromiseInterface;
 use DeliciousBrains\WP_Offload_SES\Queue\Connection;
-use DeliciousBrains\WP_Offload_SES\Error;
+use DeliciousBrains\WP_Offload_SES\Queue\Jobs\Email_Job;
 
 /**
  * Class Command_Pool
@@ -36,10 +35,10 @@ class Command_Pool {
 	 *
 	 * @var array
 	 */
-	private $commands = array();
+	public $commands = array();
 
 	/**
-	 * The maximum concurreny for the AWS CommandPool.
+	 * The maximum concurrency for the AWS CommandPool.
 	 *
 	 * @var int
 	 */
@@ -58,21 +57,22 @@ class Command_Pool {
 	 * @param Connection $connection The database connection.
 	 * @param int        $attempts   The number of times to attempt a job.
 	 */
-	public function __construct( $connection, $attempts ) {
+	public function __construct( Connection $connection, int $attempts ) {
 		$this->connection = $connection;
 		$this->attempts   = $attempts;
 	}
 
 	/**
-	 * Add a command to be ran via the CommandPool.
+	 * Add a command to be run via the CommandPool.
 	 *
-	 * @param string $command The command to add.
+	 * @param Command $command The command to add.
 	 */
-	public function add_command( $command ) {
+	public function add_command( Command $command ) {
 		$this->commands[] = $command;
 		$num_commands     = count( $this->commands );
 
-		if ( $this->get_concurrency() === $num_commands || $this->connection->jobs() === $num_commands ) {
+		// Execute if we've reached our max concurrency, or if there are no more unreserved jobs.
+		if ( $this->get_concurrency() <= $num_commands || 0 === $this->connection->jobs( true ) ) {
 			$this->execute();
 			$this->commands = array();
 		}
@@ -83,7 +83,7 @@ class Command_Pool {
 	 *
 	 * @return int
 	 */
-	private function get_concurrency() {
+	private function get_concurrency(): int {
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
@@ -106,7 +106,7 @@ class Command_Pool {
 	/**
 	 * Create the command pool and execute the commands.
 	 */
-	private function execute() {
+	public function execute() {
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
@@ -124,7 +124,7 @@ class Command_Pool {
 
 				$id = (int) $this->commands[ $iterKey ]['x-message-id'];
 				/** @var Email_Job $job */
-				$job   = $this->connection->get_job( $id );
+				$job = $this->connection->get_job( $id );
 
 				if ( ! $job ) {
 					new Error(
@@ -132,6 +132,7 @@ class Command_Pool {
 						__( 'Failed to retrieve the job while executing the command pool.', 'wp-offload-ses' ),
 						(string) $id
 					);
+
 					return false;
 				}
 
@@ -146,9 +147,11 @@ class Command_Pool {
 				$this->connection->delete( $job );
 				$wp_offload_ses->get_email_log()->update_email( $job->email_id, 'email_status', 'sent' );
 				$wp_offload_ses->get_email_log()->update_email( $job->email_id, 'email_sent', current_time( 'mysql' ) );
+
+				return true;
 			},
 			'rejected'    => function (
-				SesException $reason,
+				SesV2Exception $reason,
 				$iterKey,
 				PromiseInterface $aggregatePromise
 			) {
@@ -165,6 +168,7 @@ class Command_Pool {
 						__( 'Failed to retrieve the job while executing the command pool.', 'wp-offload-ses' ),
 						(string) $id
 					);
+
 					return false;
 				}
 
@@ -180,6 +184,8 @@ class Command_Pool {
 				} else {
 					$this->connection->release( $job );
 				}
+
+				return true;
 			},
 		] );
 
@@ -187,5 +193,4 @@ class Command_Pool {
 		$promise = $command_pool->promise();
 		$promise->wait();
 	}
-
 }

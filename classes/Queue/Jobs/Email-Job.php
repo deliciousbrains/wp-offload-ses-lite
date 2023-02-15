@@ -1,6 +1,6 @@
 <?php
 /**
- * Email job that is ran via cron.
+ * Email job that is run via cron.
  *
  * @author  Delicious Brains
  * @package WP Offload SES
@@ -8,9 +8,13 @@
 
 namespace DeliciousBrains\WP_Offload_SES\Queue\Jobs;
 
-use DeliciousBrains\WP_Offload_SES\WP_Queue\Job;
+use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Command;
 use DeliciousBrains\WP_Offload_SES\Email;
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
+use DeliciousBrains\WP_Offload_SES\WP_Queue\Job;
+use Exception;
+use InvalidArgumentException;
+use phpmailerException;
 
 /**
  * Class Email_Job
@@ -38,7 +42,7 @@ class Email_Job extends Job {
 	 *
 	 * @param int $email_id The ID of the email to send.
 	 */
-	public function __construct( $email_id, $subsite_id ) {
+	public function __construct( int $email_id, $subsite_id ) {
 		$this->email_id   = $email_id;
 		$this->subsite_id = $subsite_id;
 	}
@@ -46,40 +50,40 @@ class Email_Job extends Job {
 	/**
 	 * Handle the job logic.
 	 *
-	 * @throws \phpmailerException
+	 * @return Command
+	 *
+	 * @throws phpmailerException
 	 */
-	public function handle() {
+	public function handle(): Command {
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
 		$atts        = $wp_offload_ses->get_email_log()->get_email( $this->email_id );
-		$to          = isset( $atts['email_to'] ) ? $atts['email_to'] : '';
-		$subject     = isset( $atts['email_subject'] ) ? $atts['email_subject'] : '';
-		$message     = isset( $atts['email_message'] ) ? $atts['email_message'] : '';
-		$headers     = isset( $atts['email_headers'] ) ? $atts['email_headers'] : '';
-		$attachments = isset( $atts['email_attachments'] ) ? $atts['email_attachments'] : array();
+		$to          = $atts['email_to'] ?? '';
+		$subject     = $atts['email_subject'] ?? '';
+		$message     = $atts['email_message'] ?? '';
+		$headers     = $atts['email_headers'] ?? '';
+		$attachments = $atts['email_attachments'] ?? array();
 		$client      = $wp_offload_ses->get_ses_api()->get_client();
 		$email       = new Email( $to, $subject, $message, $headers, $attachments, $this->email_id );
 		$raw         = $email->prepare();
 
-		if (
-			$raw instanceof \phpmailerException ||
-			$raw instanceof \Exception ||
-			$raw instanceof \PHPMailer\PHPMailer\Exception
-		) {
+		if ( $raw instanceof Exception ) {
 			throw $raw;
 		}
 
 		$data = array(
 			'x-message-id' => $this->id(),
-			'RawMessage'   => array(
-				'Data' => $raw,
+			'Content'      => array(
+				'Raw' => array(
+					'Data' => $raw,
+				),
 			),
 		);
 
 		try {
-			$command = $client->getCommand( 'SendRawEmail', $data );
-		} catch ( \InvalidArgumentException $exception ) {
+			$command = $client->getCommand( 'SendEmail', $data );
+		} catch ( InvalidArgumentException $exception ) {
 			throw $exception;
 		}
 

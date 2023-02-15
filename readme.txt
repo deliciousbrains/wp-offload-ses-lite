@@ -1,10 +1,10 @@
 === WP Offload SES Lite ===
-Contributors: deliciousbrains, bradt, SylvainDeaure
+Contributors: wpengine, deliciousbrains, ianmjones, eriktorsner, kevinwhoffman, mattshaw, bradt, SylvainDeaure
 Tags: amazon ses,smtp,email delivery,gmail smtp,newsletter
-Requires at least: 5.0
-Tested up to: 5.6
-Requires PHP: 5.5+
-Stable tag: 1.4.4
+Requires at least: 5.3
+Tested up to: 6.1
+Requires PHP: 7.2
+Stable tag: 1.6.0
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
 
@@ -35,7 +35,7 @@ With WP Offload SES Lite, you can:
 * Configure multisite subsites to use different email settings, or enforce the same settings for your whole network
 * Integrate with your favorite form and newsletter plugins, including Ninja Forms, Contact Form 7, Gravity Forms, Email Subscribers & Newsletters, and more
 
-### Upgrade to WP Offload SES <del>Lite</del>
+### Upgrade to WP Offload SES
 
 Get email open and click reporting and more with an upgrade to WP Offload SES:
 
@@ -107,7 +107,7 @@ At the moment WP Offload SES only supports Amazon SES. We're considering support
 
 = Does this plugin auto-retry email delivery failures? =
 
-While you can see a list of all emails sent from your site with this plugin, WP Offload SES Lite does not auto-retry failures (nor does Amazon SES). If you’d like a plugin that will auto-retry for you, upgrade to [WP Offload SES](https://deliciousbrains.com/wp-offload-ses/upgrade/?utm_campaign=WP%2BOffload%2BSES&utm_source=wordpress.org&utm_medium=free%2Bplugin%2Blisting). 
+While you can see a list of all emails sent from your site with this plugin, WP Offload SES Lite does not auto-retry failures (nor does Amazon SES). If you’d like a plugin that will auto-retry for you, upgrade to [WP Offload SES](https://deliciousbrains.com/wp-offload-ses/upgrade/?utm_campaign=WP%2BOffload%2BSES&utm_source=wordpress.org&utm_medium=free%2Bplugin%2Blisting).
 
 = Can you help me about... (an Amazon concern) =
 
@@ -179,6 +179,29 @@ Please double check the credentials match up with the credentials you received w
 4. Activity tab
 
 == Changelog ==
+
+= 1.6.0 - 2023-02-15 =
+* [Release Summary Blog Post](https://deliciousbrains.com/wp-offload-ses-1-6-released/?utm_campaign=WP%2BOffload%2BSES&utm_source=wordpress.org&utm_medium=free%2Bplugin%2Blisting)
+* New: Maximum message size has been increased from 10 MB to 40 MB
+* New: Amazon SES API has been updated from v1 to v2
+* New: PHP 7.2 or later required
+* New: WordPress 5.3 or later required
+* New: WordPress 6.1 compatible
+* New: WP_Queue has been updated to v2.0
+* New: AWS PHP SDK has been updated to v3.258.3
+* Bug fix: Spelling corrected
+* Bug fix: Invalid Content-Type headers no longer stop emails from being sent
+
+= 1.4.6 - 2021-05-26 =
+* New: Added Milan and Cape Town as available regions
+* New: Added `wposes_ses_regions` filter for adding regions manually
+* Bug fix: Undefined constant `DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\IDNA_DEFAULT`
+
+= 1.4.5 - 2021-04-01 =
+* Bug fix: Some fields of the Activity tab are not properly escaped which is an XSS risk
+* Bug fix: Emails occasionally failing due to "WorkerAttemptsExceededException"
+* Bug fix: Passing CC/BCC in CSV format not working correctly
+* Bug fix: Upgrade routines can be run more than once during an upgrade
 
 = 1.4.4 - 2020-12-14 =
 * New: WordPress 5.6 and PHP 8 compatible
@@ -389,4 +412,3 @@ Quota and statistics Integration
 
 = 0.1.2 =
 First public Beta release
-

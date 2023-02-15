@@ -5,7 +5,10 @@ namespace DeliciousBrains\WP_Offload_SES\Aws3\Aws;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Api\Service;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Api\Validator;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Credentials\CredentialsInterface;
+use DeliciousBrains\WP_Offload_SES\Aws3\Aws\EndpointV2\EndpointProviderV2;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Exception\AwsException;
+use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Token\TokenAuthorization;
+use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Token\TokenInterface;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Psr7;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Psr7\LazyOpenStream;
@@ -22,14 +25,14 @@ final class Middleware
      *
      * @return callable
      */
-    public static function sourceFile(\DeliciousBrains\WP_Offload_SES\Aws3\Aws\Api\Service $api, $bodyParameter = 'Body', $sourceParameter = 'SourceFile')
+    public static function sourceFile(Service $api, $bodyParameter = 'Body', $sourceParameter = 'SourceFile')
     {
         return function (callable $handler) use($api, $bodyParameter, $sourceParameter) {
-            return function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request = null) use($handler, $api, $bodyParameter, $sourceParameter) {
+            return function (CommandInterface $command, RequestInterface $request = null) use($handler, $api, $bodyParameter, $sourceParameter) {
                 $operation = $api->getOperation($command->getName());
                 $source = $command[$sourceParameter];
                 if ($source !== null && $operation->getInput()->hasMember($bodyParameter)) {
-                    $command[$bodyParameter] = new \DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Psr7\LazyOpenStream($source, 'r');
+                    $command[$bodyParameter] = new LazyOpenStream($source, 'r');
                     unset($command[$sourceParameter]);
                 }
                 return $handler($command, $request);
@@ -43,11 +46,14 @@ final class Middleware
      *
      * @return callable
      */
-    public static function validation(\DeliciousBrains\WP_Offload_SES\Aws3\Aws\Api\Service $api, \DeliciousBrains\WP_Offload_SES\Aws3\Aws\Api\Validator $validator = null)
+    public static function validation(Service $api, Validator $validator = null)
     {
-        $validator = $validator ?: new \DeliciousBrains\WP_Offload_SES\Aws3\Aws\Api\Validator();
+        $validator = $validator ?: new Validator();
         return function (callable $handler) use($api, $validator) {
-            return function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request = null) use($api, $validator, $handler) {
+            return function (CommandInterface $command, RequestInterface $request = null) use($api, $validator, $handler) {
+                if ($api->isModifiedModel()) {
+                    $api = new Service($api->getDefinition(), $api->getProvider());
+                }
                 $operation = $api->getOperation($command->getName());
                 $validator->validate($command->getName(), $operation->getInput(), $command->toArray());
                 return $handler($command, $request);
@@ -59,13 +65,15 @@ final class Middleware
      *
      * @param callable $serializer Function used to serialize a request for a
      *                             command.
+     * @param EndpointProviderV2 | null $endpointProvider
+     * @param array $providerArgs
      * @return callable
      */
-    public static function requestBuilder(callable $serializer)
+    public static function requestBuilder($serializer, $endpointProvider = null, array $providerArgs = null)
     {
-        return function (callable $handler) use($serializer) {
-            return function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface $command) use($serializer, $handler) {
-                return $handler($command, $serializer($command));
+        return function (callable $handler) use($serializer, $endpointProvider, $providerArgs) {
+            return function (CommandInterface $command) use($serializer, $handler, $endpointProvider, $providerArgs) {
+                return $handler($command, $serializer($command, $endpointProvider, $providerArgs));
             };
         };
     }
@@ -81,14 +89,20 @@ final class Middleware
      *
      * @return callable
      */
-    public static function signer(callable $credProvider, callable $signatureFunction)
+    public static function signer(callable $credProvider, callable $signatureFunction, $tokenProvider = null)
     {
-        return function (callable $handler) use($signatureFunction, $credProvider) {
-            return function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request) use($handler, $signatureFunction, $credProvider) {
+        return function (callable $handler) use($signatureFunction, $credProvider, $tokenProvider) {
+            return function (CommandInterface $command, RequestInterface $request) use($handler, $signatureFunction, $credProvider, $tokenProvider) {
                 $signer = $signatureFunction($command);
-                return $credProvider()->then(function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\Credentials\CredentialsInterface $creds) use($handler, $command, $signer, $request) {
-                    return $handler($command, $signer->signRequest($request, $creds));
-                });
+                if ($signer instanceof TokenAuthorization) {
+                    return $tokenProvider()->then(function (TokenInterface $token) use($handler, $command, $signer, $request) {
+                        return $handler($command, $signer->authorizeRequest($request, $token));
+                    });
+                } else {
+                    return $credProvider()->then(function (CredentialsInterface $creds) use($handler, $command, $signer, $request) {
+                        return $handler($command, $signer->signRequest($request, $creds));
+                    });
+                }
             };
         };
     }
@@ -107,7 +121,7 @@ final class Middleware
     public static function tap(callable $fn)
     {
         return function (callable $handler) use($fn) {
-            return function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request = null) use($handler, $fn) {
+            return function (CommandInterface $command, RequestInterface $request = null) use($handler, $fn) {
                 $fn($command, $request);
                 return $handler($command, $request);
             };
@@ -130,12 +144,12 @@ final class Middleware
      *
      * @return callable
      */
-    public static function retry(callable $decider = null, callable $delay = null, $stats = false)
+    public static function retry(callable $decider = null, callable $delay = null, $stats = \false)
     {
-        $decider = $decider ?: \DeliciousBrains\WP_Offload_SES\Aws3\Aws\RetryMiddleware::createDefaultDecider();
-        $delay = $delay ?: [\DeliciousBrains\WP_Offload_SES\Aws3\Aws\RetryMiddleware::class, 'exponentialDelay'];
+        $decider = $decider ?: RetryMiddleware::createDefaultDecider();
+        $delay = $delay ?: [RetryMiddleware::class, 'exponentialDelay'];
         return function (callable $handler) use($decider, $delay, $stats) {
-            return new \DeliciousBrains\WP_Offload_SES\Aws3\Aws\RetryMiddleware($decider, $delay, $handler, $stats);
+            return new RetryMiddleware($decider, $delay, $handler, $stats);
         };
     }
     /**
@@ -150,8 +164,8 @@ final class Middleware
     public static function invocationId()
     {
         return function (callable $handler) {
-            return function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request) use($handler) {
-                return $handler($command, $request->withHeader('aws-sdk-invocation-id', md5(uniqid(gethostname(), true))));
+            return function (CommandInterface $command, RequestInterface $request) use($handler) {
+                return $handler($command, $request->withHeader('aws-sdk-invocation-id', \md5(\uniqid(\gethostname(), \true))));
             };
         };
     }
@@ -168,9 +182,39 @@ final class Middleware
     public static function contentType(array $operations)
     {
         return function (callable $handler) use($operations) {
-            return function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request = null) use($handler, $operations) {
-                if (!$request->hasHeader('Content-Type') && in_array($command->getName(), $operations, true) && ($uri = $request->getBody()->getMetadata('uri'))) {
-                    $request = $request->withHeader('Content-Type', \DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Psr7\mimetype_from_filename($uri) ?: 'application/octet-stream');
+            return function (CommandInterface $command, RequestInterface $request = null) use($handler, $operations) {
+                if (!$request->hasHeader('Content-Type') && \in_array($command->getName(), $operations, \true) && ($uri = $request->getBody()->getMetadata('uri'))) {
+                    $request = $request->withHeader('Content-Type', Psr7\MimeType::fromFilename($uri) ?: 'application/octet-stream');
+                }
+                return $handler($command, $request);
+            };
+        };
+    }
+    /**
+     * Middleware wrapper function that adds a trace id header to requests
+     * from clients instantiated in supported Lambda runtime environments.
+     *
+     * The purpose for this header is to track and stop Lambda functions
+     * from being recursively invoked due to misconfigured resources.
+     *
+     * @return callable
+     */
+    public static function recursionDetection()
+    {
+        return function (callable $handler) {
+            return function (CommandInterface $command, RequestInterface $request) use($handler) {
+                $isLambda = \getenv('AWS_LAMBDA_FUNCTION_NAME');
+                $traceId = \str_replace('\\e', '\\x1b', \getenv('_X_AMZN_TRACE_ID'));
+                if ($isLambda && $traceId) {
+                    if (!$request->hasHeader('X-Amzn-Trace-Id')) {
+                        $ignoreChars = ['=', ';', ':', '+', '&', '[', ']', '{', '}', '"', '\'', ','];
+                        $traceIdEncoded = \rawurlencode(\stripcslashes($traceId));
+                        foreach ($ignoreChars as $char) {
+                            $encodedChar = \rawurlencode($char);
+                            $traceIdEncoded = \str_replace($encodedChar, $char, $traceIdEncoded);
+                        }
+                        return $handler($command, $request->withHeader('X-Amzn-Trace-Id', $traceIdEncoded));
+                    }
                 }
                 return $handler($command, $request);
             };
@@ -185,17 +229,17 @@ final class Middleware
      *
      * @return callable
      */
-    public static function history(\DeliciousBrains\WP_Offload_SES\Aws3\Aws\History $history)
+    public static function history(History $history)
     {
         return function (callable $handler) use($history) {
-            return function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request = null) use($handler, $history) {
+            return function (CommandInterface $command, RequestInterface $request = null) use($handler, $history) {
                 $ticket = $history->start($command, $request);
                 return $handler($command, $request)->then(function ($result) use($history, $ticket) {
                     $history->finish($ticket, $result);
                     return $result;
                 }, function ($reason) use($history, $ticket) {
                     $history->finish($ticket, $reason);
-                    return \DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise\rejection_for($reason);
+                    return Promise\Create::rejectionFor($reason);
                 });
             };
         };
@@ -212,7 +256,7 @@ final class Middleware
     public static function mapRequest(callable $f)
     {
         return function (callable $handler) use($f) {
-            return function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request = null) use($handler, $f) {
+            return function (CommandInterface $command, RequestInterface $request = null) use($handler, $f) {
                 return $handler($command, $f($request));
             };
         };
@@ -229,7 +273,7 @@ final class Middleware
     public static function mapCommand(callable $f)
     {
         return function (callable $handler) use($f) {
-            return function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request = null) use($handler, $f) {
+            return function (CommandInterface $command, RequestInterface $request = null) use($handler, $f) {
                 return $handler($f($command), $request);
             };
         };
@@ -245,7 +289,7 @@ final class Middleware
     public static function mapResult(callable $f)
     {
         return function (callable $handler) use($f) {
-            return function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request = null) use($handler, $f) {
+            return function (CommandInterface $command, RequestInterface $request = null) use($handler, $f) {
                 return $handler($command, $request)->then($f);
             };
         };
@@ -253,22 +297,22 @@ final class Middleware
     public static function timer()
     {
         return function (callable $handler) {
-            return function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandInterface $command, \DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface $request = null) use($handler) {
-                $start = microtime(true);
-                return $handler($command, $request)->then(function (\DeliciousBrains\WP_Offload_SES\Aws3\Aws\ResultInterface $res) use($start) {
+            return function (CommandInterface $command, RequestInterface $request = null) use($handler) {
+                $start = \microtime(\true);
+                return $handler($command, $request)->then(function (ResultInterface $res) use($start) {
                     if (!isset($res['@metadata'])) {
                         $res['@metadata'] = [];
                     }
                     if (!isset($res['@metadata']['transferStats'])) {
                         $res['@metadata']['transferStats'] = [];
                     }
-                    $res['@metadata']['transferStats']['total_time'] = microtime(true) - $start;
+                    $res['@metadata']['transferStats']['total_time'] = \microtime(\true) - $start;
                     return $res;
                 }, function ($err) use($start) {
                     if ($err instanceof AwsException) {
-                        $err->setTransferInfo(['total_time' => microtime(true) - $start] + $err->getTransferInfo());
+                        $err->setTransferInfo(['total_time' => \microtime(\true) - $start] + $err->getTransferInfo());
                     }
-                    return \DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise\rejection_for($err);
+                    return Promise\Create::rejectionFor($err);
                 });
             };
         };
