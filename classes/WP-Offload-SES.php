@@ -763,7 +763,7 @@ class WP_Offload_SES extends Plugin_Base {
 			}
 
 			// Ends with verified identity name, most likely a domain.
-			if ( ! $exact_match && $sender === substr( $email, -strlen( $sender['IdentityName'] ) ) ) {
+			if ( ! $exact_match && $sender['IdentityName'] === substr( $email, -strlen( $sender['IdentityName'] ) ) ) {
 				return true;
 			}
 		}

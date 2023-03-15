@@ -5,7 +5,7 @@
 **Requires at least:** 5.3 \
 **Tested up to:** 6.1 \
 **Requires PHP:** 7.2 \
-**Stable tag:** 1.6.0
+**Stable tag:** 1.6.1
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
 
@@ -192,6 +192,10 @@ Please double check the credentials match up with the credentials you received w
 
 
 ## Changelog
+
+### 1.6.1 - 2023-03-15
+
+* Bug fix: Emails sent from a verified domain no longer result in an unverified email address notice
 
 ### 1.6.0 - 2023-02-15
 

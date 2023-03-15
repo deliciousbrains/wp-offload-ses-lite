@@ -4,7 +4,7 @@ Tags: amazon ses,smtp,email delivery,gmail smtp,newsletter
 Requires at least: 5.3
 Tested up to: 6.1
 Requires PHP: 7.2
-Stable tag: 1.6.0
+Stable tag: 1.6.1
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
 
@@ -179,6 +179,9 @@ Please double check the credentials match up with the credentials you received w
 4. Activity tab
 
 == Changelog ==
+
+= 1.6.1 - 2023-03-15 =
+* Bug fix: Emails sent from a verified domain no longer result in an unverified email address notice
 
 = 1.6.0 - 2023-02-15 =
 * [Release Summary Blog Post](https://deliciousbrains.com/wp-offload-ses-1-6-released/?utm_campaign=WP%2BOffload%2BSES&utm_source=wordpress.org&utm_medium=free%2Bplugin%2Blisting)
