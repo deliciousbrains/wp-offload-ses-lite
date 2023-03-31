@@ -4,7 +4,7 @@ Tags: amazon ses,smtp,email delivery,gmail smtp,newsletter
 Requires at least: 5.3
 Tested up to: 6.2
 Requires PHP: 7.2
-Stable tag: 1.6.1
+Stable tag: 1.6.2
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
 
@@ -179,6 +179,9 @@ Please double check the credentials match up with the credentials you received w
 4. Activity tab
 
 == Changelog ==
+
+= 1.6.2 - 2023-03-31 =
+* Improvement: Instructions for creating an IAM user on AWS are now up to date
 
 = 1.6.1 - 2023-03-15 =
 * Bug fix: Emails sent from a verified domain no longer result in an unverified email address notice

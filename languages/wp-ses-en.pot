@@ -1,21 +1,22 @@
 # Copyright (C) 2023 Delicious Brains
-# This file is distributed under the same license as the WP Offload SES plugin.
+# This file is distributed under the same license as the WP Offload SES Lite plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Offload SES 1.6.1\n"
+"Project-Id-Version: WP Offload SES Lite 1.6.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-ses\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-03-15T08:07:58+00:00\n"
+"POT-Creation-Date: 2023-03-31T15:46:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: wp-offload-ses\n"
 
 #. Plugin Name of the plugin
-msgid "WP Offload SES"
+#: classes/Health-Report.php:458
+msgid "WP Offload SES Lite"
 msgstr ""
 
 #. Description of the plugin
@@ -246,10 +247,6 @@ msgstr ""
 
 #: classes/Health-Report.php:361
 msgid "reporting period"
-msgstr ""
-
-#: classes/Health-Report.php:458
-msgid "WP Offload SES Lite"
 msgstr ""
 
 #: classes/Health-Report.php:491
@@ -1126,54 +1123,82 @@ msgid "Create an IAM User"
 msgstr ""
 
 #: view/setup/create-iam-user.php:4
-msgid "First you'll need to create an IAM user to get the access keys you need to use WP Offload SES. If you already have your AWS access keys and are confident you've set them up with the correct permissions, you can skip this step."
+msgid "First, you'll need to create an IAM user to get the access keys you need to use WP Offload SES. If you already have your AWS access keys and are confident you've set them up with the correct permissions, you can skip this step."
 msgstr ""
 
-#: view/setup/create-iam-user.php:9
-msgid "<a href=\"%1$s\" target=\"_blank\">Login to the AWS console</a> and navigate to <a href=\"%2$s\" target=\"_blank\">the IAM Users page</a>."
+#: view/setup/create-iam-user.php:6
+msgid "Setting up a new user is done in two steps, <strong>Creating the User</strong> and <strong>Creating Access Keys</strong>."
 msgstr ""
 
-#: view/setup/create-iam-user.php:15
-msgid "Click the <strong>Add user</strong> button."
+#: view/setup/create-iam-user.php:8
+msgid "Creating the user"
 msgstr ""
 
-#: view/setup/create-iam-user.php:16
-msgid "Enter a name for the user in the <strong>User name</strong> field."
-msgstr ""
-
-#: view/setup/create-iam-user.php:17
-msgid "Under <strong>Select AWS access type</strong> select the checkbox for <strong>Programmatic access</strong>."
-msgstr ""
-
-#: view/setup/create-iam-user.php:18
-msgid "Click the <strong>Next: Permissions</strong> button."
+#: view/setup/create-iam-user.php:13
+msgid "<a href=\"%1$s\" target=\"_blank\">Log in to the AWS console</a> and navigate to <a href=\"%2$s\" target=\"_blank\">the IAM Users page</a>."
 msgstr ""
 
 #: view/setup/create-iam-user.php:19
-msgid "Click <strong>Attach existing policies directly</strong> in the <strong>Set Permissions</strong> section."
+msgid "Click the <strong>Add user</strong> button."
 msgstr ""
 
 #: view/setup/create-iam-user.php:20
-msgid "Type <strong>AmazonSESFullAccess</strong> in the search bar and check the box to add the permission."
+msgid "Enter a name for the user in the <strong>User name</strong> field."
 msgstr ""
 
 #: view/setup/create-iam-user.php:21
-msgid "Click the <strong>Next: Tags</strong> button at the bottom of the page."
+msgid "Leave the checkbox for <strong>Provide user access to the AWS Management Console</strong> empty and click <strong>Next</strong>."
 msgstr ""
 
 #: view/setup/create-iam-user.php:22
-msgid "Click the <strong>Next: Review</strong> button at the bottom of the page."
+msgid "In the next step, click <strong>Attach policies directly</strong>."
 msgstr ""
 
 #: view/setup/create-iam-user.php:23
-msgid "Click the <strong>Create user</strong> button."
+msgid "Type <strong>AmazonSESFullAccess</strong> in the search bar and check the box to add the permission."
 msgstr ""
 
-#: view/setup/create-iam-user.php:26
-msgid "You will be shown the security credentials for the user, which consists of an <strong>Access Key ID</strong> and a <strong>Secret Access Key</strong>. Amazon will not show these again so copy them somewhere safe, or download them as a .csv file. If you lose them, you can always create a new set of keys from the console but you cannot retrieve the secret key again later."
+#: view/setup/create-iam-user.php:24
+msgid "Click the <strong>Next</strong> button at the bottom of the page."
+msgstr ""
+
+#: view/setup/create-iam-user.php:25
+msgid "In the final step, review your choices and click the <strong>Create user</strong> button at the bottom of the page."
+msgstr ""
+
+#: view/setup/create-iam-user.php:28
+msgid "Creating Access Keys"
 msgstr ""
 
 #: view/setup/create-iam-user.php:32
+msgid "Click on the newly created user name in the <a href=\"%1$s\" target=\"_blank\">IAM Users page</a> in the AWS Console to open the user details page"
+msgstr ""
+
+#: view/setup/create-iam-user.php:37
+msgid "Go to the <strong>Security credentials</strong> tab and scroll down to the <strong>Access keys</strong> section."
+msgstr ""
+
+#: view/setup/create-iam-user.php:38
+msgid "Click the <strong>Create access key</strong> button."
+msgstr ""
+
+#: view/setup/create-iam-user.php:39
+msgid "In the list of <strong>Access key best practices & alternatives</strong>, select <strong>Application running outside AWS</strong> and then click <strong>Next</strong>."
+msgstr ""
+
+#: view/setup/create-iam-user.php:40
+msgid "In the next step, skip setting a description tag and then click <strong>Next</strong>."
+msgstr ""
+
+#: view/setup/create-iam-user.php:41
+msgid "In the final step, you will be shown the security credentials for the user."
+msgstr ""
+
+#: view/setup/create-iam-user.php:44
+msgid "The security credentials for the user consist of an <strong>Access Key ID</strong> and a <strong>Secret Access Key</strong>. Amazon will not show these again so copy them somewhere safe, or download them as a .csv file. If you lose them, you can always create a new set of keys from the console but you cannot retrieve the secret key again later."
+msgstr ""
+
+#: view/setup/create-iam-user.php:50
 msgid "Next: Enter Access Keys"
 msgstr ""
 
