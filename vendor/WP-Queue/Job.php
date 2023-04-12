@@ -169,7 +169,7 @@ abstract class Job
     public function __sleep()
     {
         $object_props = \get_object_vars($this);
-        $excluded_props = ['id', 'attempts', 'reserved_at', 'available_at', 'created_at', 'released', 'failed'];
+        $excluded_props = array('id', 'attempts', 'reserved_at', 'available_at', 'created_at', 'released', 'failed');
         foreach ($excluded_props as $prop) {
             unset($object_props[$prop]);
         }

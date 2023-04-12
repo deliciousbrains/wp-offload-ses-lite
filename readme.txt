@@ -4,13 +4,11 @@ Tags: amazon ses,smtp,email delivery,gmail smtp,newsletter
 Requires at least: 5.3
 Tested up to: 6.2
 Requires PHP: 7.2
-Stable tag: 1.6.2
+Stable tag: 1.6.3
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
 
 == Description ==
-
-https://www.youtube.com/watch?v=m2fSx-DAgfY&feature=youtu.be&t=212
 
 Are your WordPress site emails not being delivered? That's pretty common. Over 20,000 sites trust WP Offload SES Lite to send their site email.
 
@@ -179,6 +177,9 @@ Please double check the credentials match up with the credentials you received w
 4. Activity tab
 
 == Changelog ==
+
+= 1.6.3 - 2023-04-12 =
+* Bug fix: WP Offload SES is once again compatible with sites using PHP 7 and WordPress 5.3–5.8
 
 = 1.6.2 - 2023-03-31 =
 * Improvement: Instructions for creating an IAM user on AWS are now up to date

@@ -57,8 +57,8 @@ class Cron
         if (!$this->is_enabled()) {
             return \false;
         }
-        add_filter('cron_schedules', [$this, 'schedule_cron']);
-        add_action($this->id, [$this, 'cron_worker']);
+        add_filter('cron_schedules', array($this, 'schedule_cron'));
+        add_action($this->id, array($this, 'cron_worker'));
         if (!wp_next_scheduled($this->id)) {
             // Schedule health check
             wp_schedule_event(\time(), $this->id, $this->id);
@@ -74,7 +74,7 @@ class Cron
      */
     public function schedule_cron($schedules)
     {
-        $schedules[$this->id] = ['interval' => MINUTE_IN_SECONDS * $this->interval, 'display' => \sprintf(__('Every %d Minutes'), $this->interval)];
+        $schedules[$this->id] = array('interval' => MINUTE_IN_SECONDS * $this->interval, 'display' => \sprintf(__('Every %d Minutes'), $this->interval));
         return $schedules;
     }
     /**
@@ -152,7 +152,7 @@ class Cron
             // Unlimited, set to 1GB
             $memory_limit = '1000M';
         }
-        return wp_convert_hr_to_bytes($memory_limit);
+        return \intval($memory_limit) * 1024 * 1024;
     }
     /**
      * Time exceeded

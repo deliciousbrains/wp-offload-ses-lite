@@ -51,10 +51,12 @@ class Worker
         }
         if ($job->failed()) {
             $this->connection->failure($job, $exception);
-        } elseif ($job->released()) {
-            $this->connection->release($job);
         } else {
-            $this->connection->delete($job);
+            if ($job->released()) {
+                $this->connection->release($job);
+            } else {
+                $this->connection->delete($job);
+            }
         }
         return \true;
     }
