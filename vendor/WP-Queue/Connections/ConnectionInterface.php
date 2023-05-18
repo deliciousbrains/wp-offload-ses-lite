@@ -39,7 +39,7 @@ interface ConnectionInterface
      * @param Job       $job
      * @param Exception $exception
      *
-     * @return
+     * @return bool
      */
     public function failure($job, Exception $exception);
     /**

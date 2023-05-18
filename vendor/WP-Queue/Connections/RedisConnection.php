@@ -16,7 +16,6 @@ class RedisConnection implements ConnectionInterface
      */
     public function push(Job $job, $delay = 0)
     {
-        //
     }
     /**
      * Retrieve a job from the queue.
@@ -25,7 +24,6 @@ class RedisConnection implements ConnectionInterface
      */
     public function pop()
     {
-        //
     }
     /**
      * Delete a job from the queue.
@@ -34,7 +32,6 @@ class RedisConnection implements ConnectionInterface
      */
     public function delete($job)
     {
-        //
     }
     /**
      * Release a job back onto the queue.
@@ -43,17 +40,17 @@ class RedisConnection implements ConnectionInterface
      */
     public function release($job)
     {
-        //
     }
     /**
      * Push a job onto the failure queue.
      *
      * @param Job       $job
      * @param Exception $exception
+     *
+     * @return bool
      */
     public function failure($job, Exception $exception)
     {
-        //
     }
     /**
      * Get total jobs in the queue.
@@ -62,7 +59,6 @@ class RedisConnection implements ConnectionInterface
      */
     public function jobs()
     {
-        //
     }
     /**
      * Get total jobs in the failures queue.
@@ -71,6 +67,5 @@ class RedisConnection implements ConnectionInterface
      */
     public function failed_jobs()
     {
-        //
     }
 }

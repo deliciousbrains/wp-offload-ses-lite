@@ -2,7 +2,7 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
-/*
+/**
  * This file is part of the Carbon package.
  *
  * (c) Brian Nesbitt <brian@nesbot.com>

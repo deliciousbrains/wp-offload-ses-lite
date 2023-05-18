@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This file is part of the Carbon package.
  *
  * (c) Brian Nesbitt <brian@nesbot.com>
@@ -10,9 +10,9 @@
  */
 namespace DeliciousBrains\WP_Offload_SES\Carbon\Exceptions;
 
-use Exception;
-use InvalidArgumentException;
-class InvalidDateException extends InvalidArgumentException
+use InvalidArgumentException as BaseInvalidArgumentException;
+use Throwable;
+class InvalidDateException extends BaseInvalidArgumentException implements InvalidArgumentException
 {
     /**
      * The invalid field.
@@ -29,12 +29,12 @@ class InvalidDateException extends InvalidArgumentException
     /**
      * Constructor.
      *
-     * @param string          $field
-     * @param mixed           $value
-     * @param int             $code
-     * @param \Exception|null $previous
+     * @param string         $field
+     * @param mixed          $value
+     * @param int            $code
+     * @param Throwable|null $previous
      */
-    public function __construct($field, $value, $code = 0, Exception $previous = null)
+    public function __construct($field, $value, $code = 0, Throwable $previous = null)
     {
         $this->field = $field;
         $this->value = $value;

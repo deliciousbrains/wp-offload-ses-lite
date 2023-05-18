@@ -8,7 +8,7 @@ use DeliciousBrains\WP_Offload_SES\WP_Queue\Job;
 class DatabaseConnection implements ConnectionInterface
 {
     /**
-     * @var wpdb
+     * @var \wpdb
      */
     protected $database;
     /**
@@ -22,7 +22,7 @@ class DatabaseConnection implements ConnectionInterface
     /**
      * DatabaseQueue constructor.
      *
-     * @param wpdb $wpdb
+     * @param \wpdb $wpdb
      */
     public function __construct($wpdb)
     {
@@ -40,7 +40,7 @@ class DatabaseConnection implements ConnectionInterface
      */
     public function push(Job $job, $delay = 0)
     {
-        $result = $this->database->insert($this->jobs_table, array('job' => \serialize($job), 'available_at' => $this->datetime($delay), 'created_at' => $this->datetime()));
+        $result = $this->database->insert($this->jobs_table, ['job' => \serialize($job), 'available_at' => $this->datetime($delay), 'created_at' => $this->datetime()]);
         if (!$result) {
             return \false;
         }
@@ -72,7 +72,7 @@ class DatabaseConnection implements ConnectionInterface
      */
     public function delete($job)
     {
-        $where = array('id' => $job->id());
+        $where = ['id' => $job->id()];
         if ($this->database->delete($this->jobs_table, $where)) {
             return \true;
         }
@@ -87,8 +87,8 @@ class DatabaseConnection implements ConnectionInterface
      */
     public function release($job)
     {
-        $data = array('job' => \serialize($job), 'attempts' => $job->attempts(), 'reserved_at' => null);
-        $where = array('id' => $job->id());
+        $data = ['job' => \serialize($job), 'attempts' => $job->attempts(), 'reserved_at' => null];
+        $where = ['id' => $job->id()];
         if ($this->database->update($this->jobs_table, $data, $where)) {
             return \true;
         }
@@ -104,7 +104,7 @@ class DatabaseConnection implements ConnectionInterface
      */
     public function failure($job, Exception $exception)
     {
-        $insert = $this->database->insert($this->failures_table, array('job' => \serialize($job), 'error' => $this->format_exception($exception), 'failed_at' => $this->datetime()));
+        $insert = $this->database->insert($this->failures_table, ['job' => \serialize($job), 'error' => $this->format_exception($exception), 'failed_at' => $this->datetime()]);
         if ($insert) {
             $this->delete($job);
             return \true;
@@ -138,8 +138,8 @@ class DatabaseConnection implements ConnectionInterface
      */
     protected function reserve($job)
     {
-        $data = array('reserved_at' => $this->datetime());
-        $this->database->update($this->jobs_table, $data, array('id' => $job->id()));
+        $data = ['reserved_at' => $this->datetime()];
+        $this->database->update($this->jobs_table, $data, ['id' => $job->id()]);
     }
     /**
      * Release reserved jobs back onto the queue.

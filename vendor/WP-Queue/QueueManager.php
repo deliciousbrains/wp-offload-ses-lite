@@ -11,13 +11,14 @@ class QueueManager
     /**
      * @var array
      */
-    protected static $instances = array();
+    protected static $instances = [];
     /**
      * Resolve a Queue instance for required connection.
      *
      * @param string $connection
      *
      * @return Queue
+     * @throws \Exception
      */
     public static function resolve($connection)
     {
@@ -50,7 +51,7 @@ class QueueManager
      */
     protected static function connections()
     {
-        $connections = array('database' => new DatabaseConnection($GLOBALS['wpdb']), 'redis' => new RedisConnection(), 'sync' => new SyncConnection());
+        $connections = ['database' => new DatabaseConnection($GLOBALS['wpdb']), 'redis' => new RedisConnection(), 'sync' => new SyncConnection()];
         return apply_filters('wp_queue_connections', $connections);
     }
 }
