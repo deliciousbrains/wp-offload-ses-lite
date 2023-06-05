@@ -167,6 +167,7 @@ class Email {
 	 */
 	private function to( $to ) {
 		$to = $this->maybe_convert_to_array( $to );
+		$to = stripslashes_deep( $to );
 
 		foreach ( $to as $recipient ) {
 			try {
@@ -217,7 +218,7 @@ class Email {
 	 * @param string $subject The subject of the email.
 	 */
 	private function subject( $subject ) {
-		$this->mail->Subject = $subject;
+		$this->mail->Subject = stripslashes( $subject );
 	}
 
 	/**
@@ -323,6 +324,7 @@ class Email {
 	private function header_cc( $content, $type = 'cc' ) {
 		// They could be in CSV format.
 		$ccs = explode( ',', $content );
+		$ccs = stripslashes_deep( $ccs );
 
 		if ( empty( $ccs ) ) {
 			return;
@@ -353,6 +355,7 @@ class Email {
 	 */
 	private function header_reply_to( $content ) {
 		$reply_to = $this->maybe_convert_to_array( $content );
+		$reply_to = stripslashes_deep( $reply_to );
 
 		foreach ( $reply_to as $recipient ) {
 			try {
@@ -480,6 +483,11 @@ class Email {
 			$this->mail->Body = $wp_offload_ses->get_email_events()->filter_email_content( $this->email_id, $this->mail->Body );
 		}
 
+		// May need to strip slashes in the body.
+		if ( 'text/html' !== $this->mail->ContentType ) {
+			$this->mail->Body = stripslashes( $this->mail->Body );
+		}
+
 		// Fires after PHPMailer is initialized.
 		do_action_ref_array( 'phpmailer_init', array( &$this->mail ) );
 
@@ -576,9 +584,9 @@ class Email {
 
 		$body = $this->sanitize_email_body( $this->mail->Body );
 
-		// Maybe add HTML line breaks.
+		// Maybe strip slashes and add HTML line breaks.
 		if ( 'text/html' !== $this->mail->ContentType ) {
-			$body = nl2br( $body );
+			$body = nl2br( stripslashes( $body ) );
 		}
 
 		if ( isset( $email_data['status_i18n'] ) ) {

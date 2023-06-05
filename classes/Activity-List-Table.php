@@ -118,9 +118,9 @@ class Activity_List_Table extends \WP_List_Table {
 	 * @param array $email The array of info about the email.
 	 */
 	public function column_cb( $email ) {
-	    $id = esc_attr( $email['id'] );
+		$id = esc_attr( $email['id'] );
 		?>
-		<input id="cb-select-<?php echo $id; ?>" type="checkbox" name="email[]" value="<?php echo $id; ?>" />
+		<input id="cb-select-<?php echo $id; ?>" type="checkbox" name="email[]" value="<?php echo $id; ?>"/>
 		<?php
 	}
 
@@ -313,9 +313,7 @@ class Activity_List_Table extends \WP_List_Table {
 				ORDER BY $orderby $order
 				LIMIT $offset, $count";
 
-		$results = $this->database->get_results( $query, ARRAY_A );
-
-		return $results;
+		return stripslashes_deep( $this->database->get_results( $query, ARRAY_A ) );
 	}
 
 	/**
@@ -409,9 +407,10 @@ class Activity_List_Table extends \WP_List_Table {
 		 * The dynamic portion of the hook name, `$this->screen->id`, refers
 		 * to the ID of the current screen, usually a string.
 		 *
+		 * @param string[] $views An array of available list table views.
+		 *
 		 * @since 3.5.0
 		 *
-		 * @param string[] $views An array of available list table views.
 		 */
 		$views = apply_filters( "views_{$this->screen->id}", $views );
 		if ( empty( $views ) ) {
@@ -427,7 +426,7 @@ class Activity_List_Table extends \WP_List_Table {
 				$current = 'all';
 			}
 
-			$current = ( $current === $class ) ? 'current' : '';
+			$current         = ( $current === $class ) ? 'current' : '';
 			$views[ $class ] = "\t<li class='$class'><a href='#activity' class='$current' data-status='$class'>$view</a>";
 		}
 		echo implode( " |</li>\n", $views ) . "</li>\n";
@@ -508,17 +507,17 @@ class Activity_List_Table extends \WP_List_Table {
 	public function display() {
 		?>
 		<form id="wposes-activity-form" method="post">
-		<?php
-		wp_nonce_field( 'wposes-activity-nonce', 'wposes_activity_nonce' );
+			<?php
+			wp_nonce_field( 'wposes-activity-nonce', 'wposes_activity_nonce' );
 
-		$order   = ! empty( $this->_pagination_args['order'] ) ? $this->_pagination_args['order'] : 'desc';
-		$orderby = ! empty( $this->_pagination_args['orderby'] ) ? $this->_pagination_args['orderby'] : 'date';
+			$order   = ! empty( $this->_pagination_args['order'] ) ? $this->_pagination_args['order'] : 'desc';
+			$orderby = ! empty( $this->_pagination_args['orderby'] ) ? $this->_pagination_args['orderby'] : 'date';
 
-		echo '<input type="hidden" id="order" name="order" value="' . esc_attr( $order ) . '" />';
-		echo '<input type="hidden" id="orderby" name="orderby" value="' . esc_attr( $orderby ) . '" />';
+			echo '<input type="hidden" id="order" name="order" value="' . esc_attr( $order ) . '" />';
+			echo '<input type="hidden" id="orderby" name="orderby" value="' . esc_attr( $orderby ) . '" />';
 
-		parent::display();
-		?>
+			parent::display();
+			?>
 		</form>
 		<?php
 	}
@@ -548,9 +547,9 @@ class Activity_List_Table extends \WP_List_Table {
 		?>
 		<div id="wposes-activity-actions" class="alignleft actions">
 			<?php $this->email_months_dropdown(); ?>
-			<input id="wposes-subject-search" type="text" name="subject" placeholder="<?php _e( 'All Subjects', 'wp-offload-ses' ); ?>" />
-			<input id="wposes-recipient-search" type="text" name="recipient" placeholder="<?php _e( 'All Recipients', 'wp-offload-ses' ); ?>" />
-			<input type="submit" id="wposes-filter-btn" name="filter_action" class="button action" value="<?php _e( 'Filter', 'wp-offload-ses' ); ?>" />
+			<input id="wposes-subject-search" type="text" name="subject" placeholder="<?php _e( 'All Subjects', 'wp-offload-ses' ); ?>"/>
+			<input id="wposes-recipient-search" type="text" name="recipient" placeholder="<?php _e( 'All Recipients', 'wp-offload-ses' ); ?>"/>
+			<input type="submit" id="wposes-filter-btn" name="filter_action" class="button action" value="<?php _e( 'Filter', 'wp-offload-ses' ); ?>"/>
 		</div>
 		<?php
 	}
@@ -566,7 +565,7 @@ class Activity_List_Table extends \WP_List_Table {
 			FROM {$this->emails_table}
 			ORDER BY email_created DESC"
 		);
-		$m = isset( $_GET['m'] ) ? (int) $_GET['m'] : 0;
+		$m      = isset( $_GET['m'] ) ? (int) $_GET['m'] : 0;
 		?>
 		<select name="m" id="wposes-filter-by-date">
 			<option <?php selected( $m, 0 ); ?> value="0"><?php _e( 'All dates', 'wp-offload-ses' ); ?></option>
@@ -587,8 +586,8 @@ class Activity_List_Table extends \WP_List_Table {
 				);
 			}
 			?>
-			</select>
-			<?php
+		</select>
+		<?php
 	}
 
 	/**

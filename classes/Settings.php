@@ -381,7 +381,7 @@ class Settings {
 		$this->get_settings();
 		$setting = $this->settings[ $key ] ?? $default;
 
-		return apply_filters( 'wposes_get_setting', $setting, $key );
+		return stripslashes_deep( apply_filters( 'wposes_get_setting', $setting, $key ) );
 	}
 
 	/**
@@ -396,7 +396,7 @@ class Settings {
 		$this->get_network_settings();
 		$network_setting = $this->network_settings[ $key ] ?? $default;
 
-		return apply_filters( 'wposes_get_network_setting', $network_setting, $key );
+		return stripslashes_deep( apply_filters( 'wposes_get_network_setting', $network_setting, $key ) );
 	}
 
 	/**

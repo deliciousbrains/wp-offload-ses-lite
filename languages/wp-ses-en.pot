@@ -1,22 +1,21 @@
 # Copyright (C) 2023 Delicious Brains
-# This file is distributed under the same license as the WP Offload SES Lite plugin.
+# This file is distributed under the same license as the WP Offload SES plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Offload SES Lite 1.6.4\n"
+"Project-Id-Version: WP Offload SES 1.6.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-ses\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-05-18T09:06:59+00:00\n"
+"POT-Creation-Date: 2023-06-05T08:01:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: wp-offload-ses\n"
 
 #. Plugin Name of the plugin
-#: classes/Health-Report.php:458
-msgid "WP Offload SES Lite"
+msgid "WP Offload SES"
 msgstr ""
 
 #. Description of the plugin
@@ -49,60 +48,60 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: classes/Activity-List-Table.php:325
+#: classes/Activity-List-Table.php:323
 msgid "No emails found. Check back later!"
 msgstr ""
 
-#: classes/Activity-List-Table.php:335
+#: classes/Activity-List-Table.php:333
 #: classes/WP-Offload-SES.php:735
 msgid "Send"
 msgstr ""
 
-#: classes/Activity-List-Table.php:336
+#: classes/Activity-List-Table.php:334
 #: classes/WP-Offload-SES.php:729
 #: view/modals/delete-email.php:11
 #: view/modals/verify-sender.php:68
 msgid "Cancel"
 msgstr ""
 
-#: classes/Activity-List-Table.php:337
+#: classes/Activity-List-Table.php:335
 #: classes/WP-Offload-SES.php:739
 msgid "Delete Permanently"
 msgstr ""
 
-#: classes/Activity-List-Table.php:368
+#: classes/Activity-List-Table.php:366
 msgid "All %s"
 msgstr ""
 
-#: classes/Activity-List-Table.php:375
+#: classes/Activity-List-Table.php:373
 msgid "Sent %s"
 msgstr ""
 
-#: classes/Activity-List-Table.php:379
+#: classes/Activity-List-Table.php:377
 msgid "Failed %s"
 msgstr ""
 
-#: classes/Activity-List-Table.php:383
+#: classes/Activity-List-Table.php:381
 msgid "Queued %s"
 msgstr ""
 
-#: classes/Activity-List-Table.php:387
+#: classes/Activity-List-Table.php:385
 msgid "Cancelled %s"
 msgstr ""
 
-#: classes/Activity-List-Table.php:551
+#: classes/Activity-List-Table.php:550
 msgid "All Subjects"
 msgstr ""
 
-#: classes/Activity-List-Table.php:552
+#: classes/Activity-List-Table.php:551
 msgid "All Recipients"
 msgstr ""
 
-#: classes/Activity-List-Table.php:553
+#: classes/Activity-List-Table.php:552
 msgid "Filter"
 msgstr ""
 
-#: classes/Activity-List-Table.php:572
+#: classes/Activity-List-Table.php:571
 msgid "All dates"
 msgstr ""
 
@@ -182,33 +181,33 @@ msgstr ""
 msgid "After 2 years"
 msgstr ""
 
-#: classes/Email.php:585
+#: classes/Email.php:593
 msgid "Status: %s"
 msgstr ""
 
-#: classes/Email.php:590
+#: classes/Email.php:598
 msgid "Sent: %1$s at %2$s"
 msgstr ""
 
-#: classes/Email.php:598
+#: classes/Email.php:606
 msgid "Opens: %1$d (Last Opened %2$s at %3$s)"
 msgstr ""
 
-#: classes/Email.php:611
+#: classes/Email.php:619
 msgid "Clicks: %1$d (Last Clicked %2$s at %3$s)"
 msgstr ""
 
-#: classes/Email.php:621
+#: classes/Email.php:629
 msgid "Attachment: "
 msgid_plural "Attachments: "
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/Email.php:626
+#: classes/Email.php:634
 msgid "From: %1$s &lt;%2$s&gt;"
 msgstr ""
 
-#: classes/Email.php:627
+#: classes/Email.php:635
 msgid "To: %s"
 msgstr ""
 
@@ -247,6 +246,10 @@ msgstr ""
 
 #: classes/Health-Report.php:361
 msgid "reporting period"
+msgstr ""
+
+#: classes/Health-Report.php:458
+msgid "WP Offload SES Lite"
 msgstr ""
 
 #: classes/Health-Report.php:491
@@ -390,23 +393,23 @@ msgstr ""
 msgid "South America (São Paulo)"
 msgstr ""
 
-#: classes/SES-API.php:162
+#: classes/SES-API.php:169
 msgid "There was an error attempting to receive your SES identities."
 msgstr ""
 
-#: classes/SES-API.php:202
+#: classes/SES-API.php:217
 msgid "There was an error deleting the provided identity."
 msgstr ""
 
-#: classes/SES-API.php:222
+#: classes/SES-API.php:237
 msgid "There was an error retrieving the details of your \"%s\" SES identity."
 msgstr ""
 
-#: classes/SES-API.php:248
+#: classes/SES-API.php:263
 msgid "There was an error attempting to validate the domain."
 msgstr ""
 
-#: classes/SES-API.php:271
+#: classes/SES-API.php:286
 msgid "There was an error attempting to validate the email address."
 msgstr ""
 

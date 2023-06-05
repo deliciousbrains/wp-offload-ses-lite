@@ -150,11 +150,18 @@ class SES_API {
 	/**
 	 * Get the identities associated with the account.
 	 *
-	 * @param array $args Args to pass to the request.
+	 * @param array $args            Args to pass to the request.
+	 * @param array $prev_identities Previously returned identities if paging.
 	 *
 	 * @return array|Error
 	 */
-	public function get_identities( array $args = array() ) {
+	public function get_identities( array $args = array(), array $prev_identities = array() ) {
+		if ( empty( $args['PageSize'] ) ) {
+			$args['PageSize'] = 1000;
+		}
+
+		$prev_identities = empty( $prev_identities ) ? array() : $prev_identities;
+
 		try {
 			$response   = $this->get_client()->listEmailIdentities( $args );
 			$identities = $response['EmailIdentities'];
@@ -181,6 +188,14 @@ class SES_API {
 			if ( ! empty( $details['DkimAttributes']['Tokens'][0] ) ) {
 				$identity['VerificationTokens'] = $details['DkimAttributes']['Tokens'];
 			}
+		}
+
+		$identities = array_merge( $prev_identities, $identities );
+
+		if ( ! empty( $response['NextToken'] ) ) {
+			$args['NextToken'] = $response['NextToken'];
+
+			return $this->get_identities( $args, $identities );
 		}
 
 		return $identities;
