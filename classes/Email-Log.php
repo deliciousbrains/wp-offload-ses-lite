@@ -77,6 +77,10 @@ class Email_Log {
 	 * @return int|bool
 	 */
 	public function log_email( $atts ) {
+		if ( empty( $atts ) ) {
+			return false;
+		}
+
 		$atts = array_map( 'maybe_serialize', $atts );
 		$args = array(
 			'email_to'          => isset( $atts['to'] ) ? $atts['to'] : '',
@@ -230,6 +234,8 @@ class Email_Log {
 	 */
 	public static function get_log_durations() {
 		$default_durations = array(
+			'1'   => __( 'After 1 day', 'wp-offload-ses' ),
+			'3'   => __( 'After 3 days', 'wp-offload-ses' ),
 			'7'   => __( 'After 7 days', 'wp-offload-ses' ),
 			'30'  => __( 'After 30 days', 'wp-offload-ses' ),
 			'60'  => __( 'After 60 days', 'wp-offload-ses' ),

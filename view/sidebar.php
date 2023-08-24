@@ -1,8 +1,6 @@
 <?php
 $url_args = array(
 	'utm_campaign' => 'WP+Offload+SES+Upgrade',
-	'utm_source'   => 'OSES+Lite',
-	'utm_medium'   => 'insideplugin',
 );
 ?>
 <div class="wposes-sidebar">
@@ -39,27 +37,14 @@ $url_args = array(
 				@markdavoli
 				<span class="wposes-rating">
 					<?php $sidebar_star = $this->plugins_url( 'assets/img/icon-sidebar-star.svg' ); ?>
-					<img src="<?php echo $sidebar_star; ?>" alt="*" />
-					<img src="<?php echo $sidebar_star; ?>" alt="*" />
-					<img src="<?php echo $sidebar_star; ?>" alt="*" />
-					<img src="<?php echo $sidebar_star; ?>" alt="*" />
-					<img src="<?php echo $sidebar_star; ?>" alt="*" />
+					<img src="<?php echo $sidebar_star; ?>" alt="*"/>
+					<img src="<?php echo $sidebar_star; ?>" alt="*"/>
+					<img src="<?php echo $sidebar_star; ?>" alt="*"/>
+					<img src="<?php echo $sidebar_star; ?>" alt="*"/>
+					<img src="<?php echo $sidebar_star; ?>" alt="*"/>
 				</span>
 			</h3>
 			<p class="wposes-quote">"Great plugin for WordPress in combination with rock solid Amazon SES for sending email reliably."</p>
 		</div>
 	</div>
-
-	<div class="credits">
-		<h4><?php _e( 'Created & maintained by', 'wp-offload-ses' ); ?></h4>
-		<ul>
-			<li>
-				<a href="<?php echo $this->dbrains_url( '/', $url_args ); ?>">
-					<img src="<?php echo $this->plugins_url( 'assets/img/logo-dbi.svg' ); ?>" alt="Delicious Brains Inc." />
-					<span>Delicious Brains Inc.</span>
-				</a>
-			</li>
-		</ul>
-	</div>
-
 </div>

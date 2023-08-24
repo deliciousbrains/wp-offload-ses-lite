@@ -27,6 +27,7 @@ use DeliciousBrains\WP_Offload_SES\Carbon\Traits\Options;
 use DeliciousBrains\WP_Offload_SES\Carbon\Traits\ToStringFormat;
 use Closure;
 use DateInterval;
+use DeliciousBrains\WP_Offload_SES\DateMalformedIntervalStringException;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;
@@ -823,8 +824,14 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface
         if (\preg_match('/^(?:\\h*\\d+(?:\\.\\d+)?\\h*[a-z]+)+$/i', $interval)) {
             return static::fromString($interval);
         }
-        /** @var static $interval */
-        $interval = static::createFromDateString($interval);
+        // @codeCoverageIgnoreStart
+        try {
+            /** @var static $interval */
+            $interval = static::createFromDateString($interval);
+        } catch (DateMalformedIntervalStringException $e) {
+            return null;
+        }
+        // @codeCoverageIgnoreEnd
         return !$interval || $interval->isEmpty() ? null : $interval;
     }
     protected function resolveInterval($interval)

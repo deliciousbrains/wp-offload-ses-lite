@@ -1,3 +1,7 @@
+body.settings_page_wp-offload-ses #wpfooter {
+  font-style: italic;
+}
+
 .wposes-main.wrap {
   position: relative;
 }
@@ -47,20 +51,21 @@
 }
 .wposes-main.wrap .sub-nav-tab-container {
   margin: -15px 0 20px 0;
-  padding: 10px 10px 5px 40px;
+  padding: 10px 0 5px 10px;
   border-bottom: 1px solid #ccc;
   background: #f7fbfd;
   height: 33px;
-  width: 655px;
+  width: 695px;
+  text-align: center;
 }
 .wposes-main.wrap .sub-nav-tab-container .nav-tab {
-  border: none;
   background: none;
   color: #0073aa;
   font-weight: normal;
   box-shadow: none;
   padding-left: 8px;
   padding-right: 8px;
+  margin-left: 0;
   border: 1px solid #f7fbfd;
 }
 .wposes-main.wrap .sub-nav-tab-container .nav-tab:after {
@@ -122,6 +127,7 @@
   margin: 0;
   color: #999;
   display: inline-block;
+  position: relative;
 }
 .wposes-main.wrap .general-helper:after {
   content: "\f223";
@@ -941,6 +947,13 @@
   margin-top: 0;
 }
 
+.wposes-lite .wposes-tab {
+  min-height: 980px;
+}
+.wposes-lite .sub-nav-tab-container:not([style*="display: none"]) ~ .wposes-tab {
+  min-height: 930px;
+}
+
 .wposes-lite #tab-activity .tablenav .actions select, .wposes-lite #tab-activity .tablenav .actions input, .wposes-lite #tab-activity .tablenav .actions button {
   opacity: 0.6;
   cursor: not-allowed;
@@ -1004,9 +1017,6 @@
   float: none;
 }
 
-#tab-support {
-  min-height: 900px;
-}
 #tab-support .wposes-sidebar {
   top: 11px;
 }
@@ -1148,59 +1158,6 @@
 }
 .wposes-sidebar .subscribe .wposes-testimonial .wposes-quote {
   color: #666;
-}
-.wposes-sidebar .credits {
-  border-top: 0;
-  background: #2e2e31;
-  text-align: center;
-  padding: 10px;
-}
-.wposes-sidebar .credits h4 {
-  font-size: 11px;
-  font-weight: normal;
-  color: rgba(255, 255, 255, 0.7);
-  margin-top: 0;
-  margin-bottom: 10px;
-}
-.wposes-sidebar .credits ul {
-  display: inline-block;
-  margin: 0;
-}
-.wposes-sidebar .credits li {
-  overflow: hidden;
-}
-.wposes-sidebar .credits li:last-child {
-  margin-bottom: 0;
-}
-.wposes-sidebar .credits img {
-  float: left;
-  margin-right: 10px;
-}
-.wposes-sidebar .credits span {
-  float: left;
-  display: block;
-  line-height: 32px;
-}
-.wposes-sidebar .credits a {
-  display: block;
-  text-decoration: none;
-  color: white;
-  font-size: 12px;
-  text-align: center;
-}
-.wposes-sidebar .credits a img {
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: 8px;
-}
-.wposes-sidebar .credits a span {
-  display: inline-block;
-  vertical-align: middle;
-  font-size: 12px;
-  line-height: 24px;
-}
-.wposes-sidebar .credits a:hover {
-  color: #888;
 }
 @media screen and (max-width: 1052px) {
   .wposes-sidebar {

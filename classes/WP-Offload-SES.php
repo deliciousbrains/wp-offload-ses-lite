@@ -429,6 +429,7 @@ class WP_Offload_SES extends Plugin_Base {
 		$this->maybe_override_network_settings();
 		$this->handle_post_request();
 		$this->http_prepare_download_log();
+		$this->init_admin_footer();
 
 		do_action( 'wposes_plugin_load' );
 	}
@@ -1312,7 +1313,16 @@ class WP_Offload_SES extends Plugin_Base {
 			}
 		}
 
-		$subject  = $this->maybe_decode_subject( $subject );
+		$subject = $this->maybe_decode_subject( $subject );
+
+		/**
+		 * Alter an email's attributes before it is added to the queue to be sent.
+		 * Returning an empty array will stop the email from being queued and sent.
+		 *
+		 * @param array $atts with keys 'to', 'subject', 'message', 'headers' and 'attachments'.
+		 *
+		 * @return array
+		 */
 		$atts     = apply_filters( 'wp_mail', compact( 'to', 'subject', 'message', 'headers', 'attachments' ) );
 		$email_id = $this->get_email_log()->log_email( $atts );
 
@@ -1369,5 +1379,25 @@ class WP_Offload_SES extends Plugin_Base {
 		$result = wp_remote_post( $request_args['url'], $request_args['args'] );
 
 		return ! is_wp_error( $result );
+	}
+
+	/**
+	 * Get UTM source for plugin.
+	 *
+	 * @return string
+	 */
+	protected static function get_utm_source() {
+		return 'SES+Free';
+	}
+
+	/**
+	 * Get UTM content for WP Engine URL.
+	 *
+	 * @param string $content
+	 *
+	 * @return string
+	 */
+	protected static function get_wpe_url_utm_content( $content = 'plugin_footer_text' ) {
+		return 'oses_free_' . $content;
 	}
 }

@@ -3,15 +3,16 @@
  * Email tracking class for WP Offload SES
  *
  * @package WP Offload SES
- * @author Delicious Brains
+ * @author  Delicious Brains
  */
 
 namespace DeliciousBrains\WP_Offload_SES;
 
-use DeliciousBrains\WP_Offload_SES\Email_Log;
-use \WP_REST_Request;
-use \WP_REST_Response;
-use \WP_Error;
+use DOMDocument;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_Error;
+use WPDB;
 
 /**
  * Class Email_Events
@@ -44,7 +45,7 @@ class Email_Events {
 	/**
 	 * The WordPress database class.
 	 *
-	 * @var \WPDB
+	 * @var WPDB
 	 */
 	private $database;
 
@@ -142,7 +143,7 @@ class Email_Events {
 	 *
 	 * @param int $email_id The email ID.
 	 *
-	 * @return array|bool
+	 * @return array
 	 */
 	public function get_email_click_data( $email_id ) {
 		$query = $this->database->prepare( "SELECT SUM(email_click_count) AS email_click_count, MAX(email_last_click_date) AS email_last_click_date FROM $this->clicks_table WHERE email_id = %d", $email_id );
@@ -204,12 +205,21 @@ class Email_Events {
 			return $content;
 		}
 
-		$dom = new \DOMDocument();
+		$dom = new DOMDocument();
 
 		$libxml_previous_state = libxml_use_internal_errors( true );
 
-		if ( function_exists( 'mb_convert_encoding' ) ) {
-			$content = mb_convert_encoding( $content, 'HTML-ENTITIES', get_bloginfo( 'charset' ) );
+		if ( function_exists( 'mb_convert_encoding' ) && function_exists( 'mb_encode_numericentity' ) ) {
+			// Convert content to UTF-8 encoding, and numerically encode any non-standard HTML entities.
+			$content = mb_encode_numericentity(
+				mb_convert_encoding(
+					$content,
+					'UTF-8',
+					get_bloginfo( 'charset' )
+				),
+				[ 0x80, 0x10FFFF, 0, ~0 ],
+				'UTF-8'
+			);
 		}
 
 		$dom->loadHTML( $content );
@@ -287,6 +297,7 @@ class Email_Events {
 		$response->header( 'Pragma', 'no-cache' );
 		$response->set_status( 301 );
 		$response->header( 'Location', urldecode( $args['email_click_url'] ) );
+
 		return $response;
 	}
 

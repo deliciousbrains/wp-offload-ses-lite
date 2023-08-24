@@ -195,9 +195,10 @@ class Amazon_Web_Services {
 				);
 			}
 
-			$args['version']           = '2019-09-27';
-			$args['signature_version'] = 'v4';
-			$args                      = apply_filters( 'aws_get_client_args', $args );
+			$args['version']                     = '2019-09-27';
+			$args['signature_version']           = 'v4';
+			$args['use_aws_shared_config_files'] = false;
+			$args                                = apply_filters( 'aws_get_client_args', $args );
 
 			$this->client = new SesV2Client( $args );
 		}

@@ -111,13 +111,16 @@ class Utils {
 	/**
 	 * Create a site link for given URL.
 	 *
-	 * @param string $url
-	 * @param string $text
+	 * @param string $url   URL for the link
+	 * @param string $text  Text for the link
+	 * @param string $class Optional class to add to link
 	 *
 	 * @return string
 	 */
-	public static function dbrains_link( $url, $text ) {
-		return sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html( $text ) );
+	public static function dbrains_link( $url, $text, $class = '' ) {
+		$class = empty( $class ) ? '' : ' class="' . trim( $class ) . '"';
+
+		return sprintf( '<a href="%s"%s target="_blank">%s</a>', esc_url( $url ), $class, esc_html( $text ) );
 	}
 
 	/**

@@ -2,9 +2,9 @@
 Contributors: wpengine, deliciousbrains, ianmjones, eriktorsner, kevinwhoffman, mattshaw, bradt, SylvainDeaure
 Tags: amazon ses,smtp,email delivery,gmail smtp,newsletter
 Requires at least: 5.3
-Tested up to: 6.2
+Tested up to: 6.3
 Requires PHP: 7.2
-Stable tag: 1.6.5
+Stable tag: 1.6.6
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
 
@@ -90,7 +90,7 @@ If you upgrade to [WP Offload SES](https://deliciousbrains.com/wp-offload-ses/up
 = What are the minimum requirements? =
 
 * Latest version of WordPress or the one previous
-* PHP 5.5+ compiled with the cURL extension
+* PHP 7.2+ compiled with the cURL extension
 * MySQL 5.5+
 * Apache 2+ or Nginx 1.4+
 * Amazon Web Services account
@@ -177,6 +177,17 @@ Please double check the credentials match up with the credentials you received w
 4. Activity tab
 
 == Changelog ==
+
+= 1.6.6 - 2023-08-24 =
+* New: WordPress 6.3 compatible
+* New: PHP 8.2 compatible
+* New: AWS PHP SDK has been updated to v3.279.0
+* New: Links to plugin documentation, support, feedback, and changelog are now available in the footer of WP Admin
+* New: Returning an empty array from the 'wp_mail' filter will stop the email from being queued and sent
+* New: Delete from logs after 1 day and 3 days options added
+* Bug fix: "Warning: is_readable(): open_basedir restriction in effect. File(~/.aws/config) is not within the allowed path(s)" is no longer logged to debug.log
+* Bug fix: Settings sub-menu in a multisite subsite no longer wraps incorrectly
+* Bug fix: Settings tooltips are now displayed in their correct position
 
 = 1.6.5 - 2023-06-05 =
 * Bug fix: Apostrophes in email addresses no longer prevent sending

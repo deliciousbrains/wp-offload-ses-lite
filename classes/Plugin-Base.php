@@ -2,7 +2,7 @@
 /**
  * Base plugin class for WP Offload SES.
  *
- * @author Delicious Brains
+ * @author  Delicious Brains
  * @package WP Offload SES
  */
 
@@ -16,6 +16,7 @@ namespace DeliciousBrains\WP_Offload_SES;
 abstract class Plugin_Base {
 
 	const DBRAINS_URL       = 'https://deliciousbrains.com';
+	const WPE_URL           = 'https://wpengine.com';
 	const SETTINGS_KEY      = '';
 	const SETTINGS_CONSTANT = '';
 
@@ -25,6 +26,13 @@ abstract class Plugin_Base {
 	 * @var int
 	 */
 	protected $plugin_version;
+
+	/**
+	 * The plugin's name.
+	 *
+	 * @var string
+	 */
+	protected $plugin_name;
 
 	/**
 	 * The plugin slug.
@@ -97,6 +105,18 @@ abstract class Plugin_Base {
 		if ( $this->plugin_slug && isset( $GLOBALS['wposes_meta'][ $this->plugin_slug ]['version'] ) ) {
 			$this->plugin_version = $GLOBALS['wposes_meta'][ $this->plugin_slug ]['version'];
 		}
+
+		$plugin_headers = array();
+
+		if ( is_admin() ) {
+			if ( ! function_exists( 'get_plugin_data' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
+			$plugin_headers = get_plugin_data( $plugin_file_path, false, false );
+		}
+
+		// Fallback to generic plugin name if it can't be retrieved from the plugin headers.
+		$this->plugin_name = empty( $plugin_headers['Name'] ) ? 'WP Offload SES' : $plugin_headers['Name'];
 	}
 
 	/**
@@ -291,7 +311,7 @@ abstract class Plugin_Base {
 			$args,
 			array(
 				'utm_medium' => 'insideplugin',
-				'utm_source' => 'SES',
+				'utm_source' => static::get_utm_source(),
 			)
 		);
 		$args = array_map( 'urlencode', $args );
@@ -306,6 +326,52 @@ abstract class Plugin_Base {
 	}
 
 	/**
+	 * Generate WP Engine site URL with correct UTM tags.
+	 *
+	 * @param string $path
+	 * @param array  $args
+	 * @param string $hash
+	 *
+	 * @return string
+	 */
+	public static function wpe_url( $path = '', $args = array(), $hash = '' ) {
+		$args = wp_parse_args( $args, array(
+			'utm_medium'   => 'referral',
+			'utm_source'   => 'oses_plugin',
+			'utm_campaign' => 'bx_prod_referral',
+		) );
+		$args = array_map( 'urlencode', $args );
+		$url  = trailingslashit( self::WPE_URL ) . ltrim( $path, '/' );
+		$url  = add_query_arg( $args, $url );
+
+		if ( $hash ) {
+			$url .= '#' . $hash;
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Get UTM source for plugin.
+	 *
+	 * @return string
+	 */
+	protected static function get_utm_source() {
+		return 'SES';
+	}
+
+	/**
+	 * Get UTM content for WP Engine URL.
+	 *
+	 * @param string $content
+	 *
+	 * @return string
+	 */
+	protected static function get_wpe_url_utm_content( $content = 'plugin_footer_text' ) {
+		return $content;
+	}
+
+	/**
 	 * Get the My Account URL
 	 *
 	 * @param array  $args Optional args to add.
@@ -317,4 +383,83 @@ abstract class Plugin_Base {
 		return $this->dbrains_url( '/my-account/', $args, $hash );
 	}
 
+	/**
+	 * Sets up hooks to alter the footer of our admin pages.
+	 *
+	 * @return void
+	 */
+	protected function init_admin_footer() {
+		add_filter( 'admin_footer_text', array( $this, 'filter_admin_footer_text' ) );
+		add_filter( 'update_footer', array( $this, 'filter_update_footer' ) );
+	}
+
+	/**
+	 * Filters the admin footer text to add our own links.
+	 *
+	 * @param string $text
+	 *
+	 * @return string
+	 */
+	public function filter_admin_footer_text( $text ) {
+		$product_link = Utils::dbrains_link(
+			static::dbrains_url(
+				'/wp-offload-ses/',
+				array( 'utm_campaign' => 'plugin_footer', 'utm_content' => 'footer_colophon' )
+			),
+			$this->plugin_name
+		);
+
+		$wpe_link = Utils::dbrains_link(
+			static::wpe_url(
+				'',
+				array( 'utm_content' => static::get_wpe_url_utm_content() )
+			),
+			'WP Engine'
+		);
+
+		return sprintf(
+		/* translators: %1$s is a link to WP Offload SES's website, and %2$s is a link to WP Engine's website. */
+			__( '%1$s is developed and maintained by %2$s.', 'wp-offload-ses' ),
+			$product_link,
+			$wpe_link
+		);
+	}
+
+	/**
+	 * Filters the admin footer's WordPress version text to add our own links.
+	 *
+	 * @param string $content
+	 *
+	 * @return string
+	 */
+	public function filter_update_footer( $content ) {
+		$links[] = Utils::dbrains_link(
+			static::dbrains_url(
+				'/wp-offload-ses/docs/',
+				array( 'utm_campaign' => 'plugin_footer', 'utm_content' => 'footer_navigation' )
+			),
+			__( 'Documentation', 'wp-offload-ses' )
+		);
+
+		$links[] = '<a href="' . static::get_plugin_page_url( array( 'hash' => 'support' ) ) . '">' . __( 'Support', 'wp-offload-ses' ) . '</a>';
+
+		$links[] = Utils::dbrains_link(
+			static::dbrains_url(
+				'/wp-offload-ses/feedback/',
+				array( 'utm_campaign' => 'plugin_footer', 'utm_content' => 'footer_navigation' )
+			),
+			__( 'Feedback', 'wp-offload-ses' )
+		);
+
+		$links[] = Utils::dbrains_link(
+			static::dbrains_url(
+				'/wp-offload-ses/whats-new/',
+				array( 'utm_campaign' => 'plugin_footer', 'utm_content' => 'footer_navigation' )
+			),
+			$this->plugin_name . ' ' . $this->plugin_version,
+			'whats-new'
+		);
+
+		return join( ' &#8729; ', $links );
+	}
 }

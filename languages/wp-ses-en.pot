@@ -2,16 +2,16 @@
 # This file is distributed under the same license as the WP Offload SES plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Offload SES 1.6.5\n"
+"Project-Id-Version: WP Offload SES 1.6.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-ses\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-06-05T08:01:36+00:00\n"
+"POT-Creation-Date: 2023-08-24T10:26:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.7.1\n"
+"X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: wp-offload-ses\n"
 
 #. Plugin Name of the plugin
@@ -53,19 +53,19 @@ msgid "No emails found. Check back later!"
 msgstr ""
 
 #: classes/Activity-List-Table.php:333
-#: classes/WP-Offload-SES.php:735
+#: classes/WP-Offload-SES.php:736
 msgid "Send"
 msgstr ""
 
 #: classes/Activity-List-Table.php:334
-#: classes/WP-Offload-SES.php:729
+#: classes/WP-Offload-SES.php:730
 #: view/modals/delete-email.php:11
 #: view/modals/verify-sender.php:68
 msgid "Cancel"
 msgstr ""
 
 #: classes/Activity-List-Table.php:335
-#: classes/WP-Offload-SES.php:739
+#: classes/WP-Offload-SES.php:740
 msgid "Delete Permanently"
 msgstr ""
 
@@ -146,38 +146,46 @@ msgstr ""
 msgid "The official Amazon&nbsp;Web&nbsp;Services SDK requires PHP 5.5+ with SimpleXML and XMLWriter modules, and cURL 7.16.2+ compiled with OpenSSL and zlib. Your server currently has"
 msgstr ""
 
-#: classes/Email-Events.php:266
-#: classes/Email-Events.php:271
-#: classes/Email-Events.php:307
-#: classes/Email-Events.php:312
+#: classes/Email-Events.php:276
+#: classes/Email-Events.php:281
+#: classes/Email-Events.php:318
+#: classes/Email-Events.php:323
 msgid "The request you made was invalid."
 msgstr ""
 
-#: classes/Email-Log.php:233
-msgid "After 7 days"
-msgstr ""
-
-#: classes/Email-Log.php:234
-msgid "After 30 days"
-msgstr ""
-
-#: classes/Email-Log.php:235
-msgid "After 60 days"
-msgstr ""
-
-#: classes/Email-Log.php:236
-msgid "After 90 days"
-msgstr ""
-
 #: classes/Email-Log.php:237
-msgid "After 6 months"
+msgid "After 1 day"
 msgstr ""
 
 #: classes/Email-Log.php:238
-msgid "After 1 year"
+msgid "After 3 days"
 msgstr ""
 
 #: classes/Email-Log.php:239
+msgid "After 7 days"
+msgstr ""
+
+#: classes/Email-Log.php:240
+msgid "After 30 days"
+msgstr ""
+
+#: classes/Email-Log.php:241
+msgid "After 60 days"
+msgstr ""
+
+#: classes/Email-Log.php:242
+msgid "After 90 days"
+msgstr ""
+
+#: classes/Email-Log.php:243
+msgid "After 6 months"
+msgstr ""
+
+#: classes/Email-Log.php:244
+msgid "After 1 year"
+msgstr ""
+
+#: classes/Email-Log.php:245
 msgid "After 2 years"
 msgstr ""
 
@@ -265,7 +273,7 @@ msgid "%1$s through %2$s"
 msgstr ""
 
 #: classes/Health-Report.php:613
-#: view/sidebar.php:13
+#: view/sidebar.php:11
 msgid "Upgrade"
 msgstr ""
 
@@ -275,6 +283,23 @@ msgstr ""
 
 #: classes/Notices.php:476
 msgid "Invalid notice ID."
+msgstr ""
+
+#. translators: %1$s is a link to WP Offload SES's website, and %2$s is a link to WP Engine's website.
+#: classes/Plugin-Base.php:422
+msgid "%1$s is developed and maintained by %2$s."
+msgstr ""
+
+#: classes/Plugin-Base.php:441
+msgid "Documentation"
+msgstr ""
+
+#: classes/Plugin-Base.php:444
+msgid "Support"
+msgstr ""
+
+#: classes/Plugin-Base.php:451
+msgid "Feedback"
 msgstr ""
 
 #: classes/Queue/Queue-Status.php:189
@@ -485,7 +510,7 @@ msgid "Please enter a valid email address."
 msgstr ""
 
 #: classes/WP-Offload-SES.php:408
-#: classes/WP-Offload-SES.php:859
+#: classes/WP-Offload-SES.php:860
 #: view/access-keys.php:83
 msgctxt "placeholder for hidden access key, 39 char max"
 msgid "-- not shown --"
@@ -495,161 +520,161 @@ msgstr ""
 msgid "Please enter a valid email address that has been verified with Amazon SES."
 msgstr ""
 
-#: classes/WP-Offload-SES.php:518
+#: classes/WP-Offload-SES.php:519
 msgid "Settings"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:553
+#: classes/WP-Offload-SES.php:554
 msgctxt "Show the reports tab"
 msgid "Reports"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:554
+#: classes/WP-Offload-SES.php:555
 msgctxt "Show the activity tab"
 msgid "Activity"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:555
+#: classes/WP-Offload-SES.php:556
 msgctxt "Show the settings tab"
 msgid "Settings"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:557
+#: classes/WP-Offload-SES.php:558
 msgctxt "Show the setup wizard"
 msgid "Setup"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:561
+#: classes/WP-Offload-SES.php:562
 msgctxt "Show the support tab"
 msgid "Support"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:584
+#: classes/WP-Offload-SES.php:585
 msgctxt "Show the network settings tab"
 msgid "Network Settings"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:588
+#: classes/WP-Offload-SES.php:589
 msgctxt "Show the general settings tab"
 msgid "General"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:591
+#: classes/WP-Offload-SES.php:592
 msgctxt "Show the verified senders tab"
 msgid "Verified Senders"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:595
+#: classes/WP-Offload-SES.php:596
 msgctxt "Show the send test email tab"
 msgid "Send Test Email"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:598
+#: classes/WP-Offload-SES.php:599
 msgctxt "Show the AWS access keys tab"
 msgid "AWS Access Keys"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:627
+#: classes/WP-Offload-SES.php:628
 msgid "Offload SES Lite"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:630
+#: classes/WP-Offload-SES.php:631
 msgid "Offload SES"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:692
+#: classes/WP-Offload-SES.php:693
 msgid "Sent"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:695
+#: classes/WP-Offload-SES.php:696
 msgid "Queued"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:698
+#: classes/WP-Offload-SES.php:699
 msgid "Failed"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:701
+#: classes/WP-Offload-SES.php:702
 msgid "Cancelled"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:722
+#: classes/WP-Offload-SES.php:723
 msgid "View Email"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:726
+#: classes/WP-Offload-SES.php:727
 msgid "Resend"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:732
+#: classes/WP-Offload-SES.php:733
 msgid "Retry"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:836
+#: classes/WP-Offload-SES.php:837
 msgid "Access keys updated successfully."
 msgstr ""
 
-#: classes/WP-Offload-SES.php:842
+#: classes/WP-Offload-SES.php:843
 msgid "All access key constants must be removed before keys can be set in the database."
 msgstr ""
 
-#: classes/WP-Offload-SES.php:853
+#: classes/WP-Offload-SES.php:854
 msgid "The Access Key ID must be set."
 msgstr ""
 
-#: classes/WP-Offload-SES.php:864
+#: classes/WP-Offload-SES.php:865
 msgid "The Secret Access Key must be at least 40 characters long."
 msgstr ""
 
-#: classes/WP-Offload-SES.php:875
+#: classes/WP-Offload-SES.php:876
 msgid "The provided access keys are invalid."
 msgstr ""
 
-#: classes/WP-Offload-SES.php:895
+#: classes/WP-Offload-SES.php:896
 msgid "Access keys removed from the database successfully."
 msgstr ""
 
-#: classes/WP-Offload-SES.php:1017
+#: classes/WP-Offload-SES.php:1018
 msgid "WP Offload SES Test Email"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:1019
+#: classes/WP-Offload-SES.php:1020
 msgid ""
 "Hi %s,\n"
 "\n"
 "Are you seeing this email? You are? Well awesome - that means you're all set to start sending emails from your site via Amazon SES 🎉"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:1039
+#: classes/WP-Offload-SES.php:1040
 msgid "Cheatin&#8217; eh?"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:1043
+#: classes/WP-Offload-SES.php:1044
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
-#: classes/WP-Offload-SES.php:1070
+#: classes/WP-Offload-SES.php:1071
 msgid "We've noticed that emails are being sent from the following unverified email addresses:"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:1079
+#: classes/WP-Offload-SES.php:1080
 msgid "Please <a href=\"%s\">verify these email addresses</a> with Amazon, or use an email address that has already been verified."
 msgstr ""
 
-#: classes/WP-Offload-SES.php:1099
+#: classes/WP-Offload-SES.php:1100
 msgid "Your AWS Access Keys are invalid, please check the credentials you have defined in your wp-config.php and refresh this page."
 msgstr ""
 
-#: classes/WP-Offload-SES.php:1141
-#: classes/WP-Offload-SES.php:1170
+#: classes/WP-Offload-SES.php:1142
+#: classes/WP-Offload-SES.php:1171
 msgid "Cheatin' eh?"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:1239
+#: classes/WP-Offload-SES.php:1240
 msgid "More&nbsp;info&nbsp;&raquo;"
 msgstr ""
 
-#: classes/WP-Offload-SES.php:1265
+#: classes/WP-Offload-SES.php:1266
 msgid "<strong>WP Offload SES &mdash; </strong> One or more emails have failed to send. <a href=\"%s\">View failures in the Activity tab</a> or <a href=\"%s\">check out our doc for debugging failed emails</a>."
 msgstr ""
 
@@ -1361,56 +1386,52 @@ msgstr ""
 msgid "Next: Complete Verification"
 msgstr ""
 
-#: view/sidebar.php:14
+#: view/sidebar.php:12
 msgid "Get a bundle of features with an upgrade to WP Offload SES"
 msgstr ""
 
-#: view/sidebar.php:16
+#: view/sidebar.php:14
 msgid "Email&nbsp;support"
 msgstr ""
 
-#: view/sidebar.php:17
+#: view/sidebar.php:15
 msgid "Open and click&nbsp;reporting"
 msgstr ""
 
-#: view/sidebar.php:18
+#: view/sidebar.php:16
 msgid "Auto-retry email sending&nbsp;failures"
 msgstr ""
 
-#: view/sidebar.php:19
+#: view/sidebar.php:17
 msgid "Manually retry email sending&nbsp;failures"
 msgstr ""
 
-#: view/sidebar.php:20
+#: view/sidebar.php:18
 msgid "Manually resend any sent&nbsp;emails"
 msgstr ""
 
-#: view/sidebar.php:21
+#: view/sidebar.php:19
 msgid "Search for any&nbsp;email"
 msgstr ""
 
-#: view/sidebar.php:22
+#: view/sidebar.php:20
 msgid "View a specific&nbsp;email"
 msgstr ""
 
-#: view/sidebar.php:23
+#: view/sidebar.php:21
 msgid "Analyze engagement for a specific&nbsp;email"
 msgstr ""
 
-#: view/sidebar.php:28
+#: view/sidebar.php:26
 msgid "Get 20% off your first year of&nbsp;WP Offload SES!"
 msgstr ""
 
-#: view/sidebar.php:31
+#: view/sidebar.php:29
 msgid "Get The Discount"
 msgstr ""
 
-#: view/sidebar.php:35
+#: view/sidebar.php:33
 msgid "* Discount applied automatically"
-msgstr ""
-
-#: view/sidebar.php:54
-msgid "Created & maintained by"
 msgstr ""
 
 #: view/tabs/activity.php:8

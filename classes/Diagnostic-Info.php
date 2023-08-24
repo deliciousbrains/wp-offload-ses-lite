@@ -154,7 +154,7 @@ class Diagnostic_Info {
 		$output .= "\r\n";
 
 		$output .= 'Basic Auth: ';
-		if ( isset( $_SERVER['REMOTE_USER'] ) || isset( $_SERVER['PHP_AUTH_USER'] ) || isset( $_SERVER['REDIRECT_REMOTE_USER'] ) ) {
+		if ( ! empty( $_SERVER['REMOTE_USER'] ) || ! empty( $_SERVER['PHP_AUTH_USER'] ) || ! empty( $_SERVER['REDIRECT_REMOTE_USER'] ) ) {
 			$output .= 'Enabled';
 		} else {
 			$output .= 'Disabled';
@@ -233,7 +233,7 @@ class Diagnostic_Info {
 
 		if ( $wp_offload_ses->is_pro() ) {
 			$output .= 'License: ';
-			$output .= $wp_offload_ses->is_valid_licence() ? 'Valid' : 'Not Valid';	
+			$output .= $wp_offload_ses->is_valid_licence() ? 'Valid' : 'Not Valid';
 			$output .= "\r\n";
 		}
 

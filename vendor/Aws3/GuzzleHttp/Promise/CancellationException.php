@@ -1,5 +1,6 @@
 <?php
 
+declare (strict_types=1);
 namespace DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise;
 
 /**
