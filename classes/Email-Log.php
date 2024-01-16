@@ -306,11 +306,11 @@ class Email_Log {
 		$this->database->query( $query );
 
 		// Flag any attachments that can be safely deleted.
-		$query = "UPDATE {$this->attachments_table} attachments
-					LEFT JOIN {$this->email_attachments_table} email_attachments ON email_attachments.attachment_id = attachments.id
+        $query = "UPDATE {$this->attachments_table} attachments
+                    LEFT JOIN (SELECT * FROM {$this->email_attachments_table} GROUP BY attachment_id) AS email_attachments ON email_attachments.attachment_id = attachments.id
 					SET attachments.gc = 1
 					WHERE email_attachments.attachment_id IS NULL";
-		$this->database->query( $query );
+        $this->database->query( $query );
 
 		// Delete the files themselves.
 		$wp_offload_ses->get_attachments()->delete_attachments();
