@@ -626,7 +626,7 @@ trait Date
      *
      * @link https://php.net/manual/en/datetime.gettimezone.php
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function getTimezone()
     {
         return CarbonTimeZone::instance(parent::getTimezone());
@@ -1362,7 +1362,7 @@ trait Date
      *
      * @return static
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function setDate($year, $month, $day)
     {
         return parent::setDate((int) $year, (int) $month, (int) $day);
@@ -1378,7 +1378,7 @@ trait Date
      *
      * @return static
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function setISODate($year, $week, $day = 1)
     {
         return parent::setISODate((int) $year, (int) $week, (int) $day);
@@ -1412,7 +1412,7 @@ trait Date
      *
      * @return static
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function setTime($hour, $minute, $second = 0, $microseconds = 0)
     {
         return parent::setTime((int) $hour, (int) $minute, (int) $second, (int) $microseconds);
@@ -1426,7 +1426,7 @@ trait Date
      *
      * @return static
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function setTimestamp($unixTimestamp)
     {
         [$timestamp, $microseconds] = self::getIntegerAndDecimalParts($unixTimestamp);
@@ -1478,7 +1478,7 @@ trait Date
      *
      * @return static
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function setTimezone($value)
     {
         $tz = static::safeCreateDateTimeZone($value);
@@ -1936,7 +1936,7 @@ trait Date
             $replacements = ['d' => \true, 'D' => 'ddd', 'j' => \true, 'l' => 'dddd', 'N' => \true, 'S' => function ($date) {
                 $day = $date->rawFormat('j');
                 return \str_replace((string) $day, '', $date->isoFormat('Do'));
-            }, 'w' => \true, 'z' => \true, 'W' => \true, 'F' => 'MMMM', 'm' => \true, 'M' => 'MMM', 'n' => \true, 't' => \true, 'L' => \true, 'o' => \true, 'Y' => \true, 'y' => \true, 'a' => 'a', 'A' => 'A', 'B' => \true, 'g' => \true, 'G' => \true, 'h' => \true, 'H' => \true, 'i' => \true, 's' => \true, 'u' => \true, 'v' => \true, 'E' => \true, 'I' => \true, 'O' => \true, 'P' => \true, 'Z' => \true, 'c' => \true, 'r' => \true, 'U' => \true];
+            }, 'w' => \true, 'z' => \true, 'W' => \true, 'F' => 'MMMM', 'm' => \true, 'M' => 'MMM', 'n' => \true, 't' => \true, 'L' => \true, 'o' => \true, 'Y' => \true, 'y' => \true, 'a' => 'a', 'A' => 'A', 'B' => \true, 'g' => \true, 'G' => \true, 'h' => \true, 'H' => \true, 'i' => \true, 's' => \true, 'u' => \true, 'v' => \true, 'E' => \true, 'I' => \true, 'O' => \true, 'P' => \true, 'Z' => \true, 'c' => \true, 'r' => \true, 'U' => \true, 'T' => \true];
         }
         return $replacements;
     }

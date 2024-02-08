@@ -3,6 +3,7 @@
 namespace DeliciousBrains\WP_Offload_SES\Queue;
 
 use DeliciousBrains\WP_Offload_SES\Email;
+use DeliciousBrains\WP_Offload_SES\Queue\Jobs\Email_Job;
 use DeliciousBrains\WP_Offload_SES\Utils;
 use DeliciousBrains\WP_Offload_SES\Error;
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
@@ -32,7 +33,7 @@ class Queue_Status {
 	public function __construct( WP_Offload_SES $wp_offload_ses ) {
 		global $wpdb;
 
-		$this->connection     = new Connection( $wpdb );
+		$this->connection     = new Connection( $wpdb, array( Email_Job::class ) );
 		$this->wp_offload_ses = $wp_offload_ses;
 
 		// Run the cron health check after everything has loaded.

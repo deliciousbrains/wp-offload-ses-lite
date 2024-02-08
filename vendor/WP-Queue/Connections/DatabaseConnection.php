@@ -4,7 +4,12 @@ namespace DeliciousBrains\WP_Offload_SES\WP_Queue\Connections;
 
 use DeliciousBrains\WP_Offload_SES\Carbon\Carbon;
 use Exception;
+use DeliciousBrains\WP_Offload_SES\WP_Queue\Exceptions\InvalidJobTypeException;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Job;
+/**
+ * An implementation of the ConnectionInterface that uses custom database tables
+ * for storing queue jobs.
+ */
 class DatabaseConnection implements ConnectionInterface
 {
     /**
@@ -20,13 +25,19 @@ class DatabaseConnection implements ConnectionInterface
      */
     protected $failures_table;
     /**
+     * @var array|bool
+     */
+    protected $allowed_job_classes = [];
+    /**
      * DatabaseQueue constructor.
      *
      * @param \wpdb $wpdb
+     * @param array $allowed_job_classes Job classes that may be handled, default any Job subclass.
      */
-    public function __construct($wpdb)
+    public function __construct($wpdb, array $allowed_job_classes = [])
     {
         $this->database = $wpdb;
+        $this->allowed_job_classes = $allowed_job_classes;
         $this->jobs_table = $this->database->prefix . 'queue_jobs';
         $this->failures_table = $this->database->prefix . 'queue_failures';
     }
@@ -54,13 +65,15 @@ class DatabaseConnection implements ConnectionInterface
     public function pop()
     {
         $this->release_reserved();
-        $sql = $this->database->prepare("\n\t\t\tSELECT * FROM {$this->jobs_table}\n\t\t\tWHERE reserved_at IS NULL\n\t\t\tAND available_at <= %s\n\t\t\tORDER BY available_at\n\t\t\tLIMIT 1\n\t\t", $this->datetime());
+        $sql = $this->database->prepare("\n\t\t\tSELECT * FROM {$this->jobs_table}\n\t\t\tWHERE reserved_at IS NULL\n\t\t\tAND available_at <= %s\n\t\t\tORDER BY available_at, id\n\t\t\tLIMIT 1\n\t\t", $this->datetime());
         $raw_job = $this->database->get_row($sql);
         if (\is_null($raw_job)) {
             return \false;
         }
         $job = $this->vitalize_job($raw_job);
-        $this->reserve($job);
+        if ($job && \is_a($job, Job::class)) {
+            $this->reserve($job);
+        }
         return $job;
     }
     /**
@@ -72,7 +85,15 @@ class DatabaseConnection implements ConnectionInterface
      */
     public function delete($job)
     {
-        $where = ['id' => $job->id()];
+        if (\is_a($job, Job::class)) {
+            $id = $job->id();
+        } elseif (\is_object($job) && \property_exists($job, 'id')) {
+            $raw_job = (object) $job;
+            $id = $raw_job->id;
+        } else {
+            return \false;
+        }
+        $where = ['id' => $id];
         if ($this->database->delete($this->jobs_table, $where)) {
             return \true;
         }
@@ -85,7 +106,7 @@ class DatabaseConnection implements ConnectionInterface
      *
      * @return bool
      */
-    public function release($job)
+    public function release(Job $job)
     {
         $data = ['job' => \serialize($job), 'attempts' => $job->attempts(), 'reserved_at' => null];
         $where = ['id' => $job->id()];
@@ -136,7 +157,7 @@ class DatabaseConnection implements ConnectionInterface
      *
      * @param Job $job
      */
-    protected function reserve($job)
+    protected function reserve(Job $job)
     {
         $data = ['reserved_at' => $this->datetime()];
         $this->database->update($this->jobs_table, $data, ['id' => $job->id()]);
@@ -155,11 +176,19 @@ class DatabaseConnection implements ConnectionInterface
      *
      * @param mixed $raw_job
      *
-     * @return Job
+     * @return Job|bool
      */
     protected function vitalize_job($raw_job)
     {
-        $job = \unserialize($raw_job->job);
+        $options = [];
+        if (!empty($this->allowed_job_classes)) {
+            $options['allowed_classes'] = $this->allowed_job_classes;
+        }
+        $job = \unserialize($raw_job->job, $options);
+        if (!\is_a($job, Job::class)) {
+            $this->failure($raw_job, new InvalidJobTypeException());
+            return \false;
+        }
         $job->set_id($raw_job->id);
         $job->set_attempts($raw_job->attempts);
         $job->set_reserved_at(empty($raw_job->reserved_at) ? null : new Carbon($raw_job->reserved_at));

@@ -15,26 +15,12 @@ use Exception;
 class Connection extends DatabaseConnection {
 
 	/**
-	 * Table to store jobs.
-	 *
-	 * @var string
-	 */
-	protected $jobs_table;
-
-	/**
-	 * Table to store failures.
-	 *
-	 * @var string
-	 */
-	protected $failures_table;
-
-	/**
 	 * Construct the Connection class.
 	 *
 	 * @param \wpdb $wpdb WordPress database class.
 	 */
-	public function __construct( $wpdb ) {
-		parent::__construct( $wpdb );
+	public function __construct( $wpdb, array $allowed_job_classes = array() ) {
+		parent::__construct( $wpdb, $allowed_job_classes );
 
 		$this->jobs_table     = $this->database->base_prefix . 'oses_jobs';
 		$this->failures_table = $this->database->base_prefix . 'oses_failures';
@@ -65,7 +51,7 @@ class Connection extends DatabaseConnection {
 	 *
 	 * @return bool
 	 */
-	public function release( $job ) {
+	public function release( Job $job ) {
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
@@ -106,12 +92,12 @@ class Connection extends DatabaseConnection {
 	/**
 	 * Push a job onto the queue.
 	 *
-	 * @param object $job   The email job.
-	 * @param int    $delay The delay for the job.
+	 * @param Job $job   The email job.
+	 * @param int $delay The delay for the job.
 	 *
 	 * @return bool|int
 	 */
-	public function push( \DeliciousBrains\WP_Offload_SES\WP_Queue\Job $job, $delay = 0 ) {
+	public function push( Job $job, $delay = 0 ) {
 		$args = array(
 			'job'          => serialize( $job ),
 			'available_at' => $this->datetime( $delay ),

@@ -106,7 +106,7 @@ trait Difference
      *
      * @return DateInterval
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function diff($date = null, $absolute = \false)
     {
         $other = $this->resolveCarbon($date);

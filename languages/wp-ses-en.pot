@@ -1,32 +1,37 @@
-# Copyright (C) 2023 Delicious Brains
-# This file is distributed under the same license as the WP Offload SES plugin.
+# Copyright (C) 2024 Delicious Brains
+# This file is distributed under the same license as the WP Offload SES Lite plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Offload SES 1.6.6\n"
+"Project-Id-Version: WP Offload SES Lite 1.6.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-ses\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-08-24T10:26:40+00:00\n"
+"POT-Creation-Date: 2024-02-08T17:50:04+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.8.1\n"
+"X-Generator: WP-CLI 2.9.0\n"
 "X-Domain: wp-offload-ses\n"
 
 #. Plugin Name of the plugin
-msgid "WP Offload SES"
+#: wp-ses.php
+#: classes/Health-Report.php:458
+msgid "WP Offload SES Lite"
 msgstr ""
 
 #. Description of the plugin
+#: wp-ses.php
 msgid "Automatically send WordPress mail through Amazon SES (Simple Email Service)."
 msgstr ""
 
 #. Author of the plugin
+#: wp-ses.php
 msgid "Delicious Brains"
 msgstr ""
 
 #. Author URI of the plugin
+#: wp-ses.php
 msgid "https://deliciousbrains.com/"
 msgstr ""
 
@@ -153,39 +158,39 @@ msgstr ""
 msgid "The request you made was invalid."
 msgstr ""
 
-#: classes/Email-Log.php:237
+#: classes/Email-Log.php:235
 msgid "After 1 day"
 msgstr ""
 
-#: classes/Email-Log.php:238
+#: classes/Email-Log.php:236
 msgid "After 3 days"
 msgstr ""
 
-#: classes/Email-Log.php:239
+#: classes/Email-Log.php:237
 msgid "After 7 days"
 msgstr ""
 
-#: classes/Email-Log.php:240
+#: classes/Email-Log.php:238
 msgid "After 30 days"
 msgstr ""
 
-#: classes/Email-Log.php:241
+#: classes/Email-Log.php:239
 msgid "After 60 days"
 msgstr ""
 
-#: classes/Email-Log.php:242
+#: classes/Email-Log.php:240
 msgid "After 90 days"
 msgstr ""
 
-#: classes/Email-Log.php:243
+#: classes/Email-Log.php:241
 msgid "After 6 months"
 msgstr ""
 
-#: classes/Email-Log.php:244
+#: classes/Email-Log.php:242
 msgid "After 1 year"
 msgstr ""
 
-#: classes/Email-Log.php:245
+#: classes/Email-Log.php:243
 msgid "After 2 years"
 msgstr ""
 
@@ -256,10 +261,6 @@ msgstr ""
 msgid "reporting period"
 msgstr ""
 
-#: classes/Health-Report.php:458
-msgid "WP Offload SES Lite"
-msgstr ""
-
 #: classes/Health-Report.php:491
 msgid "View Full Report"
 msgstr ""
@@ -302,44 +303,44 @@ msgstr ""
 msgid "Feedback"
 msgstr ""
 
-#: classes/Queue/Queue-Status.php:189
+#: classes/Queue/Email-Worker.php:53
+msgid "There was an error retrieving the job while processing the queue."
+msgstr ""
+
+#: classes/Queue/Email-Worker.php:92
+msgid "There was an error constructing the job while processing the queue."
+msgstr ""
+
+#: classes/Queue/Queue-Status.php:190
 msgid "<strong>WP Offload SES</strong> &mdash; WP Cron does not appear to be working correctly."
 msgstr ""
 
-#: classes/Queue/Queue-Status.php:195
-#: classes/Queue/Queue-Status.php:261
+#: classes/Queue/Queue-Status.php:196
+#: classes/Queue/Queue-Status.php:262
 msgid "There is currently %d email in the queue that may not be sent until this is resolved."
 msgid_plural "There are currently %d emails in the queue that may not be sent until this is resolved."
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/Queue/Queue-Status.php:202
-#: classes/Queue/Queue-Status.php:268
+#: classes/Queue/Queue-Status.php:203
+#: classes/Queue/Queue-Status.php:269
 msgid "Please see our <a href=\"%s\">cron setup doc</a> for more details."
 msgstr ""
 
-#: classes/Queue/Queue-Status.php:247
+#: classes/Queue/Queue-Status.php:248
 msgid "WP Offload SES - Cron not running"
 msgstr ""
 
-#: classes/Queue/Queue-Status.php:248
+#: classes/Queue/Queue-Status.php:249
 msgid "Hi,"
 msgstr ""
 
-#: classes/Queue/Queue-Status.php:251
+#: classes/Queue/Queue-Status.php:252
 msgid "You're receiving this email because WP Cron doesn't appear to be running on %s."
 msgstr ""
 
-#: classes/Queue/Queue-Status.php:284
+#: classes/Queue/Queue-Status.php:285
 msgid "There was an error trying to send the cron alert."
-msgstr ""
-
-#: classes/Queue/Worker.php:67
-msgid "There was an error retrieving the job while processing the queue."
-msgstr ""
-
-#: classes/Queue/Worker.php:106
-msgid "There was an error constructing the job while processing the queue."
 msgstr ""
 
 #: classes/SES-API.php:70

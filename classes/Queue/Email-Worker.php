@@ -5,6 +5,7 @@ namespace DeliciousBrains\WP_Offload_SES\Queue;
 use DeliciousBrains\WP_Offload_SES\Command_Pool;
 use DeliciousBrains\WP_Offload_SES\Error;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Exceptions\WorkerAttemptsExceededException;
+use DeliciousBrains\WP_Offload_SES\WP_Queue\Worker;
 use Exception;
 
 /**
@@ -12,7 +13,7 @@ use Exception;
  *
  * @since 1.0.0
  */
-class Worker {
+class Email_Worker extends Worker {
 
 	/**
 	 * The AWS Command Pool wrapper.
@@ -22,29 +23,14 @@ class Worker {
 	protected $command_pool;
 
 	/**
-	 * The database connection.
-	 *
-	 * @var Connection
-	 */
-	private $connection;
-
-	/**
-	 * The number of times to attempt a job.
-	 *
-	 * @var int
-	 */
-	private $attempts;
-
-	/**
 	 * Worker constructor.
 	 *
 	 * @param Connection $connection The database connection.
 	 * @param int        $attempts   The number of times to attempt a job.
 	 */
 	public function __construct( Connection $connection, int $attempts = 3 ) {
+		parent::__construct( $connection, $attempts );
 		$this->command_pool = new Command_Pool( $connection, $attempts );
-		$this->connection   = $connection;
-		$this->attempts     = $attempts;
 	}
 
 	/**

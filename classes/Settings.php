@@ -116,7 +116,7 @@ class Settings {
 			$unserialized = array();
 
 			if ( defined( $this->settings_constant ) ) {
-				$unserialized = maybe_unserialize( constant( $this->settings_constant ) );
+				$unserialized = Utils::maybe_unserialize( constant( $this->settings_constant ) );
 				$unserialized = is_array( $unserialized ) ? $unserialized : array();
 			}
 

@@ -2,6 +2,8 @@
 
 namespace DeliciousBrains\WP_Offload_SES\WP_Queue;
 
+use Exception;
+use DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\ConnectionInterface;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\DatabaseConnection;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\RedisConnection;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\SyncConnection;
@@ -16,28 +18,30 @@ class QueueManager
      * Resolve a Queue instance for required connection.
      *
      * @param string $connection
+     * @param array  $allowed_job_classes Job classes that may be handled, default any Job subclass.
      *
      * @return Queue
-     * @throws \Exception
+     * @throws Exception
      */
-    public static function resolve($connection)
+    public static function resolve($connection, array $allowed_job_classes = [])
     {
         if (isset(static::$instances[$connection])) {
             return static::$instances[$connection];
         }
-        return static::build($connection);
+        return static::build($connection, $allowed_job_classes);
     }
     /**
      * Build a queue instance.
      *
      * @param string $connection
+     * @param array  $allowed_job_classes Job classes that may be handled, default any Job subclass.
      *
      * @return Queue
-     * @throws \Exception
+     * @throws Exception
      */
-    protected static function build($connection)
+    protected static function build($connection, array $allowed_job_classes = [])
     {
-        $connections = static::connections();
+        $connections = static::connections($allowed_job_classes);
         if (empty($connections[$connection])) {
             throw new ConnectionNotFoundException();
         }
@@ -47,11 +51,22 @@ class QueueManager
     /**
      * Get available connections.
      *
+     * It's strongly recommended to override this function and provide a unique
+     * set of connections for your plugin, and unique filter name if filtering
+     * is desired.
+     *
+     * @param array $allowed_job_classes Job classes that may be handled, default any Job subclass.
+     *
      * @return array
      */
-    protected static function connections()
+    protected static function connections(array $allowed_job_classes = [])
     {
-        $connections = ['database' => new DatabaseConnection($GLOBALS['wpdb']), 'redis' => new RedisConnection(), 'sync' => new SyncConnection()];
+        $connections = ['database' => new DatabaseConnection($GLOBALS['wpdb'], $allowed_job_classes), 'redis' => new RedisConnection(), 'sync' => new SyncConnection()];
+        /**
+         * Filter the available connections.
+         *
+         * @param ConnectionInterface[] $connections Associative array of connections.
+         */
         return apply_filters('wp_queue_connections', $connections);
     }
 }

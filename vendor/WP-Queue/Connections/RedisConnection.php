@@ -4,6 +4,12 @@ namespace DeliciousBrains\WP_Offload_SES\WP_Queue\Connections;
 
 use Exception;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Job;
+/**
+ * An incomplete example of how a new ConnectionInterface could be set up
+ * for storing queue jobs.
+ *
+ * Please see the DatabaseConnection class for a complete working implementation.
+ */
 class RedisConnection implements ConnectionInterface
 {
     /**
@@ -16,6 +22,7 @@ class RedisConnection implements ConnectionInterface
      */
     public function push(Job $job, $delay = 0)
     {
+        return \false;
     }
     /**
      * Retrieve a job from the queue.
@@ -24,22 +31,29 @@ class RedisConnection implements ConnectionInterface
      */
     public function pop()
     {
+        return \false;
     }
     /**
      * Delete a job from the queue.
      *
      * @param Job $job
+     *
+     * @return bool
      */
     public function delete($job)
     {
+        return \false;
     }
     /**
      * Release a job back onto the queue.
      *
      * @param Job $job
+     *
+     * @return bool
      */
-    public function release($job)
+    public function release(Job $job)
     {
+        return \false;
     }
     /**
      * Push a job onto the failure queue.
@@ -51,6 +65,7 @@ class RedisConnection implements ConnectionInterface
      */
     public function failure($job, Exception $exception)
     {
+        return \false;
     }
     /**
      * Get total jobs in the queue.
@@ -59,6 +74,7 @@ class RedisConnection implements ConnectionInterface
      */
     public function jobs()
     {
+        return 0;
     }
     /**
      * Get total jobs in the failures queue.
@@ -67,5 +83,6 @@ class RedisConnection implements ConnectionInterface
      */
     public function failed_jobs()
     {
+        return 0;
     }
 }

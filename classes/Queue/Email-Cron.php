@@ -14,9 +14,9 @@ class Email_Cron extends Cron {
 	/**
 	 * Cron constructor.
 	 *
-	 * @param string $id
-	 * @param Worker $worker
-	 * @param int    $interval
+	 * @param string       $id
+	 * @param Email_Worker $worker
+	 * @param int          $interval
 	 */
 	public function __construct( $id, $worker, $interval ) {
 		parent::__construct( $id, $worker, $interval );

@@ -2,9 +2,9 @@
 Contributors: wpengine, deliciousbrains, ianmjones, eriktorsner, kevinwhoffman, mattshaw, bradt, SylvainDeaure
 Tags: amazon ses,smtp,email delivery,gmail smtp,newsletter
 Requires at least: 5.3
-Tested up to: 6.3
+Tested up to: 6.4
 Requires PHP: 7.2
-Stable tag: 1.6.6
+Stable tag: 1.6.7
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
 
@@ -177,6 +177,10 @@ Please double check the credentials match up with the credentials you received w
 4. Activity tab
 
 == Changelog ==
+
+= 1.6.7 - 2024-02-08 =
+* Security: Unserializing an object related to plugin settings now passes `'allowed_classes' => false` to avoid instantiating the complete object and potentially running malicious code
+* Security: Processing of the email queue now restricts the type of data allowed to ensure stored queue items meet requirements
 
 = 1.6.6 - 2023-08-24 =
 * New: WordPress 6.3 compatible

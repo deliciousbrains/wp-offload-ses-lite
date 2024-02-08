@@ -21,9 +21,11 @@ use DeliciousBrains\WP_Offload_SES\Symfony\Component\Translation\TranslatorBagIn
 use DeliciousBrains\WP_Offload_SES\Symfony\Component\Translation\TranslatorInterface;
 use DeliciousBrains\WP_Offload_SES\Symfony\Contracts\Translation\LocaleAwareInterface;
 use DeliciousBrains\WP_Offload_SES\Symfony\Contracts\Translation\TranslatorInterface as ContractsTranslatorInterface;
+// @codeCoverageIgnoreStart
 if (\interface_exists('DeliciousBrains\\WP_Offload_SES\\Symfony\\Contracts\\Translation\\TranslatorInterface') && !\interface_exists('DeliciousBrains\\WP_Offload_SES\\Symfony\\Component\\Translation\\TranslatorInterface')) {
     \class_alias('DeliciousBrains\\WP_Offload_SES\\Symfony\\Contracts\\Translation\\TranslatorInterface', 'DeliciousBrains\\WP_Offload_SES\\Symfony\\Component\\Translation\\TranslatorInterface');
 }
+// @codeCoverageIgnoreEnd
 /**
  * Trait Localization.
  *

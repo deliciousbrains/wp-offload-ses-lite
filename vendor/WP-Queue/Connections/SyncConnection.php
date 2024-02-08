@@ -4,6 +4,12 @@ namespace DeliciousBrains\WP_Offload_SES\WP_Queue\Connections;
 
 use Exception;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Job;
+/**
+ * A minimal implementation of the ConnectionInterface that handles a pushed
+ * Job immediately.
+ *
+ * Useful for local development when only wanting to debug how Job items are handled.
+ */
 class SyncConnection implements ConnectionInterface
 {
     /**
@@ -46,7 +52,7 @@ class SyncConnection implements ConnectionInterface
      *
      * @return bool
      */
-    public function release($job)
+    public function release(Job $job)
     {
         return \false;
     }

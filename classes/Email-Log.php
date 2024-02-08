@@ -8,8 +8,6 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
-use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
-
 /**
  * Class Email_Log
  *
@@ -127,7 +125,7 @@ class Email_Log {
 			return false;
 		}
 
-		$row = array_map( 'maybe_unserialize', $row );
+		$row = array_map( '\DeliciousBrains\WP_Offload_SES\Utils::maybe_unserialize', $row );
 
 		if ( ! empty( $row['email_headers'] ) ) {
 			$row['email_headers'] = Utils::sanitize_email_headers( $row['email_headers'] );

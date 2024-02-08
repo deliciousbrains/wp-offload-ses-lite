@@ -163,7 +163,7 @@ class Activity_List_Table extends \WP_List_Table {
 	 * @param array $email The array of info about the email.
 	 */
 	public function column_recipient( $email ) {
-		$email['recipient'] = maybe_unserialize( $email['recipient'] );
+		$email['recipient'] = Utils::maybe_unserialize( $email['recipient'] );
 
 		if ( is_array( $email['recipient'] ) ) {
 			return implode( ', ', $email['recipient'] );

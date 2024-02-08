@@ -13,20 +13,6 @@ use DeliciousBrains\WP_Offload_SES\Queue\Jobs\Email_Job;
 class Email_Queue extends Queue {
 
 	/**
-	 * The database connection.
-	 *
-	 * @var Connection
-	 */
-	protected $connection;
-
-	/**
-	 * The cron class.
-	 *
-	 * @var Email_Cron
-	 */
-	protected $cron;
-
-	/**
 	 * The delay before running a cron.
 	 *
 	 * @var int
@@ -67,7 +53,7 @@ class Email_Queue extends Queue {
 	public function __construct() {
 		global $wpdb;
 
-		$this->connection = new Connection( $wpdb );
+		$this->connection = new Connection( $wpdb, array( Email_Job::class ) );
 		parent::__construct( $this->connection );
 
 		$this->add_cron();
@@ -149,10 +135,10 @@ class Email_Queue extends Queue {
 	 *
 	 * @param int $attempts The number of times to attempt the job.
 	 *
-	 * @return Worker
+	 * @return Email_Worker
 	 */
 	public function worker( $attempts ) {
-		return new Worker( $this->connection, $attempts );
+		return new Email_Worker( $this->connection, $attempts );
 	}
 
 	/**
@@ -177,7 +163,7 @@ class Email_Queue extends Queue {
 				reserved_at datetime DEFAULT NULL,
 				available_at datetime NOT NULL,
 				created_at datetime NOT NULL,
-				PRIMARY KEY  (id)
+				PRIMARY KEY (id)
 				) $charset_collate;";
 		dbDelta( $sql );
 
@@ -186,7 +172,7 @@ class Email_Queue extends Queue {
 				job longtext NOT NULL,
 				error text DEFAULT NULL,
 				failed_at datetime NOT NULL,
-				PRIMARY KEY  (id)
+				PRIMARY KEY (id)
 				) $charset_collate;";
 		dbDelta( $sql );
 	}

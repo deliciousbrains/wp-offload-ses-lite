@@ -40,8 +40,8 @@ use DeliciousBrains\WP_Offload_SES\Utils;
 						<span style="color: black;"><?php echo esc_html( $email['subject'] ); ?></span>
 						<br>
 						<span style="font-size: 11px; color: gray;">
-						<?php 
-						$recipients = maybe_unserialize( $email['recipient'] );
+						<?php
+						$recipients = Utils::maybe_unserialize( $email['recipient'] );
 						$recipients = is_array( $recipients ) ? array_filter( $recipients ) : $recipients;
 
 						if ( empty( $recipients ) || ! $recipients ) {

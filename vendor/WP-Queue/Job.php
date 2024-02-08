@@ -3,7 +3,6 @@
 namespace DeliciousBrains\WP_Offload_SES\WP_Queue;
 
 use DeliciousBrains\WP_Offload_SES\Carbon\Carbon;
-use Exception;
 abstract class Job
 {
     /**
