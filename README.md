@@ -5,7 +5,7 @@
 **Requires at least:** 5.3 \
 **Tested up to:** 6.4 \
 **Requires PHP:** 7.2 \
-**Stable tag:** 1.6.7
+**Stable tag:** 1.6.8
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
 
@@ -190,6 +190,10 @@ Please double check the credentials match up with the credentials you received w
 
 
 ## Changelog
+
+### 1.6.8 - 2024-02-09
+
+* Bug fix: Using the WPOSES_SETTINGS define no longer causes a fatal error
 
 ### 1.6.7 - 2024-02-08
 
