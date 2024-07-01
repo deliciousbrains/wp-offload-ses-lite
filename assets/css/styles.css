@@ -516,7 +516,7 @@ body.settings_page_wp-offload-ses #wpfooter {
   width: 500px;
   border-radius: 3px;
   background-color: #000;
-  background-color: hsla(0deg, 0%, 20%, 0.9);
+  background-color: hsla(0, 0%, 20%, 0.9);
   color: #fff;
   content: attr(data-tooltip);
   text-align: center;
@@ -530,7 +530,7 @@ body.settings_page_wp-offload-ses #wpfooter {
   margin-left: -5px;
   width: 0;
   border-top: 5px solid #000;
-  border-top: 5px solid hsla(0deg, 0%, 20%, 0.9);
+  border-top: 5px solid hsla(0, 0%, 20%, 0.9);
   border-right: 5px solid transparent;
   border-left: 5px solid transparent;
   content: " ";
@@ -906,6 +906,16 @@ body.settings_page_wp-offload-ses #wpfooter {
 #tab-configure-wp-offload-ses #save-aws-access-keys {
   margin-right: 10px;
 }
+#tab-settings .wposes-enqueue-only-container,
+#tab-general .wposes-enqueue-only-container,
+#tab-verified-senders .wposes-enqueue-only-container,
+#tab-send-test-email .wposes-enqueue-only-container,
+#tab-licence .wposes-enqueue-only-container,
+#tab-aws-access-keys .wposes-enqueue-only-container,
+#tab-setup-access-keys .wposes-enqueue-only-container,
+#tab-configure-wp-offload-ses .wposes-enqueue-only-container {
+  padding-top: 10px;
+}
 
 #tab-reports .wposes-need-help {
   margin-bottom: 15px;
@@ -945,6 +955,9 @@ body.settings_page_wp-offload-ses #wpfooter {
 }
 #tab-reports #wposes-reports-bg #wposes-reports-prompt h2 {
   margin-top: 0;
+}
+#tab-reports .spinner {
+  float: none;
 }
 
 .wposes-lite .wposes-tab {
@@ -1008,6 +1021,9 @@ body.settings_page_wp-offload-ses #wpfooter {
 }
 #tab-activity .email-status-cancelled {
   color: gray;
+}
+#tab-activity .spinner {
+  float: none;
 }
 
 #tab-send-test-email #wposes-test-email-address {

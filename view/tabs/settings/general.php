@@ -3,13 +3,13 @@
 	<h3><?php _e( 'General Settings', 'wp-offload-ses' ); ?></h3>
 
 	<form id="wposes-settings-form" method="post">
-		<input type="hidden" name="action" value="save" />
-		<input type="hidden" name="plugin" value="<?php echo $this->get_plugin_slug(); ?>" />
-		<input type="hidden" name="completed-setup" value="1" />
+		<input type="hidden" name="action" value="save"/>
+		<input type="hidden" name="plugin" value="<?php echo $this->get_plugin_slug(); ?>"/>
+		<input type="hidden" name="completed-setup" value="1"/>
 
 		<?php
-			wp_nonce_field( $this->get_settings_nonce_key(), 'wposes_save_settings' );
-			do_action( 'wposes_form_hidden_fields' );
+		wp_nonce_field( $this->get_settings_nonce_key(), 'wposes_save_settings' );
+		do_action( 'wposes_form_hidden_fields' );
 		?>
 
 		<table class="form-table">
@@ -20,8 +20,11 @@
 			}
 			?>
 
-			<?php $args = $this->settings->get_setting_args( 'send-via-ses' ); ?>
-			<tr class="<?php echo $args['tr_class'];?>">
+			<?php
+			$args          = $this->settings->get_setting_args( 'send-via-ses' );
+			$args['value'] = $this->settings->get_setting( 'send-via-ses' );
+			?>
+			<tr class="<?php echo $args['tr_class']; ?>">
 				<td>
 					<?php $this->render_view( 'elements/checkbox', $args ); ?>
 				</td>
@@ -31,11 +34,38 @@
 					<p>
 						<?php _e( 'Route all outgoing emails through SES.', 'wp-offload-ses' ); ?>
 					</p>
+
+					<?php
+					// Initially hide Enqueue Only if not sending email via SES.
+					$style         = $args['value'] ? '' : 'style="display:none;"';
+					$args          = $this->settings->get_setting_args( 'enqueue-only' );
+					$args['value'] = $this->settings->get_setting( 'enqueue-only' );
+					?>
+					<div class="<?php echo $args['tr_class']; ?>" <?php echo $style; ?>>
+						<?php echo $args['setting_msg']; ?>
+						<h4><?php _e( 'Enqueue Only', 'wp-offload-ses' ); ?></h4>
+						<p>
+							<label>
+								<input type="hidden" name="<?php echo $args['key']; ?>" value="0"/>
+								<input type="checkbox" name="<?php echo $args['key']; ?>" value="1" <?php echo $args['value'] ? 'checked="checked"' : ''; ?> />
+								<?php _e( 'Queue email, but do not send it.', 'wp-offload-ses' ); ?>
+							</label>
+							<a class="general-helper" href="#"></a>
+							<span class="helper-message bottom">
+								<?php
+								_e(
+									'Capture new outbound emails in the database without sending the emails to Amazon SES. Useful for development, staging, or temporarily pausing all emails. Disabling this setting will cause queued emails to start sending.',
+									'wp-offload-ses'
+								);
+								?>
+							</span>
+						</p>
+					</div>
 				</td>
 			</tr>
 
 			<?php $args = $this->settings->get_setting_args( 'enable-open-tracking' ); ?>
-			<tr class="<?php echo $args['tr_class'];?>">
+			<tr class="<?php echo $args['tr_class']; ?>">
 				<td>
 					<?php $this->render_view( 'elements/checkbox', $args ); ?>
 				</td>
@@ -47,7 +77,10 @@
 						<a class="general-helper" href="#"></a>
 						<span class="helper-message bottom">
 							<?php
-							_e( 'When enabled, WP Offload SES will insert a transparent 1x1 pixel into emails so email opens can be tracked.', 'wp-offload-ses' );
+							_e(
+								'When enabled, WP Offload SES will insert a transparent 1x1 pixel into emails so email opens can be tracked.',
+								'wp-offload-ses'
+							);
 
 							if ( ! $this->is_pro() ) {
 								_e( ' Upgrade to WP Offload SES Pro to view open tracking reports.', 'wp-offload-ses' );
@@ -59,7 +92,7 @@
 			</tr>
 
 			<?php $args = $this->settings->get_setting_args( 'enable-click-tracking' ); ?>
-			<tr class="<?php echo $args['tr_class'];?>">
+			<tr class="<?php echo $args['tr_class']; ?>">
 				<td>
 					<?php $this->render_view( 'elements/checkbox', $args ); ?>
 				</td>
@@ -71,10 +104,16 @@
 						<a class="general-helper" href="#"></a>
 						<span class="helper-message bottom">
 							<?php
-							_e( 'When enabled, WP Offload SES will alter the links in emails sent so that clicks can be tracked before redirecting the recipient to the original link destination.', 'wp-offload-ses' );
+							_e(
+								'When enabled, WP Offload SES will alter the links in emails sent so that clicks can be tracked before redirecting the recipient to the original link destination.',
+								'wp-offload-ses'
+							);
 
 							if ( ! $this->is_pro() ) {
-								_e( ' Upgrade to WP Offload SES Pro to view click tracking reports.', 'wp-offload-ses' );
+								_e(
+									' Upgrade to WP Offload SES Pro to view click tracking reports.',
+									'wp-offload-ses'
+								);
 							}
 							?>
 						</span>
@@ -85,25 +124,32 @@
 			<?php $this->render_view( 'settings/health-report' ); ?>
 
 			<?php
-				$this->render_view( 'settings/region' );
-				$this->render_view( 'settings/wp-notification-email' );
-				$this->render_view( 'settings/wp-notification-name' );
-				$this->render_view( 'settings/reply-to' );
-				$this->render_view( 'settings/return-path' );
-				$this->render_view( 'settings/delete-logs' );
+			$this->render_view( 'settings/region' );
+			$this->render_view( 'settings/wp-notification-email' );
+			$this->render_view( 'settings/wp-notification-name' );
+			$this->render_view( 'settings/reply-to' );
+			$this->render_view( 'settings/return-path' );
+			$this->render_view( 'settings/delete-logs' );
 
-				if ( ! $this->is_pro() ) {
-					$this->render_view( 'modals/tracking-prompt' );
-					$this->render_view( 'modals/health-report-prompt' );
-				}
+			if ( ! $this->is_pro() ) {
+				$this->render_view( 'modals/tracking-prompt' );
+				$this->render_view( 'modals/health-report-prompt' );
+			}
 
 			?>
 
 			<tr>
 				<td colspan="2">
 					<p>
-						<button type="submit" class="button button-primary"><?php _e( 'Save Changes', 'wp-offload-ses' ); ?></button>
-						<a class="wposes-launch-setup-wizard" href="<?php echo $this->get_plugin_page_url( array( 'setup-wizard' => true ), 'self' ); ?>"><?php _e( 'Launch Setup Wizard', 'wp-offload-ses' ); ?></a>
+						<button type="submit" class="button button-primary">
+							<?php _e( 'Save Changes', 'wp-offload-ses' ); ?>
+						</button>
+						<a
+							class="wposes-launch-setup-wizard"
+							href="<?php echo $this->get_plugin_page_url( array( 'setup-wizard' => true ), 'self' ); ?>"
+						>
+							<?php _e( 'Launch Setup Wizard', 'wp-offload-ses' ); ?>
+						</a>
 					</p>
 				</td>
 			</tr>

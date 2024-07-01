@@ -254,7 +254,12 @@ class Settings {
 				 * @param mixed  $old_value
 				 * @param string $setting
 				 */
-				do_action( 'wposes_constant_' . $this->settings_constant . '_changed_' . $setting, $new_value, $old_value, $setting );
+				do_action(
+					'wposes_constant_' . $this->settings_constant . '_changed_' . $setting,
+					$new_value,
+					$old_value,
+					$setting
+				);
 
 				/**
 				 * Generic hook for setting change.
@@ -263,7 +268,12 @@ class Settings {
 				 * @param mixed  $old_value
 				 * @param string $setting
 				 */
-				do_action( 'wposes_constant_' . $this->settings_constant . '_changed', $new_value, $old_value, $setting );
+				do_action(
+					'wposes_constant_' . $this->settings_constant . '_changed',
+					$new_value,
+					$old_value,
+					$setting
+				);
 			}
 		}
 	}
@@ -318,12 +328,15 @@ class Settings {
 		if ( empty( $settings_whitelist ) ) {
 			$settings_whitelist = array(
 				'send-via-ses',
+				'enqueue-only',
 				'region',
 				'default-email',
 				'default-email-name',
 				'reply-to',
 				'return-path',
 				'log-duration',
+				'delete-successful',
+				'delete-re-sent-failed',
 				'completed-setup',
 				'enable-open-tracking',
 				'enable-click-tracking',
@@ -416,7 +429,11 @@ class Settings {
 			'key'           => $key,
 			'disabled'      => false,
 			'disabled_attr' => '',
-			'tr_class'      => str_replace( '_', '-', $wp_offload_ses->get_plugin_prefix() . '-' . $key . '-container' ),
+			'tr_class'      => str_replace(
+				'_',
+				'-',
+				$wp_offload_ses->get_plugin_prefix() . '-' . $key . '-container'
+			),
 			'setting_msg'   => '',
 			'is_defined'    => false,
 		);
@@ -426,7 +443,10 @@ class Settings {
 			$args['disabled']      = true;
 			$args['disabled_attr'] = 'disabled="disabled"';
 			$args['tr_class']      .= ' wposes-defined-setting';
-			$args['setting_msg']   = '<span class="wposes-defined-in-config">' . __( 'defined in wp-config.php', 'wp-offload-ses' ) . '</span>';
+			$args['setting_msg']   = '<span class="wposes-defined-in-config">' . __(
+					'defined in wp-config.php',
+					'wp-offload-ses'
+				) . '</span>';
 		}
 
 		return $args;

@@ -138,15 +138,32 @@ class Command_Pool {
 
 				$email = $wp_offload_ses->get_email_log()->get_email( $job->email_id );
 
-				if ( $email ) {
-					// Fires after an email has been sent.
-					do_action( 'wpses_mailsent', $email['email_to'], $email['email_subject'], $email['email_message'], $email['email_headers'], $email['email_attachments'] ); // Backwards compat.
-					do_action( 'wposes_mail_sent', $email['email_to'], $email['email_subject'], $email['email_message'], $email['email_headers'], $email['email_attachments'] );
-				}
-
 				$this->connection->delete( $job );
 				$wp_offload_ses->get_email_log()->update_email( $job->email_id, 'email_status', 'sent' );
 				$wp_offload_ses->get_email_log()->update_email( $job->email_id, 'email_sent', current_time( 'mysql' ) );
+
+				if ( $email ) {
+					// Fires after an email has been sent.
+					do_action(
+						'wpses_mailsent',
+						$email['email_to'],
+						$email['email_subject'],
+						$email['email_message'],
+						$email['email_headers'],
+						$email['email_attachments']
+					); // Backwards compat.
+
+					do_action(
+						'wposes_mail_sent',
+						$email['email_to'],
+						$email['email_subject'],
+						$email['email_message'],
+						$email['email_headers'],
+						$email['email_attachments'],
+						(int) $email['email_id'],
+						(int) $email['email_parent']
+					);
+				}
 
 				return true;
 			},

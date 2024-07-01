@@ -51,6 +51,7 @@ class Activity_List_Table extends \WP_List_Table {
 		$this->screen       = get_current_screen();
 		$this->database     = $wpdb;
 		$this->emails_table = $this->database->base_prefix . 'oses_emails';
+		$this->items        = [];
 
 		/**
 		 * Construct the WP_List_Table parent class.
@@ -189,18 +190,33 @@ class Activity_List_Table extends \WP_List_Table {
 	 * @return int
 	 */
 	public function get_total_items() {
+		static $total_items = -1;
+
+		if (-1 !== $total_items) {
+			return $total_items;
+		}
+
 		$where       = $this->get_where();
-		$query       = "SELECT
-						$this->emails_table.email_subject
+		$query       = "SELECT COUNT(*) AS total_items
 						FROM $this->emails_table
 						$where";
-		$total_items = $this->database->query( $query );
+		$total_items = $this->database->get_var($query);
 
-		if ( false === $total_items ) {
+		if (empty($total_items)) {
 			$total_items = 0;
 		}
 
 		return $total_items;
+	}
+
+	/**
+	 * Override's standard has_items so that search controls are enabled
+	 * if there are some records we can async fetch after init without data.
+	 *
+	 * @return bool
+	 */
+	public function has_items() {
+		return parent::has_items() || 0 !== $this->get_total_items();
 	}
 
 	/**
@@ -398,7 +414,7 @@ class Activity_List_Table extends \WP_List_Table {
 		$views = $this->get_views();
 
 		if ( ! $views ) {
-			return false;
+			return;
 		}
 
 		/**
@@ -442,17 +458,21 @@ class Activity_List_Table extends \WP_List_Table {
 		$columns               = $this->get_columns();
 		$hidden                = array();
 		$sortable              = $this->get_sortable_columns();
-		$this->_column_headers = array( $columns, $hidden, $sortable );
+		$this->_column_headers = array($columns, $hidden, $sortable);
 		$total_items           = $this->get_total_items();
-		$this->items           = $this->get_data( $current_page, $per_page );
+
+		// Only get data when doing AJAX, otherwise just let nav init.
+		if (defined('DOING_AJAX') && DOING_AJAX) {
+			$this->items = $this->get_data($current_page, $per_page);
+		}
 
 		$this->set_pagination_args(
 			array(
 				'total_items' => $total_items,
 				'per_page'    => $per_page,
-				'total_pages' => ceil( $total_items / $per_page ),
-				'orderby'     => ! empty( $_REQUEST['orderby'] ) && '' != $_REQUEST['orderby'] ? $_REQUEST['orderby'] : 'subject',
-				'order'       => ! empty( $_REQUEST['order'] ) && '' != $_REQUEST['order'] ? $_REQUEST['order'] : 'desc',
+				'total_pages' => ceil($total_items / $per_page),
+				'orderby'     => ! empty($_REQUEST['orderby']) && '' != $_REQUEST['orderby'] ? $_REQUEST['orderby'] : 'subject',
+				'order'       => ! empty($_REQUEST['order']) && '' != $_REQUEST['order'] ? $_REQUEST['order'] : 'desc',
 			)
 		);
 	}
@@ -523,13 +543,31 @@ class Activity_List_Table extends \WP_List_Table {
 	}
 
 	/**
+	 * Override to display spinner when not AJAX request,
+	 * and "no rows" content if AJAX request and there aren't rows.
+	 *
+	 * @return void
+	 */
+	public function display_rows() {
+		if ( ! defined('DOING_AJAX') || ! DOING_AJAX) {
+			echo '<tr class="no-items"><td class="colspanchange" colspan="' . $this->get_column_count() . '">';
+			echo '<span data-wposes-activity-spinner class="spinner"></span>';
+			echo '</td></tr>';
+		} elseif (empty($this->items)) {
+			$this->no_items();
+		} else {
+			parent::display_rows();
+		}
+	}
+
+	/**
 	 * Displays the table nav.
 	 *
 	 * @param string $which Top or bottom.
 	 */
 	public function display_tablenav( $which = 'top' ) {
 		if ( ! $this->has_items() ) {
-			return false;
+			return;
 		}
 
 		parent::display_tablenav( $which );

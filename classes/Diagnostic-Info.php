@@ -188,6 +188,10 @@ class Diagnostic_Info {
 		$output .= $this->on_off( 'send-via-ses' );
 		$output .= "\r\n";
 
+		$output .= 'Enqueue Only: ';
+		$output .= $this->on_off( 'enqueue-only' );
+		$output .= "\r\n";
+
 		$output .= 'Enable Open Tracking: ';
 		$output .= $this->on_off( 'enable-open-tracking' );
 		$output .= "\r\n";
@@ -202,6 +206,14 @@ class Diagnostic_Info {
 
 		$output .= 'Log Duration: ';
 		$output .= (int) $wp_offload_ses->get_email_log()->get_log_duration();
+		$output .= "\r\n";
+
+		$output .= 'Instantly Remove Successfully Sent Emails From The Log: ';
+		$output .= $this->on_off( 'delete-successful' );
+		$output .= "\r\n";
+
+		$output .= 'Remove Successfully Re-sent Failed Emails From The Log (Pro only): ';
+		$output .= $this->on_off( 'delete-re-sent-failed' );
 		$output .= "\r\n";
 
 		$queue_status = new Queue_Status( $wp_offload_ses );
@@ -387,7 +399,13 @@ class Diagnostic_Info {
 			return basename( $plugin_path );
 		}
 
-		return sprintf( "%s%s (v%s) by %s\r\n", $plugin_data['Name'], $suffix, $plugin_data['Version'], strip_tags( $plugin_data['AuthorName'] ) );
+		return sprintf(
+			"%s%s (v%s) by %s\r\n",
+			$plugin_data['Name'],
+			$suffix,
+			$plugin_data['Version'],
+			strip_tags( $plugin_data['AuthorName'] )
+		);
 	}
 
 	/**

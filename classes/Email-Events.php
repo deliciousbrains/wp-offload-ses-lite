@@ -146,7 +146,10 @@ class Email_Events {
 	 * @return array
 	 */
 	public function get_email_click_data( $email_id ) {
-		$query = $this->database->prepare( "SELECT SUM(email_click_count) AS email_click_count, MAX(email_last_click_date) AS email_last_click_date FROM $this->clicks_table WHERE email_id = %d", $email_id );
+		$query = $this->database->prepare(
+			"SELECT SUM(email_click_count) AS email_click_count, MAX(email_last_click_date) AS email_last_click_date FROM $this->clicks_table WHERE email_id = %d",
+			$email_id
+		);
 
 		return $this->database->get_row( $query, ARRAY_A );
 	}
@@ -161,6 +164,12 @@ class Email_Events {
 	 * @return string
 	 */
 	private function get_click_tracking_url( $email_id, $email_click_id, $url ) {
+		// If the URL already has urlencoded elements,
+		// ensure we rehydrate intact before redirect.
+		if ( urldecode( $url ) !== $url ) {
+			$url = base64_encode( $url );
+		}
+
 		$hash       = $this->generate_hmac_hash( $email_id . $email_click_id . $url );
 		$url_string = base64_encode( 'email_id=' . $email_id . '&email_click_id=' . $email_click_id . '&email_click_url=' . urlencode( $url ) . '&hash=' . $hash );
 
@@ -273,30 +282,61 @@ class Email_Events {
 		parse_str( $data, $args );
 
 		if ( ! isset( $args['email_id'] ) || ! isset( $args['email_click_id'] ) || ! isset( $args['hash'] ) || ! isset( $args['email_click_url'] ) ) {
-			return new WP_Error( 'invalid_request', __( 'The request you made was invalid.', 'wp-offload-ses' ), array( 'status' => 404 ) );
+			return new WP_Error(
+				'invalid_request',
+				__( 'The request you made was invalid.', 'wp-offload-ses' ),
+				array( 'status' => 404 )
+			);
 		}
 
 		// Verify the HMAC hash matches what we expect.
-		if ( ! $this->verify_hmac_hash( $args['email_id'] . $args['email_click_id'] . $args['email_click_url'], $args['hash'] ) ) {
-			return new WP_Error( 'invalid_request', __( 'The request you made was invalid.', 'wp-offload-ses' ), array( 'status' => 404 ) );
+		if (
+			! $this->verify_hmac_hash(
+				$args['email_id'] . $args['email_click_id'] . $args['email_click_url'],
+				$args['hash']
+			)
+		) {
+			return new WP_Error(
+				'invalid_request',
+				__( 'The request you made was invalid.', 'wp-offload-ses' ),
+				array( 'status' => 404 )
+			);
 		}
 
 		// Log the click. We have to run the query manually to increment the event count.
 		$time   = current_time( 'mysql' );
-		$query  = $this->database->prepare( "UPDATE {$this->clicks_table} SET email_click_count = email_click_count + 1, email_first_click_date = IFNULL(email_first_click_date, %s), email_last_click_date = %s WHERE email_click_id = %d", $time, $time, $args['email_click_id'] );
+		$query  = $this->database->prepare(
+			"UPDATE {$this->clicks_table} SET email_click_count = email_click_count + 1, email_first_click_date = IFNULL(email_first_click_date, %s), email_last_click_date = %s WHERE email_click_id = %d",
+			$time,
+			$time,
+			$args['email_click_id']
+		);
 		$result = $this->database->query( $query );
 
 		// Increment the opens if there are no logged opens (due to disabled images).
 		if ( $wp_offload_ses->settings->get_setting( 'enable-open-tracking', false ) ) {
-			$query  = $this->database->prepare( "UPDATE {$this->emails_table} SET email_open_count = 1, email_first_open_date = %s, email_last_open_date = %s WHERE email_id = %d AND email_open_count = 0", $time, $time, $args['email_id'] );
+			$query  = $this->database->prepare(
+				"UPDATE {$this->emails_table} SET email_open_count = 1, email_first_open_date = %s, email_last_open_date = %s WHERE email_id = %d AND email_open_count = 0",
+				$time,
+				$time,
+				$args['email_id']
+			);
 			$result = $this->database->query( $query );
+		}
+
+		// Did we need to base64 encode the redirect URL before save?
+		$location = urldecode( $args['email_click_url'] );
+		$decoded  = base64_decode( $location, true );
+
+		if ( false !== $decoded && $decoded !== $location ) {
+			$location = $decoded;
 		}
 
 		// Redirect.
 		$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
 		$response->header( 'Pragma', 'no-cache' );
 		$response->set_status( 301 );
-		$response->header( 'Location', urldecode( $args['email_click_url'] ) );
+		$response->header( 'Location', $location );
 
 		return $response;
 	}
@@ -315,17 +355,30 @@ class Email_Events {
 		parse_str( $data, $args );
 
 		if ( ! isset( $args['email_id'] ) || ! isset( $args['hash'] ) ) {
-			return new WP_Error( 'invalid_request', __( 'The request you made was invalid.', 'wp-offload-ses' ), array( 'status' => 404 ) );
+			return new WP_Error(
+				'invalid_request',
+				__( 'The request you made was invalid.', 'wp-offload-ses' ),
+				array( 'status' => 404 )
+			);
 		}
 
 		// Verify the HMAC hash matches what we expect.
 		if ( ! $this->verify_hmac_hash( $args['email_id'], $args['hash'] ) ) {
-			return new WP_Error( 'invalid_request', __( 'The request you made was invalid.', 'wp-offload-ses' ), array( 'status' => 404 ) );
+			return new WP_Error(
+				'invalid_request',
+				__( 'The request you made was invalid.', 'wp-offload-ses' ),
+				array( 'status' => 404 )
+			);
 		}
 
 		// Log the open.
 		$time   = current_time( 'mysql' );
-		$query  = $this->database->prepare( "UPDATE {$this->emails_table} SET email_open_count = email_open_count + 1, email_first_open_date = IFNULL(email_first_open_date, %s), email_last_open_date = %s WHERE email_id = %d", $time, $time, $args['email_id'] );
+		$query  = $this->database->prepare(
+			"UPDATE {$this->emails_table} SET email_open_count = email_open_count + 1, email_first_open_date = IFNULL(email_first_open_date, %s), email_last_open_date = %s WHERE email_id = %d",
+			$time,
+			$time,
+			$args['email_id']
+		);
 		$result = $this->database->query( $query );
 
 		// Display the tracking pixel used in the email.

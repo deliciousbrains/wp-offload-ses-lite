@@ -199,9 +199,12 @@
 		 *
 		 * Send the call and replace table parts with updated version!
 		 *
-		 * @param	object	data The data to pass through AJAX
+		 * @param data {object}	data The data to pass through AJAX
 		 */
 		update: function( data ) {
+			var spinner = $( '#tab-activity .spinner' );
+			spinner.addClass( 'is-active' );
+
 			$.ajax({
 				// /wp-admin/admin-ajax.php
 				url: ajaxurl,
@@ -225,6 +228,8 @@
 					} catch ( error ) {
 						console.log( error );
 					}
+
+					spinner.removeClass( 'is-active' );
 
 					// Add the requested rows
 					if ( parsed_response.rows.length ) {
@@ -305,6 +310,7 @@
 	// Event handlers.
 	$( document ).ready( function() {
 		wposes_activity_table.init();
+		wposes_activity_table.update({});
 
 		/**
 		 * View an email.
@@ -344,7 +350,7 @@
 				},
 				success: function( response, textStatus, jqXHR ) {
 					show_email_action_notice( response.data );
-					wposes_activity_table.update();
+					wposes_activity_table.update({});
 				}
 			} );
 		}

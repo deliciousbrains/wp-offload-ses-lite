@@ -2,6 +2,7 @@
 
 namespace DeliciousBrains\WP_Offload_SES\Queue;
 
+use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Cron;
 
 /**
@@ -47,7 +48,12 @@ class Email_Cron extends Cron {
 	 * Process any jobs in the queue.
 	 */
 	public function cron_worker() {
-		if ( $this->is_worker_locked() ) {
+		/** @var WP_Offload_SES $wp_offload_ses */
+		global $wp_offload_ses;
+
+		// We have to late-check whether only enqueueing here as settings are not
+		// realized until after init.
+		if ( $this->is_worker_locked() || $wp_offload_ses->settings->get_setting( 'enqueue-only', false ) ) {
 			return;
 		}
 

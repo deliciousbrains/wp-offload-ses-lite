@@ -8,6 +8,8 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+use WP_Error;
+
 /**
  * Class Email_Log
  *
@@ -356,4 +358,104 @@ class Email_Log {
 		}
 	}
 
+	/**
+	 * Purge logs by status.
+	 *
+	 * @param string $email_status
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function purge_logs( $email_status ) {
+		/** @var WP_Offload_SES $wp_offload_ses */
+		global $wp_offload_ses;
+
+		if ( '_' === $email_status ) {
+			return new WP_Error(
+				'purge-logs-no-option',
+				__( 'Please select an option.', 'wp-offload-ses' )
+			);
+		}
+
+		if ( ! in_array( $email_status, array_keys( $wp_offload_ses->get_email_status_options() ) ) ) {
+			return new WP_Error(
+				'purge-logs-invalid-option',
+				sprintf(
+					__( 'Invalid option "%s" supplied.', 'wp-offload-ses' ),
+					$email_status
+				)
+			);
+		}
+
+		$truncate = false;
+		if ( 'all' === $email_status ) {
+			$truncate  = true;
+			$where_sql = 'WHERE 1=1';
+		} elseif ( 'not_queued' === $email_status ) {
+			$where_sql = "WHERE $this->log_table.email_status != \"queued\"";
+		} else {
+			$where_sql = "WHERE $this->log_table.email_status = \"$email_status\"";
+		}
+
+		$subsite_sql = '';
+
+		if ( is_multisite() && ! is_network_admin() ) {
+			$truncate    = false;
+			$subsite_id  = get_current_blog_id();
+			$subsite_sql = "AND $this->log_table.subsite_id = $subsite_id";
+		}
+
+		if ( $truncate ) {
+			// Delete all emails.
+			$query = "TRUNCATE $this->log_table";
+			$this->database->query( $query );
+
+			// Delete all clicks.
+			$query = "TRUNCATE $this->clicks_table";
+			$this->database->query( $query );
+
+			// Delete all records from email attachments link table.
+			$query = "TRUNCATE $this->email_attachments_table";
+			$this->database->query( $query );
+
+			// Flag all attachments as being safe to delete.
+			$query = "
+				UPDATE $this->attachments_table
+				SET gc = 1
+				WHERE 1=1
+			";
+			$this->database->query( $query );
+		} else {
+			// Delete emails and clicks for given email status.
+			$query = "
+				DELETE $this->log_table, $this->clicks_table FROM $this->log_table
+				LEFT JOIN $this->clicks_table ON $this->log_table.email_id = $this->clicks_table.email_id
+				$where_sql
+				$subsite_sql
+			";
+			$this->database->query( $query );
+
+			// Delete any records from link table that no longer exist.
+			$query = "
+				DELETE $this->email_attachments_table
+				FROM $this->email_attachments_table
+				LEFT JOIN $this->log_table ON $this->email_attachments_table.email_id = $this->log_table.email_id
+				WHERE $this->log_table.email_id IS NULL
+			";
+			$this->database->query( $query );
+
+			// Flag any attachments that can be safely deleted.
+			$query = "
+				UPDATE $this->attachments_table attachments
+				LEFT JOIN $this->email_attachments_table email_attachments ON email_attachments.attachment_id = attachments.id
+				SET attachments.gc = 1
+				WHERE email_attachments.attachment_id IS NULL
+			";
+			$this->database->query( $query );
+		}
+
+		// Delete attachment files themselves.
+		$wp_offload_ses->get_attachments()->delete_attachments();
+
+		return true;
+	}
 }

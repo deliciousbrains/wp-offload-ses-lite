@@ -289,6 +289,46 @@
 		;
 	}
 
+	const $purgeOptions = $( 'select[name="purge-logs"]' );
+	const $purgeNow = $( '#purge-now' );
+
+	function purge_logs() {
+		const spinner = $( '.wposes-purge-logs-container .spinner' );
+		const success_msg = $( '#wposes-purge-logs-success' );
+		const error_msg = $( '#wposes-purge-logs-error' );
+
+		success_msg.hide();
+		error_msg.hide();
+
+		spinner.addClass( 'is-active' );
+
+		$.ajax( {
+			url: ajaxurl,
+			type: 'POST',
+			dataType: 'JSON',
+			data: {
+				action: 'wposes-purge-logs',
+				_nonce: wposes.nonces.wposes_purge_logs,
+				email_status: $purgeOptions.val()
+			},
+			error: function( jqXHR, textStatus, errorThrown ) {
+				spinner.removeClass( 'is-active' );
+				console.log( jqXHR, textStatus, errorThrown );
+			},
+			success: function( response, textStatus, jqXHR ) {
+				spinner.removeClass( 'is-active' );
+
+				if ( false === response.success && 'undefined' !== typeof response.data ) {
+					$( '#wposes-purge-logs-error p' ).text( response.data );
+					error_msg.show();
+					return;
+				}
+
+				success_msg.show();
+			}
+		} );
+	}
+
 	$( document ).ready( function() {
 		renderCurrentTab();
 
@@ -417,6 +457,14 @@
 			}
 		} );
 
+		$( '#wposes-send-via-ses-wrap' ).on( 'click', function( e ) {
+			if ( $( this ).hasClass( 'on' ) ) {
+				$( '.wposes-enqueue-only-container' ).show();
+			} else {
+				$( '.wposes-enqueue-only-container' ).hide();
+			}
+		} );
+
 		$( '#wposes-enable-health-report-wrap' ).on( 'click', function( e ) {
 			if ( $( this ).hasClass( 'on' ) ) {
 				$( '#wposes-health-report-sub-settings' ).show();
@@ -441,6 +489,19 @@
 			}
 		} );
 
+		$purgeOptions.on( 'change', function( e ) {
+			if ( '_' === $( this ).val() ) {
+				$purgeNow.prop("disabled", true);
+			} else {
+				$purgeNow.prop("disabled", false);
+			}
+		} );
+
+		$purgeNow.on( 'click', function( e ) {
+			e.preventDefault();
+
+			purge_logs();
+		} );
 	} );
 
 })( jQuery );

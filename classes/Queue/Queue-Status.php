@@ -112,13 +112,26 @@ class Queue_Status {
 	 * @return bool
 	 */
 	public function should_check_status(): bool {
+		// If WordPress is upgrading, don't check cron.
+		if ( defined( 'WP_INSTALLING' ) && WP_INSTALLING ) {
+			return false;
+		}
+
 		// If the site isn't configured to send email, definitely not.
 		if ( ! $this->wp_offload_ses->settings->get_setting( 'send-via-ses', false ) ) {
 			return false;
 		}
 
+		// If only enqueueing email, cron worker does not run.
+		if ( $this->wp_offload_ses->settings->get_setting( 'enqueue-only', false ) ) {
+			return false;
+		}
+
 		if ( is_multisite() ) {
-			$subsite_settings_enabled = (bool) $this->wp_offload_ses->settings->get_setting( 'enable-subsite-settings', false );
+			$subsite_settings_enabled = (bool) $this->wp_offload_ses->settings->get_setting(
+				'enable-subsite-settings',
+				false
+			);
 
 			// If subsite settings are disabled, all emails are sent on the back of the main site cron.
 			if ( ! $subsite_settings_enabled && ! is_main_site() ) {
@@ -187,13 +200,21 @@ class Queue_Status {
 	 * Notify admins about a cron issue.
 	 */
 	public function add_cron_error_notice() {
-		$message = __( '<strong>WP Offload SES</strong> &mdash; WP Cron does not appear to be working correctly.', 'wp-offload-ses' );
+		$message = __(
+			'<strong>WP Offload SES</strong> &mdash; WP Cron does not appear to be working correctly.',
+			'wp-offload-ses'
+		);
 		$count   = $this->get_total_jobs();
 
 		if ( 0 !== $count ) {
 			$message .= ' ';
 			$message .= sprintf(
-				_n( 'There is currently %d email in the queue that may not be sent until this is resolved.', 'There are currently %d emails in the queue that may not be sent until this is resolved.', $count, 'wp-offload-ses' ),
+				_n(
+					'There is currently %d email in the queue that may not be sent until this is resolved.',
+					'There are currently %d emails in the queue that may not be sent until this is resolved.',
+					$count,
+					'wp-offload-ses'
+				),
 				$count
 			);
 		}
@@ -250,8 +271,7 @@ class Queue_Status {
 		$message .= '<br><br>';
 		$message .= sprintf(
 			__( 'You\'re receiving this email because WP Cron doesn\'t appear to be running on %s.', 'wp-offload-ses' ),
-			$url,
-			$this->get_total_jobs()
+			$url
 		);
 
 		$count = $this->get_total_jobs();
@@ -259,7 +279,12 @@ class Queue_Status {
 		if ( 0 !== $count ) {
 			$message .= ' ';
 			$message .= sprintf(
-				_n( 'There is currently %d email in the queue that may not be sent until this is resolved.', 'There are currently %d emails in the queue that may not be sent until this is resolved.', $count, 'wp-offload-ses' ),
+				_n(
+					'There is currently %d email in the queue that may not be sent until this is resolved.',
+					'There are currently %d emails in the queue that may not be sent until this is resolved.',
+					$count,
+					'wp-offload-ses'
+				),
 				$count
 			);
 		}
@@ -282,7 +307,10 @@ class Queue_Status {
 			$result = $this->wp_offload_ses->get_ses_api()->send_email( $raw );
 		} catch ( Exception $e ) {
 			// Log the error and move on...
-			new Error( Error::$send_cron_email, __( 'There was an error trying to send the cron alert.', 'wp-offload-ses' ) );
+			new Error(
+				Error::$send_cron_email,
+				__( 'There was an error trying to send the cron alert.', 'wp-offload-ses' )
+			);
 		}
 
 		// Make sure we don't keep sending these out.

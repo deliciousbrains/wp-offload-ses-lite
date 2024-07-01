@@ -170,6 +170,9 @@ class WP_Offload_SES extends Plugin_Base {
 		add_action( 'pre_current_active_plugins', array( $this, 'plugin_deactivated_notice' ) );
 		add_action( 'wposes_plugin_load', array( $this->settings, 'set_default_settings' ) );
 
+		// Event handlers.
+		add_action( 'wposes_mail_sent', array( $this, 'maybe_delete_successful' ), 99, 6 );
+
 		// UI AJAX.
 		add_action( 'wp_ajax_wposes_activity_table', array( $this, 'ajax_activity_table' ) );
 		add_action( 'wp_ajax_wposes-get-diagnostic-info', array( $this, 'ajax_get_diagnostic_info' ) );
@@ -180,6 +183,7 @@ class WP_Offload_SES extends Plugin_Base {
 		add_action( 'wp_ajax_wposes_delete_sender', array( $this, 'ajax_delete_sender' ) );
 		add_action( 'wp_ajax_wposes-ajax-save-settings', array( $this, 'ajax_save_settings' ) );
 		add_action( 'wp_ajax_wposes-send-test-email', array( $this, 'ajax_send_test_email' ) );
+		add_action( 'wp_ajax_wposes-purge-logs', array( $this, 'ajax_purge_logs' ) );
 	}
 
 	/**
@@ -332,10 +336,16 @@ class WP_Offload_SES extends Plugin_Base {
 		if ( false !== ( $deactivated_notice_id = get_transient( 'wposes_deactivated_notice_id' ) ) ) {
 			if ( '1' === $deactivated_notice_id ) {
 				$title   = __( 'WP Offload SES Activation', 'wp-offload-ses' );
-				$message = __( "WP Offload SES Lite and WP Offload SES cannot both be active. We've automatically deactivated WP Offload SES Lite.", 'wp-offload-ses' );
+				$message = __(
+					"WP Offload SES Lite and WP Offload SES cannot both be active. We've automatically deactivated WP Offload SES Lite.",
+					'wp-offload-ses'
+				);
 			} else {
 				$title   = __( 'WP Offload SES Lite Activation', 'wp-offload-ses' );
-				$message = __( "WP Offload SES Lite and WP Offload SES cannot both be active. We've automatically deactivated WP Offload SES.", 'wp-offload-ses' );
+				$message = __(
+					"WP Offload SES Lite and WP Offload SES cannot both be active. We've automatically deactivated WP Offload SES.",
+					'wp-offload-ses'
+				);
 			}
 
 			$message = sprintf( '<strong>%s</strong> &mdash; %s', esc_html( $title ), esc_html( $message ) );
@@ -366,7 +376,11 @@ class WP_Offload_SES extends Plugin_Base {
 		);
 
 		// A bit of a hack, but better than doing things the proper way.
-		$submenu['index.php'][] = array( $this->get_plugin_page_title(), 'manage_options', $this->get_plugin_page_url( array(), 'self' ) . '#reports' ); // phpcs:ignore
+		$submenu['index.php'][] = array(
+			$this->get_plugin_page_title(),
+			'manage_options',
+			$this->get_plugin_page_url( array(), 'self' ) . '#reports',
+		); // phpcs:ignore
 
 		add_action( 'load-' . $this->hook_suffix, array( $this, 'plugin_load' ) );
 	}
@@ -385,13 +399,25 @@ class WP_Offload_SES extends Plugin_Base {
 		$this->enqueue_style( 'wposes-modal', 'assets/css/modal' );
 		$this->enqueue_script( 'wposes-modal', 'assets/js/modal', array( 'jquery' ) );
 		$this->enqueue_script( 'wposes-script', 'assets/js/script', array( 'jquery', 'underscore', 'wposes-modal' ) );
-		$this->enqueue_script( 'wposes-verified-senders', 'assets/js/verified-senders', array( 'wposes-script', 'wposes-modal' ) );
+		$this->enqueue_script(
+			'wposes-verified-senders',
+			'assets/js/verified-senders',
+			array( 'wposes-script', 'wposes-modal' )
+		);
 		$this->enqueue_script( 'wposes-setup', 'assets/js/setup', array( 'jquery' ) );
 		$this->enqueue_script( 'wposes-activity', 'assets/js/activity', array( 'wposes-script' ) );
 
 		if ( ! $this->is_pro() ) {
-			$this->enqueue_script( 'wposes-tracking-prompt', 'assets/js/tracking-prompt', array( 'wposes-script', 'wposes-modal' ) );
-			$this->enqueue_script( 'wposes-health-report-prompt', 'assets/js/health-report-prompt', array( 'wposes-script', 'wposes-modal' ) );
+			$this->enqueue_script(
+				'wposes-tracking-prompt',
+				'assets/js/tracking-prompt',
+				array( 'wposes-script', 'wposes-modal' )
+			);
+			$this->enqueue_script(
+				'wposes-health-report-prompt',
+				'assets/js/health-report-prompt',
+				array( 'wposes-script', 'wposes-modal' )
+			);
 		}
 
 		wp_localize_script(
@@ -403,10 +429,20 @@ class WP_Offload_SES extends Plugin_Base {
 					'get_diagnostic_info_error' => __( 'Error getting diagnostic info: ', 'wp-offload-ses' ),
 					// Mimic WP Core's notice text, therefore no translation needed here.
 					'settings_saved'            => __( 'Settings saved.' ),
-					'domain_invalid'            => __( 'Please enter a valid domain name (without http:// or https://', 'wp-offload-ses' ),
+					'domain_invalid'            => __(
+						'Please enter a valid domain name (without http:// or https://',
+						'wp-offload-ses'
+					),
 					'email_invalid'             => __( 'Please enter a valid email address.', 'wp-offload-ses' ),
-					'not_shown_placeholder'     => _x( '-- not shown --', 'placeholder for hidden access key, 39 char max', 'wp-offload-ses' ),
-					'email_not_verified'        => __( 'Please enter a valid email address that has been verified with Amazon SES.', 'wp-offload-ses' ),
+					'not_shown_placeholder'     => _x(
+						'-- not shown --',
+						'placeholder for hidden access key, 39 char max',
+						'wp-offload-ses'
+					),
+					'email_not_verified'        => __(
+						'Please enter a valid email address that has been verified with Amazon SES.',
+						'wp-offload-ses'
+					),
 				) ),
 				'nonces'             => apply_filters( 'wposes_js_nonces', array(
 					'get_diagnostic_info'    => wp_create_nonce( 'wposes-get-diagnostic-info' ),
@@ -415,6 +451,7 @@ class WP_Offload_SES extends Plugin_Base {
 					'ajax_save_settings'     => wp_create_nonce( 'wposes-ajax-save-settings' ),
 					'wposes_verify_sender'   => wp_create_nonce( 'wposes-verify-sender' ),
 					'wposes_send_test_email' => wp_create_nonce( 'wposes-send-test-email' ),
+					'wposes_purge_logs'      => wp_create_nonce( 'wposes-purge-logs' ),
 				) ),
 				'is_pro'             => $this->is_pro(),
 				'is_setup'           => $this->is_plugin_setup(),
@@ -534,7 +571,10 @@ class WP_Offload_SES extends Plugin_Base {
 	 * Display the main settings page for the plugin
 	 */
 	public function render_page() {
-		$this->render_view( 'header', array( 'page_title' => $this->get_plugin_page_title(), 'page' => 'wp-offload-ses' ) );
+		$this->render_view(
+			'header',
+			array( 'page_title' => $this->get_plugin_page_title(), 'page' => 'wp-offload-ses' )
+		);
 		$this->render_view( 'settings-tabs' );
 		do_action( 'wposes_pre_settings_render' );
 		$this->render_view( 'settings' );
@@ -572,7 +612,10 @@ class WP_Offload_SES extends Plugin_Base {
 	 */
 	public function get_settings_sub_nav_tabs(): array {
 		$tabs               = array();
-		$hide_senders       = Utils::get_first_defined_constant( array( 'WP_SES_HIDE_VERIFIED', 'WPOSES_HIDE_VERIFIED' ) );
+		$hide_senders       = Utils::get_first_defined_constant( array(
+			'WP_SES_HIDE_VERIFIED',
+			'WPOSES_HIDE_VERIFIED',
+		) );
 		$show_settings_tabs = $this->show_settings_tabs();
 
 		if ( $hide_senders && constant( $hide_senders ) ) {
@@ -709,6 +752,44 @@ class WP_Offload_SES extends Plugin_Base {
 	}
 
 	/**
+	 * Get allowed email statuses.
+	 *
+	 * @return string[]
+	 */
+	protected function get_email_statuses(): array {
+		return array(
+			'sent',
+			'cancelled',
+			'failed',
+			'queued',
+		);
+	}
+
+	/**
+	 * Get email status options for managing emails.
+	 *
+	 * @return array
+	 */
+	public function get_email_status_options(): array {
+		$options = array(
+			'_'   => __( '-- Please Select --', 'wp-offload-ses' ),
+			'all' => __( 'All (fast)', 'wp-offload-ses' ),
+		);
+
+		if ( is_multisite() && ! is_network_admin() ) {
+			$options['all'] = __( 'All', 'wp-offload-ses' );
+		}
+
+		foreach ( $this->get_email_statuses() as $status ) {
+			$options[ $status ] = $this->get_email_status_i18n( $status );
+		}
+
+		$options['not_queued'] = __( 'Not Queued', 'wp-offload-ses' );
+
+		return $options;
+	}
+
+	/**
 	 * Returns the action links for a provided email status.
 	 *
 	 * @param int    $id     The ID of the email.
@@ -720,24 +801,42 @@ class WP_Offload_SES extends Plugin_Base {
 		$actions  = array();
 		$disabled = $this->is_pro() ? '' : ' disabled';
 
-		$actions['view'] = '<a class="wposes-view-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'View Email', 'wp-offload-ses' ) . '</a>';
+		$actions['view'] = '<a class="wposes-view-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __(
+				'View Email',
+				'wp-offload-ses'
+			) . '</a>';
 
 		switch ( $status ) {
 			case 'sent':
-				$actions['resend'] = '<a class="wposes-resend-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Resend', 'wp-offload-ses' ) . '</a>';
+				$actions['resend'] = '<a class="wposes-resend-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __(
+						'Resend',
+						'wp-offload-ses'
+					) . '</a>';
 				break;
 			case 'queued':
-				$actions['cancel'] = '<a class="wposes-cancel-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Cancel', 'wp-offload-ses' ) . '</a>';
+				$actions['cancel'] = '<a class="wposes-cancel-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __(
+						'Cancel',
+						'wp-offload-ses'
+					) . '</a>';
 				break;
 			case 'failed':
-				$actions['retry'] = '<a class="wposes-resend-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Retry', 'wp-offload-ses' ) . '</a>';
+				$actions['retry'] = '<a class="wposes-resend-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __(
+						'Retry',
+						'wp-offload-ses'
+					) . '</a>';
 				break;
 			case 'cancelled':
-				$actions['send'] = '<a class="wposes-resend-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Send', 'wp-offload-ses' ) . '</a>';
+				$actions['send'] = '<a class="wposes-resend-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __(
+						'Send',
+						'wp-offload-ses'
+					) . '</a>';
 				break;
 		}
 
-		$actions['delete'] = '<a class="wposes-delete-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __( 'Delete Permanently', 'wp-offload-ses' ) . '</a>';
+		$actions['delete'] = '<a class="wposes-delete-email' . $disabled . '" data-email="' . $id . '" href="#activity">' . __(
+				'Delete Permanently',
+				'wp-offload-ses'
+			) . '</a>';
 
 		return $actions;
 	}
@@ -840,7 +939,10 @@ class WP_Offload_SES extends Plugin_Base {
 		if ( Amazon_Web_Services::is_any_access_key_constant_defined() ) {
 			wp_send_json_error(
 				array(
-					'message'             => __( 'All access key constants must be removed before keys can be set in the database.', 'wp-offload-ses' ),
+					'message'             => __(
+						'All access key constants must be removed before keys can be set in the database.',
+						'wp-offload-ses'
+					),
 					'access_keys_defined' => true,
 				)
 			);
@@ -857,12 +959,22 @@ class WP_Offload_SES extends Plugin_Base {
 		}
 
 		// Only update the secret key if entered and not set to "-- not shown --".
-		if ( _x( '-- not shown --', 'placeholder for hidden access key, 39 char max', 'wp-offload-ses' ) !== $secret_key || ! $this->settings->get_setting( 'aws-secret-access-key' ) ) {
+		if (
+			_x(
+				'-- not shown --',
+				'placeholder for hidden access key, 39 char max',
+				'wp-offload-ses'
+			) !== $secret_key ||
+			! $this->settings->get_setting( 'aws-secret-access-key' )
+		) {
 			// AWS Secret Access keys are 40 char long.
 			if ( ! $secret_key || strlen( $secret_key ) < 40 ) {
 				wp_send_json_error(
 					array(
-						'message' => __( 'The Secret Access Key must be at least 40 characters long.', 'wp-offload-ses' ),
+						'message' => __(
+							'The Secret Access Key must be at least 40 characters long.',
+							'wp-offload-ses'
+						),
 					)
 				);
 			}
@@ -1017,7 +1129,10 @@ class WP_Offload_SES extends Plugin_Base {
 		$to           = filter_input( INPUT_POST, 'email_address' );
 		$subject      = __( 'WP Offload SES Test Email', 'wp-offload-ses' );
 		$content      = sprintf(
-			__( "Hi %s,\n\nAre you seeing this email? You are? Well awesome - that means you're all set to start sending emails from your site via Amazon SES 🎉", 'wp-offload-ses' ),
+			__(
+				"Hi %s,\n\nAre you seeing this email? You are? Well awesome - that means you're all set to start sending emails from your site via Amazon SES 🎉",
+				'wp-offload-ses'
+			),
 			$username
 		);
 
@@ -1033,10 +1148,36 @@ class WP_Offload_SES extends Plugin_Base {
 	}
 
 	/**
+	 * Purge logs for a given email status via AJAX request.
+	 */
+	public function ajax_purge_logs() {
+		$this->verify_ajax_request();
+
+		$email_status = filter_input( INPUT_POST, 'email_status' );
+
+		if ( empty( $email_status ) ) {
+			wp_send_json_error(
+				__( 'An email status must be supplied.', 'wp-offload-ses' )
+			);
+		}
+
+		$result = $this->email_log->purge_logs( $email_status );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( $result->get_error_message() );
+		}
+
+		wp_send_json_success();
+	}
+
+	/**
 	 * Helper method for verifying an AJAX request.
 	 */
 	public function verify_ajax_request() {
-		if ( ! is_admin() || ! wp_verify_nonce( sanitize_key( $_POST['_nonce'] ), sanitize_key( $_POST['action'] ) ) ) { // phpcs:ignore
+		if (
+			! is_admin() ||
+			! wp_verify_nonce( sanitize_key( $_POST['_nonce'] ), sanitize_key( $_POST['action'] ) )
+		) { // phpcs:ignore
 			wp_die( __( 'Cheatin&#8217; eh?', 'wp-offload-ses' ) );
 		}
 
@@ -1068,7 +1209,10 @@ class WP_Offload_SES extends Plugin_Base {
 			return;
 		}
 
-		$message = __( 'We\'ve noticed that emails are being sent from the following unverified email addresses:', 'wp-offload-ses' );
+		$message = __(
+			'We\'ve noticed that emails are being sent from the following unverified email addresses:',
+			'wp-offload-ses'
+		);
 		$message .= '<ul>';
 
 		foreach ( $unverified_senders as $sender ) {
@@ -1077,7 +1221,13 @@ class WP_Offload_SES extends Plugin_Base {
 		}
 
 		$message .= '</ul>';
-		$message .= sprintf( __( 'Please <a href="%s">verify these email addresses</a> with Amazon, or use an email address that has already been verified.', 'wp-offload-ses' ), '#verified-senders' );
+		$message .= sprintf(
+			__(
+				'Please <a href="%s">verify these email addresses</a> with Amazon, or use an email address that has already been verified.',
+				'wp-offload-ses'
+			),
+			'#verified-senders'
+		);
 
 		$args = array(
 			'type'                  => 'error',
@@ -1097,7 +1247,10 @@ class WP_Offload_SES extends Plugin_Base {
 	 */
 	private function check_defined_access_keys() {
 		if ( Amazon_Web_Services::is_any_access_key_constant_defined() && ! $this->get_ses_api()->check_access_keys() ) {
-			$message = __( 'Your AWS Access Keys are invalid, please check the credentials you have defined in your wp-config.php and refresh this page.', 'wp-offload-ses' );
+			$message = __(
+				'Your AWS Access Keys are invalid, please check the credentials you have defined in your wp-config.php and refresh this page.',
+				'wp-offload-ses'
+			);
 			$args    = array(
 				'type'                  => 'error',
 				'only_show_to_user'     => false,
@@ -1138,7 +1291,12 @@ class WP_Offload_SES extends Plugin_Base {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( sanitize_key( $_POST['wposes_override_network_settings'] ), $this->get_settings_nonce_key() ) ) { // input var okay
+		if (
+			! wp_verify_nonce(
+				sanitize_key( $_POST['wposes_override_network_settings'] ),
+				$this->get_settings_nonce_key()
+			)
+		) { // input var okay
 			die( __( "Cheatin' eh?", 'wp-offload-ses' ) );
 		}
 
@@ -1167,7 +1325,12 @@ class WP_Offload_SES extends Plugin_Base {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( sanitize_key( $_POST['wposes_save_settings'] ), $this->get_settings_nonce_key() ) ) { // input var okay
+		if (
+			! wp_verify_nonce(
+				sanitize_key( $_POST['wposes_save_settings'] ),
+				$this->get_settings_nonce_key()
+			)
+		) { // input var okay
 			die( __( "Cheatin' eh?", 'wp-offload-ses' ) );
 		}
 
@@ -1203,7 +1366,10 @@ class WP_Offload_SES extends Plugin_Base {
 	 * @return void
 	 */
 	public function http_prepare_download_log() {
-		if ( isset( $_GET['wposes-download-log'] ) && wp_verify_nonce( $_GET['nonce'], 'wposes-download-log' ) ) { // phpcs:ignore
+		if (
+			isset( $_GET['wposes-download-log'] ) &&
+			wp_verify_nonce( $_GET['nonce'], 'wposes-download-log' )
+		) { // phpcs:ignore
 			$diagnostic_info = new Diagnostic_Info();
 			$log             = $diagnostic_info->output_diagnostic_info( false );
 			$url             = parse_url( home_url() );
@@ -1251,7 +1417,11 @@ class WP_Offload_SES extends Plugin_Base {
 	 * @return string|bool
 	 */
 	public function maybe_decode_subject( string $subject ) {
-		if ( '=?' === substr( $subject, 0, 2 ) && '?=' === substr( $subject, -2 ) && function_exists( 'mb_decode_mimeheader' ) ) {
+		if (
+			'=?' === substr( $subject, 0, 2 ) &&
+			'?=' === substr( $subject, -2 ) &&
+			function_exists( 'mb_decode_mimeheader' )
+		) {
 			return mb_decode_mimeheader( $subject );
 		}
 
@@ -1262,14 +1432,22 @@ class WP_Offload_SES extends Plugin_Base {
 	 * Adds a notice that an email has failed.
 	 */
 	public function add_failed_email_notice() {
+		$url_method = 'self';
+		if ( is_multisite() && ! $this->settings->get_setting( 'enable-subsite-settings', false ) ) {
+			$url_method = 'network';
+		}
+
 		$message = sprintf(
-			__( '<strong>WP Offload SES &mdash; </strong> One or more emails have failed to send. <a href="%s">View failures in the Activity tab</a> or <a href="%s">check out our doc for debugging failed emails</a>.', 'wp-offload-ses' ),
+			__(
+				'<strong>WP Offload SES &mdash; </strong> One or more emails have failed to send. <a href="%s">View failures in the Activity tab</a> or <a href="%s">check out our doc for debugging failed emails</a>.',
+				'wp-offload-ses'
+			),
 			$this->get_plugin_page_url(
 				array(
 					'status' => 'failed',
 					'hash'   => 'activity',
 				),
-				'self'
+				$url_method
 			),
 			$this->dbrains_url(
 				'/wp-offload-ses/doc/general-debugging/',
@@ -1339,7 +1517,10 @@ class WP_Offload_SES extends Plugin_Base {
 		}
 
 		$this->get_email_queue()->process_email( $email_id );
-		$this->trigger_queue();
+
+		if ( ! $this->settings->get_setting( 'enqueue-only', false ) ) {
+			$this->trigger_queue();
+		}
 
 		return true;
 	}
@@ -1379,6 +1560,66 @@ class WP_Offload_SES extends Plugin_Base {
 		$result = wp_remote_post( $request_args['url'], $request_args['args'] );
 
 		return ! is_wp_error( $result );
+	}
+
+	/**
+	 * Delete an email with the provided email id.
+	 *
+	 * @param int $email_id The ID of the email to cancel.
+	 *
+	 * @return bool
+	 */
+	public function delete_email( int $email_id ): bool {
+		if ( ! $email_id ) {
+			return false;
+		}
+
+		// Cancel the email and remove click events if necessary.
+		$this->get_email_queue()->cancel_email( $email_id );
+		$this->get_email_events()->delete_links_by_email( $email_id );
+		$this->get_attachments()->delete_email_attachments( $email_id );
+
+		// Delete the actual email.
+		$delete = $this->get_email_log()->delete_email( $email_id );
+
+		if ( ! $delete ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Maybe delete the successfully sent email.
+	 *
+	 * @param string $email_to
+	 * @param string $email_subject
+	 * @param string $email_message
+	 * @param array  $email_headers
+	 * @param array  $email_attachments
+	 * @param int    $email_id
+	 *
+	 * @return void
+	 *
+	 * @handles wposes_mail_sent
+	 */
+	public function maybe_delete_successful(
+		$email_to,
+		$email_subject,
+		$email_message,
+		$email_headers,
+		$email_attachments,
+		$email_id
+	) {
+		if (
+			empty( $email_id ) ||
+			! is_int( $email_id ) ||
+			! $this->settings->get_setting( 'delete-successful', false )
+		) {
+			return;
+		}
+
+		$this->delete_email( $email_id );
 	}
 
 	/**
