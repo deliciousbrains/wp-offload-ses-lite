@@ -177,7 +177,7 @@ class SsoTokenProvider implements RefreshableTokenProviderInterface
      */
     public static function getTokenLocation($sso_session) : string
     {
-        return self::getHomeDir() . '/.aws/sso/cache/' . \utf8_encode(\sha1($sso_session)) . ".json";
+        return self::getHomeDir() . '/.aws/sso/cache/' . \mb_convert_encoding(\sha1($sso_session), "UTF-8") . ".json";
     }
     /**
      * @param $tokenLocation

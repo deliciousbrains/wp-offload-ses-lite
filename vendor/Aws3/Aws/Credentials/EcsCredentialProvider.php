@@ -3,8 +3,10 @@
 namespace DeliciousBrains\WP_Offload_SES\Aws3\Aws\Credentials;
 
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Exception\CredentialsException;
+use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Exception\ConnectException;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Exception\GuzzleException;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Psr7\Request;
+use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise\PromiseInterface;
 use DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\ResponseInterface;
 /**
@@ -21,24 +23,29 @@ class EcsCredentialProvider
     const ENV_TIMEOUT = 'AWS_METADATA_SERVICE_TIMEOUT';
     const EKS_SERVER_HOST_IPV4 = '169.254.170.23';
     const EKS_SERVER_HOST_IPV6 = 'fd00:ec2::23';
+    const ENV_RETRIES = 'AWS_METADATA_SERVICE_NUM_ATTEMPTS';
+    const DEFAULT_ENV_TIMEOUT = 1.0;
+    const DEFAULT_ENV_RETRIES = 3;
     /** @var callable */
     private $client;
     /** @var float|mixed */
     private $timeout;
+    /** @var int */
+    private $retries;
+    /** @var int */
+    private $attempts;
     /**
      *  The constructor accepts following options:
      *  - timeout: (optional) Connection timeout, in seconds, default 1.0
+     *  - retries: Optional number of retries to be attempted, default 3.
      *  - client: An EcsClient to make request from
      *
      * @param array $config Configuration options
      */
     public function __construct(array $config = [])
     {
-        $timeout = \getenv(self::ENV_TIMEOUT);
-        if (!$timeout) {
-            $timeout = $_SERVER[self::ENV_TIMEOUT] ?? $config['timeout'] ?? 1.0;
-        }
-        $this->timeout = (float) $timeout;
+        $this->timeout = (float) isset($config['timeout']) ? $config['timeout'] : (\getenv(self::ENV_TIMEOUT) ?: self::DEFAULT_ENV_TIMEOUT);
+        $this->retries = (int) isset($config['retries']) ? $config['retries'] : ((int) \getenv(self::ENV_RETRIES) ?: self::DEFAULT_ENV_RETRIES);
         $this->client = $config['client'] ?? \DeliciousBrains\WP_Offload_SES\Aws3\Aws\default_http_handler();
     }
     /**
@@ -49,21 +56,43 @@ class EcsCredentialProvider
      */
     public function __invoke()
     {
-        $client = $this->client;
-        $uri = self::getEcsUri();
+        $this->attempts = 0;
+        $uri = $this->getEcsUri();
         if ($this->isCompatibleUri($uri)) {
-            $request = new Request('GET', $uri);
-            $headers = $this->getHeadersForAuthToken();
-            return $client($request, ['timeout' => $this->timeout, 'proxy' => '', 'headers' => $headers])->then(function (ResponseInterface $response) {
-                $result = $this->decodeResult((string) $response->getBody());
-                return new Credentials($result['AccessKeyId'], $result['SecretAccessKey'], $result['Token'], \strtotime($result['Expiration']));
-            })->otherwise(function ($reason) {
-                $reason = \is_array($reason) ? $reason['exception'] : $reason;
-                $msg = $reason->getMessage();
-                throw new CredentialsException("Error retrieving credentials from container metadata ({$msg})");
+            return Promise\Coroutine::of(function () {
+                $client = $this->client;
+                $request = new Request('GET', $this->getEcsUri());
+                $headers = $this->getHeadersForAuthToken();
+                $credentials = null;
+                while ($credentials === null) {
+                    $credentials = (yield $client($request, ['timeout' => $this->timeout, 'proxy' => '', 'headers' => $headers])->then(function (ResponseInterface $response) {
+                        $result = $this->decodeResult((string) $response->getBody());
+                        return new Credentials($result['AccessKeyId'], $result['SecretAccessKey'], $result['Token'], \strtotime($result['Expiration']), $result['AccountId'] ?? null);
+                    })->otherwise(function ($reason) {
+                        $reason = \is_array($reason) ? $reason['exception'] : $reason;
+                        $isRetryable = $reason instanceof ConnectException;
+                        if ($isRetryable && $this->attempts < $this->retries) {
+                            \sleep((int) \pow(1.2, $this->attempts));
+                        } else {
+                            $msg = $reason->getMessage();
+                            throw new CredentialsException(\sprintf('Error retrieving credentials from container metadata after attempt %d/%d (%s)', $this->attempts, $this->retries, $msg));
+                        }
+                    }));
+                    $this->attempts++;
+                }
+                (yield $credentials);
             });
         }
         throw new CredentialsException("Uri '{$uri}' contains an unsupported host.");
+    }
+    /**
+     * Returns the number of attempts that have been done.
+     *
+     * @return int
+     */
+    public function getAttempts() : int
+    {
+        return $this->attempts;
     }
     /**
      * Retrieves authorization token.

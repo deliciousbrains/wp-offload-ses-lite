@@ -151,7 +151,7 @@ class InstanceProfileProvider
             if (!isset($result)) {
                 $credentials = $previousCredentials;
             } else {
-                $credentials = new Credentials($result['AccessKeyId'], $result['SecretAccessKey'], $result['Token'], \strtotime($result['Expiration']));
+                $credentials = new Credentials($result['AccessKeyId'], $result['SecretAccessKey'], $result['Token'], \strtotime($result['Expiration']), $result['AccountId'] ?? null);
             }
             if ($credentials->isExpired()) {
                 $credentials->extendExpiration();

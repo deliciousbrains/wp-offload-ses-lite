@@ -2,22 +2,28 @@
 # This file is distributed under the same license as the WP Offload SES Lite plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Offload SES Lite 1.7.0\n"
+"Project-Id-Version: WP Offload SES Lite 1.7.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-ses\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-07-01T10:26:01+00:00\n"
+"POT-Creation-Date: 2024-10-04T12:19:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.10.0\n"
+"X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wp-offload-ses\n"
 
 #. Plugin Name of the plugin
 #: wp-ses.php
 #: classes/Health-Report.php:458
 msgid "WP Offload SES Lite"
+msgstr ""
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: wp-ses.php
+msgid "https://deliciousbrains.com/"
 msgstr ""
 
 #. Description of the plugin
@@ -28,11 +34,6 @@ msgstr ""
 #. Author of the plugin
 #: wp-ses.php
 msgid "Delicious Brains"
-msgstr ""
-
-#. Author URI of the plugin
-#: wp-ses.php
-msgid "https://deliciousbrains.com/"
 msgstr ""
 
 #: classes/Activity-List-Table.php:79
@@ -400,50 +401,62 @@ msgid "Africa (Cape Town)"
 msgstr ""
 
 #: classes/SES-API.php:82
-msgid "Asia Pacific (Mumbai)"
+msgid "Asia Pacific (Jakarta)"
 msgstr ""
 
 #: classes/SES-API.php:83
-msgid "Asia Pacific (Seoul)"
+msgid "Asia Pacific (Mumbai)"
 msgstr ""
 
 #: classes/SES-API.php:84
-msgid "Asia Pacific (Singapore)"
+msgid "Asia Pacific (Osaka)"
 msgstr ""
 
 #: classes/SES-API.php:85
-msgid "Asia Pacific (Sydney)"
+msgid "Asia Pacific (Seoul)"
 msgstr ""
 
 #: classes/SES-API.php:86
-msgid "Asia Pacific (Tokyo)"
+msgid "Asia Pacific (Singapore)"
 msgstr ""
 
 #: classes/SES-API.php:87
-msgid "Middle East (Bahrain)"
+msgid "Asia Pacific (Sydney)"
 msgstr ""
 
 #: classes/SES-API.php:88
+msgid "Asia Pacific (Tokyo)"
+msgstr ""
+
+#: classes/SES-API.php:89
+msgid "Israel (Tel Aviv)"
+msgstr ""
+
+#: classes/SES-API.php:90
+msgid "Middle East (Bahrain)"
+msgstr ""
+
+#: classes/SES-API.php:91
 msgid "South America (São Paulo)"
 msgstr ""
 
-#: classes/SES-API.php:169
+#: classes/SES-API.php:172
 msgid "There was an error attempting to receive your SES identities."
 msgstr ""
 
-#: classes/SES-API.php:217
+#: classes/SES-API.php:220
 msgid "There was an error deleting the provided identity."
 msgstr ""
 
-#: classes/SES-API.php:237
+#: classes/SES-API.php:240
 msgid "There was an error retrieving the details of your \"%s\" SES identity."
 msgstr ""
 
-#: classes/SES-API.php:263
+#: classes/SES-API.php:266
 msgid "There was an error attempting to validate the domain."
 msgstr ""
 
-#: classes/SES-API.php:286
+#: classes/SES-API.php:289
 msgid "There was an error attempting to validate the email address."
 msgstr ""
 
