@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Delicious Brains
+# Copyright (C) 2025 Delicious Brains
 # This file is distributed under the same license as the WP Offload SES Lite plugin.
 msgid ""
 msgstr ""
@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-10-04T12:19:56+00:00\n"
+"POT-Creation-Date: 2025-01-24T15:02:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wp-offload-ses\n"
@@ -304,11 +304,11 @@ msgstr ""
 msgid "Documentation"
 msgstr ""
 
-#: classes/Plugin-Base.php:444
+#: classes/Plugin-Base.php:446
 msgid "Support"
 msgstr ""
 
-#: classes/Plugin-Base.php:451
+#: classes/Plugin-Base.php:453
 msgid "Feedback"
 msgstr ""
 

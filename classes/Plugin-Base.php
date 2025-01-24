@@ -210,7 +210,7 @@ abstract class Plugin_Base {
 		if ( isset( $args['hash'] ) ) {
 			$hash = $args['hash'];
 			unset( $args['hash'] );
-		} else if ( $this->default_tab ) {
+		} elseif ( $this->default_tab ) {
 			$hash = $this->default_tab;
 		}
 
@@ -265,7 +265,7 @@ abstract class Plugin_Base {
 	 * @return string
 	 */
 	public function plugins_url( $path ) {
-		return plugins_url( $path, $this->plugin_dir_path . '/wp-offload-ses.php' );
+		return plugins_url( $path, $this->plugin_dir_path . 'wp-offload-ses.php' );
 	}
 
 	/**
@@ -294,7 +294,7 @@ abstract class Plugin_Base {
 	 */
 	public function render_view( $view, $args = array() ) {
 		extract( $args ); // phpcs:ignore
-		include $this->plugin_dir_path . '/view/' . $view . '.php';
+		include $this->plugin_dir_path . 'view/' . $view . '.php';
 	}
 
 	/**
@@ -441,7 +441,9 @@ abstract class Plugin_Base {
 			__( 'Documentation', 'wp-offload-ses' )
 		);
 
-		$links[] = '<a href="' . static::get_plugin_page_url( array( 'hash' => 'support' ) ) . '">' . __( 'Support', 'wp-offload-ses' ) . '</a>';
+		$links[] = '<a href="' . static::get_plugin_page_url(
+				array( 'hash' => 'support' )
+			) . '">' . __( 'Support', 'wp-offload-ses' ) . '</a>';
 
 		$links[] = Utils::dbrains_link(
 			static::dbrains_url(

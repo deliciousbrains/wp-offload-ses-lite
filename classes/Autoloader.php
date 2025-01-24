@@ -2,7 +2,7 @@
 /**
  * Autoloader for WP Offload SES.
  *
- * @author Delicious Brains
+ * @author  Delicious Brains
  * @package WP Offload SES
  */
 
@@ -46,7 +46,7 @@ class Autoloader {
 	 */
 	public function __construct( $prefix, $abspath ) {
 		$this->prefix  = $prefix;
-		$this->abspath = $abspath;
+		$this->abspath = trailingslashit( $abspath );
 
 		$this->register_autoloader();
 	}
@@ -125,7 +125,7 @@ class Autoloader {
 	 */
 	protected function get_classes_directory( $vendor = false ) {
 		$dir = $vendor ? 'vendor' : 'classes';
-		return $this->abspath . DIRECTORY_SEPARATOR . $dir . DIRECTORY_SEPARATOR;
-	}
 
+		return trailingslashit( $this->abspath . $dir );
+	}
 }
