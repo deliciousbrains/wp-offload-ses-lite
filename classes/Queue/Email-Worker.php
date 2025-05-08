@@ -34,7 +34,17 @@ class Email_Worker extends Worker {
 	}
 
 	/**
-	 * Process a job on the queue.
+	 * Process a job on the queue, adding it to the command pool.
+	 *
+	 * The command pool will be executed if there are no more jobs, or
+	 * if the batch send limit (concurrency) is reached.
+	 *
+	 * Returns false if:
+	 *  - no job was retrieved but there are still jobs to process; or
+	 *  - the AWS command for the job could not be constructed.
+	 *
+	 * Returns true otherwise, but note that this does not mean the job
+	 * was added to the command pool; it may have been failed or released.
 	 *
 	 * @return bool
 	 */
@@ -46,29 +56,26 @@ class Email_Worker extends Worker {
 			if ( 0 !== $this->connection->jobs( true ) ) {
 				/**
 				 * We couldn't get the job, but there are still unreserved jobs.
-				 * This shouldn't happen, so let's log an error and fire off the command pool just in case.
+				 * This shouldn't happen, so let's log an error and bail.
 				 */
 				new Error(
 					Error::$job_retrieval_failure,
 					__( 'There was an error retrieving the job while processing the queue.', 'wp-offload-ses' )
 				);
-
-				if ( 0 !== count( $this->command_pool->commands ) ) {
-					$this->command_pool->execute();
-				}
 			}
 
 			return false;
 		}
 
-		try {
-			if ( $job->attempts() >= $this->attempts ) {
-				$job->release();
-			} else {
-				$command = $job->handle();
-			}
-		} catch ( Exception $exception ) {
+		// Assemble command unless job already reached current attempts limit.
+		if ( $job->attempts() >= $this->attempts ) {
 			$job->release();
+		} else {
+			try {
+				$command = $job->handle();
+			} catch ( Exception $exception ) {
+				$job->release();
+			}
 		}
 
 		if ( $job->released() && $job->attempts() >= $this->attempts ) {
@@ -78,34 +85,44 @@ class Email_Worker extends Worker {
 			$job->fail();
 		}
 
+		// Record failed job and shortcut out.
 		if ( $job->failed() ) {
 			$this->connection->failure( $job, $exception );
-		} else {
-			if ( ! $job->released() ) {
-				if ( empty( $command ) ) {
-					/**
-					 * We couldn't get the job's command.
-					 * This shouldn't happen, so let's log an error and fire off the command pool just in case.
-					 */
-					new Error(
-						Error::$cmd_construction_failure,
-						__( 'There was an error constructing the job while processing the queue.', 'wp-offload-ses' )
-					);
 
-					if ( 0 !== count( $this->command_pool->commands ) ) {
-						$this->command_pool->execute();
-					}
-
-					return false;
-				}
-
-				$this->command_pool->add_command( $command );
-			} else {
-				$this->connection->release( $job );
-			}
+			return true;
 		}
+
+		// Record unhandled job and shortcut out.
+		if ( $job->released() ) {
+			$this->connection->release( $job );
+
+			return true;
+		}
+
+		if ( empty( $command ) ) {
+			/**
+			 * We couldn't get the job's command.
+			 * This shouldn't happen, so let's log an error and bail.
+			 */
+			new Error(
+				Error::$cmd_construction_failure,
+				__( 'There was an error constructing the job while processing the queue.', 'wp-offload-ses' )
+			);
+
+			return false;
+		}
+
+		$this->command_pool->add_command( $command );
 
 		return true;
 	}
 
+	/**
+	 * Execute any commands already retrieved.
+	 *
+	 * @return void
+	 */
+	public function cleanup() {
+		$this->command_pool->execute();
+	}
 }

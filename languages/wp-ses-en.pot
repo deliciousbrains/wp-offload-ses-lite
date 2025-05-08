@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the WP Offload SES Lite plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP Offload SES Lite 1.7.1\n"
+"Project-Id-Version: WP Offload SES Lite 1.7.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-ses\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-01-24T15:02:36+00:00\n"
+"POT-Creation-Date: 2025-05-08T14:43:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: wp-offload-ses\n"
@@ -115,8 +115,8 @@ msgstr ""
 msgid "You must first <a href=\"%s\">set your AWS access keys</a> to use this plugin."
 msgstr ""
 
-#: classes/Command-Pool.php:132
-#: classes/Command-Pool.php:185
+#: classes/Command-Pool.php:161
+#: classes/Command-Pool.php:214
 msgid "Failed to retrieve the job while executing the command pool."
 msgstr ""
 
@@ -312,11 +312,11 @@ msgstr ""
 msgid "Feedback"
 msgstr ""
 
-#: classes/Queue/Email-Worker.php:53
+#: classes/Queue/Email-Worker.php:63
 msgid "There was an error retrieving the job while processing the queue."
 msgstr ""
 
-#: classes/Queue/Email-Worker.php:92
+#: classes/Queue/Email-Worker.php:109
 msgid "There was an error constructing the job while processing the queue."
 msgstr ""
 
@@ -440,23 +440,23 @@ msgstr ""
 msgid "South America (São Paulo)"
 msgstr ""
 
-#: classes/SES-API.php:172
+#: classes/SES-API.php:183
 msgid "There was an error attempting to receive your SES identities."
 msgstr ""
 
-#: classes/SES-API.php:220
+#: classes/SES-API.php:231
 msgid "There was an error deleting the provided identity."
 msgstr ""
 
-#: classes/SES-API.php:240
+#: classes/SES-API.php:251
 msgid "There was an error retrieving the details of your \"%s\" SES identity."
 msgstr ""
 
-#: classes/SES-API.php:266
+#: classes/SES-API.php:277
 msgid "There was an error attempting to validate the domain."
 msgstr ""
 
-#: classes/SES-API.php:289
+#: classes/SES-API.php:300
 msgid "There was an error attempting to validate the email address."
 msgstr ""
 

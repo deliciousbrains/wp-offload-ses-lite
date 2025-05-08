@@ -35,10 +35,12 @@ class Command_Pool {
 	 *
 	 * @var array
 	 */
-	public $commands = array();
+	private $commands = array();
 
 	/**
 	 * The maximum concurrency for the AWS CommandPool.
+	 *
+	 * Equates to the number of emails that we can send per second.
 	 *
 	 * @var int
 	 */
@@ -50,6 +52,20 @@ class Command_Pool {
 	 * @var Connection
 	 */
 	private $connection;
+
+	/**
+	 * How many emails have been sent within this interval.
+	 *
+	 * @var int
+	 */
+	private $send_count = 0;
+
+	/**
+	 * When did this sending interval start.
+	 *
+	 * @var int
+	 */
+	private $send_started_at = 0;
 
 	/**
 	 * Construct the Command_Pool class.
@@ -65,16 +81,17 @@ class Command_Pool {
 	/**
 	 * Add a command to be run via the CommandPool.
 	 *
+	 * If there are no more jobs to process, or if the batch send rate has been
+	 * reached, the command pool will be executed.
+	 *
 	 * @param Command $command The command to add.
 	 */
 	public function add_command( Command $command ) {
 		$this->commands[] = $command;
-		$num_commands     = count( $this->commands );
 
 		// Execute if we've reached our max concurrency, or if there are no more unreserved jobs.
-		if ( $this->get_concurrency() <= $num_commands || 0 === $this->connection->jobs( true ) ) {
+		if ( $this->get_concurrency() <= $this->num_commands() || 0 === $this->connection->jobs( true ) ) {
 			$this->execute();
-			$this->commands = array();
 		}
 	}
 
@@ -98,15 +115,27 @@ class Command_Pool {
 			$send_rate = $quota['rate'];
 		}
 
-		$this->concurrency = (int) apply_filters( 'wposes_max_concurrency', $send_rate );
+		$send_rate         = (int) apply_filters( 'wposes_max_concurrency', $send_rate );
+		$this->concurrency = max( 1, min( PHP_INT_MAX, $send_rate ) );
 
 		return $this->concurrency;
 	}
 
 	/**
-	 * Create the command pool and execute the commands.
+	 * Create the AWS command pool and execute the commands.
+	 *
+	 * Does nothing if there are no commands in the pool.
+	 *
+	 * Empties the command pool once the commands have all attempted execution.
 	 */
 	public function execute() {
+		if ( 0 === $this->num_commands() ) {
+			return;
+		}
+
+		// Comply with SES per second rate limit.
+		$this->maybe_wait_for_rate_limit_reset();
+
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
@@ -209,5 +238,100 @@ class Command_Pool {
 		// Send the emails in the pool.
 		$promise = $command_pool->promise();
 		$promise->wait();
+
+		// One way or another we're done with the current commands.
+		$this->clear();
+	}
+
+	/**
+	 * How many commands are in the pool?
+	 *
+	 * @return int
+	 */
+	public function num_commands(): int {
+		return count( $this->commands );
+	}
+
+	/**
+	 * Empty the command pool.
+	 *
+	 * @return void
+	 */
+	public function clear() {
+		$this->commands = array();
+	}
+
+	/**
+	 * Determines whether the current second needs to be ticked down
+	 * before another batch of items can be processed, and does so.
+	 *
+	 * Keeps track of how many emails have been sent in the current second,
+	 * making sure that if the next batch would exceed the rate limit, then
+	 * the wait happens and the count is updated appropriately.
+	 *
+	 * @return void
+	 */
+	private function maybe_wait_for_rate_limit_reset() {
+		if ( ! $this->send_started() ) {
+			$this->start_send();
+
+			return;
+		}
+
+		// Update current send interval's item count.
+		$this->send_count += $this->num_commands();
+
+		if ( ! $this->rate_limit_exceeded() ) {
+			return;
+		}
+
+		$this->maybe_wait_until_next_second();
+
+		$this->start_send();
+	}
+
+	/**
+	 * Have we already started a sending interval?
+	 *
+	 * @return bool
+	 */
+	private function send_started(): bool {
+		return 0 !== $this->send_started_at && 0 !== $this->send_count;
+	}
+
+	/**
+	 * Start a new send interval.
+	 *
+	 * @return void
+	 */
+	private function start_send(): void {
+		$this->send_count      = $this->num_commands();
+		$this->send_started_at = time();
+	}
+
+	/**
+	 * Has the rate limit been exceeded for the current send interval?
+	 *
+	 * @return bool
+	 */
+	private function rate_limit_exceeded(): bool {
+		if ( $this->get_concurrency() < $this->send_count ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * If a second hasn't ticked over since last send started, wait until it has.
+	 *
+	 * @return void
+	 */
+	private function maybe_wait_until_next_second(): void {
+		$next_send_time = $this->send_started_at + 1;
+
+		if ( time() < $next_send_time ) {
+			time_sleep_until( $next_send_time );
+		}
 	}
 }

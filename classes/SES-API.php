@@ -120,6 +120,17 @@ class SES_API {
 	/**
 	 * Get the sending quota.
 	 *
+	 * Returns an array in the form:
+	 *
+	 * [
+	 *   'used'  => float,  // Percentage of the quota used over the last 24 hours
+	 *   'limit' => string, // The maximum number of emails that can be sent in a 24 hour period
+	 *   'sent'  => string, // The number of emails sent in the last 24 hours
+	 *   'rate'  => string, // The maximum number of emails that can be sent per second
+	 * ]
+	 *
+	 * Returns an OSES Error object if the quotas could not be retrieved.
+	 *
 	 * @return array|Error
 	 */
 	public function get_send_quota() {

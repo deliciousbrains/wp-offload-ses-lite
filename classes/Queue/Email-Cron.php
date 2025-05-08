@@ -11,6 +11,10 @@ use DeliciousBrains\WP_Offload_SES\WP_Queue\Cron;
  * @since 1.1
  */
 class Email_Cron extends Cron {
+	/**
+	 * @var Email_Worker
+	 */
+	protected $worker;
 
 	/**
 	 * Cron constructor.
@@ -63,10 +67,16 @@ class Email_Cron extends Cron {
 		update_option( 'wposes_last_cron_run', $this->start_time );
 
 		while ( ! $this->time_exceeded() && ! $this->memory_exceeded() ) {
+			// Puts the next job into the command pool.
+			// If the command pool is full (we've hit the per second rate limit),
+			// or queue emptied, the command pool will be executed and cleared.
 			if ( ! $this->worker->process() ) {
 				break;
 			}
 		}
+
+		// Executes remaining commands in the command pool.
+		$this->worker->cleanup();
 
 		$this->unlock_worker();
 	}

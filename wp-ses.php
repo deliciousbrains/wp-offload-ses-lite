@@ -3,7 +3,7 @@
 Plugin Name: WP Offload SES Lite
 Description: Automatically send WordPress mail through Amazon SES (Simple Email Service).
 Author: Delicious Brains
-Version: 1.7.1
+Version: 1.7.2
 Author URI: https://deliciousbrains.com/
 Plugin URI: https://deliciousbrains.com/
 Update URI: false
@@ -32,7 +32,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$GLOBALS['wposes_meta']['wp-ses']['version'] = '1.7.1';
+// Avoid clash with WP Offload SES (Pro) if both installed as must-use plugins.
+if ( defined( 'WPOSES_FILE' ) ) {
+	return;
+}
+
+$GLOBALS['wposes_meta']['wp-ses']['version'] = '1.7.2';
 
 if ( ! defined( 'WPOSESLITE_FILE' ) ) {
 	// Defines the path to the main plugin file.
@@ -105,11 +110,13 @@ add_action( 'init', 'wp_offload_ses_lite_init', 1 );
  * @return string
  */
 function wposes_lite_get_plugin_dir_path() {
-	$abspath = wp_normalize_path( dirname( WPOSESLITE_FILE ) );
-	$mu_path = wp_normalize_path( WPMU_PLUGIN_DIR );
+	$abspath    = wp_normalize_path( dirname( WPOSESLITE_FILE ) );
+	$mu_path    = $abspath . '/wp-ses';
+	$core_class = '/classes/WP-Offload-SES.php';
 
-	if ( $mu_path === $abspath ) {
-		$abspath = $abspath . '/wp-ses/';
+	// Is entry point file in directory above where plugin's files are?
+	if ( file_exists( $mu_path . $core_class ) ) {
+		$abspath = $mu_path;
 	}
 
 	return trailingslashit( $abspath );
