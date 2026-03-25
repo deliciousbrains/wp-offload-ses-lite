@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
 use DeliciousBrains\WP_Offload_SES\Queue\Queue_Status;
 
@@ -39,7 +43,7 @@ class Diagnostic_Info {
 		$output .= "\r\n";
 
 		$output .= 'Web Server: ';
-		$output .= esc_html( ! empty( $_SERVER['SERVER_SOFTWARE'] ) ? $_SERVER['SERVER_SOFTWARE'] : '' );
+		$output .= esc_html( ! empty( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '' );
 		$output .= "\r\n";
 
 		$output .= 'WordPress: ';
@@ -404,7 +408,7 @@ class Diagnostic_Info {
 			$plugin_data['Name'],
 			$suffix,
 			$plugin_data['Version'],
-			strip_tags( $plugin_data['AuthorName'] )
+			wp_strip_all_tags( $plugin_data['AuthorName'] )
 		);
 	}
 
@@ -421,7 +425,7 @@ class Diagnostic_Info {
 
 		$value = $wp_offload_ses->settings->get_setting( $key, 0 );
 
-		return ( 1 == $value ) ? 'On' : 'Off';
+		return ( 1 === $value ) ? 'On' : 'Off';
 	}
 
 	/**

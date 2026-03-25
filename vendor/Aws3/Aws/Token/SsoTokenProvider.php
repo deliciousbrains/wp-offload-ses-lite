@@ -28,7 +28,7 @@ class SsoTokenProvider implements RefreshableTokenProviderInterface
      * @param string|null $configFilePath Name of the config file to sso profile from
      * @param SSOOIDCClient|null $ssoOidcClient The sso client for generating a new token
      */
-    public function __construct($profileName, $configFilePath = null, SSOOIDCClient $ssoOidcClient = null)
+    public function __construct($profileName, $configFilePath = null, ?SSOOIDCClient $ssoOidcClient = null)
     {
         $this->profileName = $this->resolveProfileName($profileName);
         $this->configFilePath = $this->resolveConfigFile($configFilePath);
@@ -44,10 +44,10 @@ class SsoTokenProvider implements RefreshableTokenProviderInterface
      *
      * @return string
      */
-    private function resolveProfileName($argProfileName) : string
+    private function resolveProfileName($argProfileName): string
     {
         if (empty($argProfileName)) {
-            return \getenv(self::ENV_PROFILE) ?: 'default';
+            return getenv(self::ENV_PROFILE) ?: 'default';
         } else {
             return $argProfileName;
         }
@@ -61,7 +61,7 @@ class SsoTokenProvider implements RefreshableTokenProviderInterface
      *
      * @return string
      */
-    private function resolveConfigFile($argConfigFilePath) : string
+    private function resolveConfigFile($argConfigFilePath): string
     {
         if (empty($argConfigFilePath)) {
             return self::getHomeDir() . '/.aws/config';
@@ -77,7 +77,7 @@ class SsoTokenProvider implements RefreshableTokenProviderInterface
     public function __invoke()
     {
         return Promise\Coroutine::of(function () {
-            if (empty($this->configFilePath) || !\is_readable($this->configFilePath)) {
+            if (empty($this->configFilePath) || !is_readable($this->configFilePath)) {
                 throw new TokenException("Cannot read profiles from {$this->configFilePath}");
             }
             $profiles = self::loadProfiles($this->configFilePath);
@@ -108,7 +108,7 @@ class SsoTokenProvider implements RefreshableTokenProviderInterface
             if ($ssoToken->isExpired()) {
                 throw new TokenException("Cached SSO token returned an expired token.");
             }
-            (yield $ssoToken);
+            yield $ssoToken;
         });
     }
     /**
@@ -119,7 +119,7 @@ class SsoTokenProvider implements RefreshableTokenProviderInterface
      * @return array
      * @throws TokenException
      */
-    public function refresh() : array
+    public function refresh(): array
     {
         $tokenLocation = self::getTokenLocation($this->ssoSessionName);
         $tokenData = $this->getTokenData($tokenLocation);
@@ -145,7 +145,7 @@ class SsoTokenProvider implements RefreshableTokenProviderInterface
             throw new TokenException('Unable to create a new sso token');
         }
         $tokenData['accessToken'] = $response['accessToken'];
-        $tokenData['expiresAt'] = \time() + $response['expiresIn'];
+        $tokenData['expiresAt'] = time() + $response['expiresIn'];
         $tokenData['refreshToken'] = $response['refreshToken'];
         return $this->writeNewTokenDataToDisk($tokenData, $tokenLocation);
     }
@@ -157,15 +157,15 @@ class SsoTokenProvider implements RefreshableTokenProviderInterface
      *
      * @return bool
      */
-    public function shouldAttemptRefresh() : bool
+    public function shouldAttemptRefresh(): bool
     {
         $tokenLocation = self::getTokenLocation($this->ssoSessionName);
         $tokenData = $this->getTokenData($tokenLocation);
         if (empty($tokenData['expiresAt'])) {
             throw new TokenException("Token file at {$tokenLocation} must contain an expiration date");
         }
-        $tokenExpiresAt = \strtotime($tokenData['expiresAt']);
-        $lastRefreshAt = \filemtime($tokenLocation);
+        $tokenExpiresAt = strtotime($tokenData['expiresAt']);
+        $lastRefreshAt = filemtime($tokenLocation);
         $now = \time();
         // If last refresh happened after 30 seconds
         // and if the token expiration is in the 5 minutes window
@@ -175,20 +175,20 @@ class SsoTokenProvider implements RefreshableTokenProviderInterface
      * @param $sso_session
      * @return string
      */
-    public static function getTokenLocation($sso_session) : string
+    public static function getTokenLocation($sso_session): string
     {
-        return self::getHomeDir() . '/.aws/sso/cache/' . \mb_convert_encoding(\sha1($sso_session), "UTF-8") . ".json";
+        return self::getHomeDir() . '/.aws/sso/cache/' . mb_convert_encoding(sha1($sso_session), "UTF-8") . ".json";
     }
     /**
      * @param $tokenLocation
      * @return array
      */
-    function getTokenData($tokenLocation) : array
+    function getTokenData($tokenLocation): array
     {
-        if (empty($tokenLocation) || !\is_readable($tokenLocation)) {
+        if (empty($tokenLocation) || !is_readable($tokenLocation)) {
             throw new TokenException("Unable to read token file at {$tokenLocation}");
         }
-        return \json_decode(\file_get_contents($tokenLocation), \true);
+        return json_decode(file_get_contents($tokenLocation), \true);
     }
     /**
      * @param $tokenData
@@ -202,10 +202,10 @@ class SsoTokenProvider implements RefreshableTokenProviderInterface
                 throw new TokenException("Token file at {$tokenLocation} must contain the required property `{$requiredProp}`");
             }
         }
-        $expiration = \strtotime($tokenData['expiresAt']);
+        $expiration = strtotime($tokenData['expiresAt']);
         if ($expiration === \false) {
             throw new TokenException("Cached SSO token returned an invalid expiration");
-        } elseif ($expiration < \time()) {
+        } elseif ($expiration < time()) {
             throw new TokenException("Cached SSO token returned an expired token");
         }
         return $tokenData;
@@ -216,10 +216,10 @@ class SsoTokenProvider implements RefreshableTokenProviderInterface
      *
      * @return array
      */
-    private function writeNewTokenDataToDisk(array $tokenData, $tokenLocation) : array
+    private function writeNewTokenDataToDisk(array $tokenData, $tokenLocation): array
     {
-        $tokenData['expiresAt'] = \gmdate('Y-m-d\\TH:i:s\\Z', $tokenData['expiresAt']);
-        \file_put_contents($tokenLocation, \json_encode(\array_filter($tokenData)));
+        $tokenData['expiresAt'] = gmdate('Y-m-d\TH:i:s\Z', $tokenData['expiresAt']);
+        file_put_contents($tokenLocation, json_encode(array_filter($tokenData)));
         return $tokenData;
     }
 }

@@ -32,16 +32,16 @@ class PhpHash implements HashInterface
         if ($this->hash !== null) {
             $this->reset();
         }
-        \hash_update($this->getContext(), $data);
+        hash_update($this->getContext(), $data);
     }
     public function complete()
     {
         if ($this->hash) {
             return $this->hash;
         }
-        $this->hash = \hash_final($this->getContext(), \true);
+        $this->hash = hash_final($this->getContext(), \true);
         if (isset($this->options['base64']) && $this->options['base64']) {
-            $this->hash = \base64_encode($this->hash);
+            $this->hash = base64_encode($this->hash);
         }
         return $this->hash;
     }
@@ -58,7 +58,7 @@ class PhpHash implements HashInterface
     {
         if (!$this->context) {
             $key = isset($this->options['key']) ? $this->options['key'] : '';
-            $this->context = \hash_init($this->algo, $key ? \HASH_HMAC : 0, $key);
+            $this->context = hash_init($this->algo, $key ? \HASH_HMAC : 0, $key);
         }
         return $this->context;
     }

@@ -1,5 +1,6 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Carbon package.
  *
@@ -27,7 +28,7 @@ class UnknownSetterException extends BaseInvalidArgumentException implements Bad
      * @param int            $code
      * @param Throwable|null $previous
      */
-    public function __construct($setter, $code = 0, Throwable $previous = null)
+    public function __construct($setter, $code = 0, ?Throwable $previous = null)
     {
         $this->setter = $setter;
         parent::__construct("Unknown setter '{$setter}'", $code, $previous);

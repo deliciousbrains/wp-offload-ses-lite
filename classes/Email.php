@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class Email
  *
@@ -205,7 +209,9 @@ class Email {
 			}
 		}
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WP core hook for wp_mail() compatibility.
 		$this->mail->From     = apply_filters( 'wp_mail_from', $this->from );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WP core hook for wp_mail() compatibility.
 		$this->mail->FromName = trim( apply_filters( 'wp_mail_from_name', $this->from_name ), '" ' );
 
 		// Log the email address if it isn't verified.
@@ -408,6 +414,7 @@ class Email {
 	 */
 	private function content_type() {
 		if ( is_null( $this->content_type ) ) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WP core hook for wp_mail() compatibility.
 			$this->content_type = apply_filters( 'wp_mail_content_type', 'text/plain' );
 		}
 
@@ -426,6 +433,7 @@ class Email {
 			$this->charset = get_bloginfo( 'charset' );
 		}
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WP core hook for wp_mail() compatibility.
 		$this->mail->CharSet = apply_filters( 'wp_mail_charset', $this->charset );
 	}
 
@@ -489,6 +497,7 @@ class Email {
 		}
 
 		// Fires after PHPMailer is initialized.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		do_action_ref_array( 'phpmailer_init', array( &$this->mail ) );
 
 		try {
@@ -626,28 +635,26 @@ class Email {
 
 		$attachment_links = $wp_offload_ses->get_attachments()->get_attachment_links( $email_data['id'] );
 		if ( ! empty( $attachment_links ) ) {
-			$attachments = '<hr />' . _n( 'Attachment: ', 'Attachments: ', count( $attachment_links ), 'wp-offload-ses' ) . implode( ', ', $attachment_links );
+			$attachments = '<hr />' . esc_html( _n( 'Attachment: ', 'Attachments: ', count( $attachment_links ), 'wp-offload-ses' ) ) . implode( ', ', $attachment_links );
 		}
 		?>
 		<div id="wposes-email-wrap">
 			<h3 id="wposes-email-subject"><?php echo esc_html( $this->mail->Subject ); ?></h3>
-			<span id="wposes-email-from"><?php printf( __( 'From: %1$s &lt;%2$s&gt;', 'wp-offload-ses' ), $this->mail->FromName, $this->mail->From ); ?></span>
-			<span id="wposes-email-to"><?php printf( __( 'To: %s', 'wp-offload-ses' ), $to ); ?></span>
-			<span id="wposes-email-sent"><?php echo $sent; ?></span>
+			<span id="wposes-email-from"><?php echo esc_html( sprintf( __( 'From: %1$s <%2$s>', 'wp-offload-ses' ), $this->mail->FromName, $this->mail->From ) ); ?></span>
+			<span id="wposes-email-to"><?php echo esc_html( sprintf( __( 'To: %s', 'wp-offload-ses' ), $to ) ); ?></span>
+			<span id="wposes-email-sent"><?php echo esc_html( $sent ); ?></span>
 
-			<div id="wposes-email-content"><?php echo $body; ?></div>
-
-			<span id="wposes-email-attachments"><?php echo $attachments; ?></span>
+			<div id="wposes-email-content"><?php echo wp_kses_post( $body ); ?></div>
 
 			<div class="actions select">
 				<span id="wposes-email-info" style="float: left;">
-					<span id="wposes-email-status"><?php echo $status; ?></span>
-					<span id="wposes-email-opens"><?php echo $opens; ?></span>
-					<span id="wposes-email-clicks"><?php echo $clicks; ?></span>
+					<span id="wposes-email-status"><?php echo esc_html( $status ); ?></span>
+					<span id="wposes-email-opens"><?php echo esc_html( $opens ); ?></span>
+					<span id="wposes-email-clicks"><?php echo esc_html( $clicks ); ?></span>
 				</span>
 
 				<span id="wposes-email-actions" style="float: right">
-					<?php echo implode( ' | ', $actions ); ?>
+					<?php echo wp_kses_post( implode( ' | ', $actions ) ); ?>
 				</span>
 			</div>
 		</div>

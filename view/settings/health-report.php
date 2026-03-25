@@ -1,31 +1,36 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 $args          = $this->settings->get_setting_args( 'enable-health-report' );
 $args['value'] = $this->settings->get_setting( 'enable-health-report' );
 $style         = $args['value'] ? '' : 'style="display:none;"';
 ?>
-<tr class="<?php echo $args['tr_class'];?>">
+<tr class="<?php echo esc_attr( $args['tr_class'] ); ?>">
 	<td>
 		<?php $this->render_view( 'elements/checkbox', $args ); ?>
 	</td>
 	<td>
-		<?php echo $args['setting_msg']; ?>
-		<h4><?php _e( 'Email Sending Health Report', 'wp-offload-ses' ); ?></h4>
+		<?php echo wp_kses_post( $args['setting_msg'] ); ?>
+		<h4><?php esc_html_e( 'Email Sending Health Report', 'wp-offload-ses' ); ?></h4>
 		<p>
-			<?php _e( 'An emailed report summarizing recent email successes, failures, and statistics.', 'wp-offload-ses' ); ?>
+			<?php esc_html_e( 'An emailed report summarizing recent email successes, failures, and statistics.', 'wp-offload-ses' ); ?>
 		</p>
 
-		<table id="wposes-health-report-sub-settings" <?php echo $style; ?>>
+		<table id="wposes-health-report-sub-settings" <?php echo wp_kses_post( $style ); ?>>
 			<?php
 			$args            = $this->settings->get_setting_args( 'health-report-frequency' );
 			$args['options'] = $this->get_health_report()->get_available_frequencies();
 			?>
-			<tr class="<?php echo $args['tr_class']; ?>">
-				<td><h4><?php _e( 'Frequency', 'wp-offload-ses' ); ?></h4></td>
+			<tr class="<?php echo esc_attr( $args['tr_class'] ); ?>">
+				<td><h4><?php esc_html_e( 'Frequency', 'wp-offload-ses' ); ?></h4></td>
 				<td>
 					<?php $this->render_view( 'elements/select', $args ); ?>
 					<a class="general-helper wposes-frequency-helper" href="#"></a>
 					<span class="helper-message bottom">
-						<?php _e( 'Daily reports will be sent the next day. Weekly reports will send out at the beginning of the week, and monthly reports will be sent on the first day of the month.', 'wp-offload-ses' ); ?>
+						<?php esc_html_e( 'Daily reports will be sent the next day. Weekly reports will send out at the beginning of the week, and monthly reports will be sent on the first day of the month.', 'wp-offload-ses' ); ?>
 					</span>
 				</td>
 			</tr>
@@ -37,8 +42,8 @@ $style         = $args['value'] ? '' : 'style="display:none;"';
 			$args['options'] = $this->get_health_report()->get_available_recipients();
 			?>
 
-			<tr class="<?php echo $args['tr_class']; ?>">
-				<td><h4><?php _e( 'Recipients', 'wp-offload-ses' ); ?></h4></td>
+			<tr class="<?php echo esc_attr( $args['tr_class'] ); ?>">
+				<td><h4><?php esc_html_e( 'Recipients', 'wp-offload-ses' ); ?></h4></td>
 				<td><?php $this->render_view( 'elements/select', $args ); ?></td>
 			</tr>
 
@@ -47,7 +52,7 @@ $style         = $args['value'] ? '' : 'style="display:none;"';
 			$style = $args['value'] === 'custom' ? '' : 'style="display:none;"';
 			$args  = $this->settings->get_setting_args( 'health-report-custom-recipients' );
 			?>
-			<tr class="<?php echo $args['tr_class']; ?>" <?php echo $style; ?>>
+			<tr class="<?php echo esc_attr( $args['tr_class'] ); ?>" <?php echo wp_kses_post( $style ); ?>>
 				<td></td>
 				<td>
 					<?php 
@@ -61,11 +66,14 @@ $style         = $args['value'] ? '' : 'style="display:none;"';
 
 						$this->render_view( 'elements/text-field', $args );
 						echo '<br>';
-						_e( 'Comma separated list of email addresses.', 'wp-offload-ses' );
+						esc_html_e( 'Comma separated list of email addresses.', 'wp-offload-ses' );
 					} else {
-						printf(
-							__( '<a href="%s">Upgrade</a> to define a custom list of report recipients.', 'wp-offload-ses' ),
-							$this->dbrains_url( '/wp-offload-ses/' )
+						echo wp_kses(
+							sprintf(
+								__( '<a href="%s">Upgrade</a> to define a custom list of report recipients.', 'wp-offload-ses' ),
+								esc_url( $this->dbrains_url( '/wp-offload-ses/' ) )
+							),
+							array( 'a' => array( 'href' => array() ) )
 						);
 					}
 					?>

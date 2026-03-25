@@ -1,10 +1,10 @@
 === WP Offload SES Lite ===
-Contributors: wpengine, deliciousbrains, ianmjones, eriktorsner, kevinwhoffman, mattshaw, bradt, SylvainDeaure
+Contributors: wpengine, deliciousbrains, callumbw95, ianmjones, eriktorsner, kevinwhoffman, mattshaw, bradt, SylvainDeaure
 Tags: amazon ses,smtp,email delivery,gmail smtp,newsletter
-Requires at least: 5.3
-Tested up to: 6.8
-Requires PHP: 7.4
-Stable tag: 1.7.2
+Requires at least: 5.9
+Tested up to: 7.0
+Requires PHP: 8.1
+Stable tag: 1.8.0
 License: GPLv2
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
@@ -184,6 +184,21 @@ Please double check the credentials match up with the credentials you received w
 4. Activity tab
 
 == Changelog ==
+
+= 1.8.0 - 2026-03-25 =
+* New: AWS PHP SDK has been updated to v3.369.22
+* New: PHP 8.4 compatible
+* New: PHP 8.5 compatible
+* New: Requires PHP 8.1+
+* New: WordPress 7.0 compatible
+* New: Requires WordPress 5.9+
+* New: Amazon SES regions Asia Pacific (Hyderabad), Asia Pacific (Malaysia), Canada West (Calgary), Europe (Zurich) and Middle East (UAE) are now selectable
+* New: Email Sending Health Report subject line now includes failure count when failures are present
+* New: PHP and JS dependencies have been updated
+* Improvement: Setup wizard step order and AWS sandbox instructions updated to match current AWS process
+* Improvement: Activity and Reports admin table filters/search controls now align correctly and use WordPress admin theme colors for improved WordPress 7.0 compatibility
+* Bug fix: Add New Verified Senders button is now visible when there are no verified senders
+* Bug fix: Purge Logs tool is no longer displayed on the final step of the setup wizard
 
 = 1.7.2 - 2025-05-08 =
 * Bug fix: Detecting whether running as a must-use plugin is now more robust

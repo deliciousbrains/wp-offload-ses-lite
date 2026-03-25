@@ -8,9 +8,9 @@ class Configuration implements ConfigurationInterface
     private $isFallback;
     public function __construct($endpointsType, $isFallback = \false)
     {
-        $this->endpointsType = \strtolower($endpointsType);
+        $this->endpointsType = strtolower($endpointsType);
         $this->isFallback = $isFallback;
-        if (!\in_array($this->endpointsType, ['legacy', 'regional'])) {
+        if (!in_array($this->endpointsType, ['legacy', 'regional'])) {
             throw new \InvalidArgumentException("Configuration parameter must either be 'legacy' or 'regional'.");
         }
     }

@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DOMDocument;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -226,7 +230,7 @@ class Email_Events {
 					'UTF-8',
 					get_bloginfo( 'charset' )
 				),
-				[ 0x80, 0x10FFFF, 0, ~0 ],
+				array( 0x80, 0x10FFFF, 0, ~0 ),
 				'UTF-8'
 			);
 		}
@@ -461,5 +465,4 @@ class Email_Events {
 				) $charset_collate;";
 		dbDelta( $sql );
 	}
-
 }

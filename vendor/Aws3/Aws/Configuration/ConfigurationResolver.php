@@ -27,12 +27,12 @@ class ConfigurationResolver
     {
         $iniOptions = isset($config['ini_resolver_options']) ? $config['ini_resolver_options'] : [];
         $envValue = self::env($key, $expectedType);
-        if (!\is_null($envValue)) {
+        if (!is_null($envValue)) {
             return $envValue;
         }
         if (!isset($config['use_aws_shared_config_files']) || $config['use_aws_shared_config_files'] != \false) {
             $iniValue = self::ini($key, $expectedType, null, null, $iniOptions);
-            if (!\is_null($iniValue)) {
+            if (!is_null($iniValue)) {
                 return $iniValue;
             }
         }
@@ -47,10 +47,10 @@ class ConfigurationResolver
      *
      * @return null | mixed
      */
-    public static function env($key, $expectedType)
+    public static function env($key, $expectedType = 'string')
     {
         // Use config from environment variables, if available
-        $envValue = \getenv(self::$envPrefix . \strtoupper($key));
+        $envValue = getenv(self::$envPrefix . strtoupper($key));
         if (!empty($envValue)) {
             if ($expectedType) {
                 $envValue = self::convertType($envValue, $expectedType);
@@ -78,8 +78,8 @@ class ConfigurationResolver
     public static function ini($key, $expectedType, $profile = null, $filename = null, $options = [])
     {
         $filename = $filename ?: self::getDefaultConfigFilename();
-        $profile = $profile ?: (\getenv(self::ENV_PROFILE) ?: 'default');
-        if (!@\is_readable($filename)) {
+        $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
+        if (!@is_readable($filename)) {
             return null;
         }
         // Use INI_SCANNER_NORMAL instead of INI_SCANNER_TYPED for PHP 5.5 compatibility
@@ -109,12 +109,12 @@ class ConfigurationResolver
     private static function getHomeDir()
     {
         // On Linux/Unix-like systems, use the HOME environment variable
-        if ($homeDir = \getenv('HOME')) {
+        if ($homeDir = getenv('HOME')) {
             return $homeDir;
         }
         // Get the HOMEDRIVE and HOMEPATH values for Windows hosts
-        $homeDrive = \getenv('HOMEDRIVE');
-        $homePath = \getenv('HOMEPATH');
+        $homeDrive = getenv('HOMEDRIVE');
+        $homePath = getenv('HOMEPATH');
         return $homeDrive && $homePath ? $homeDrive . $homePath : null;
     }
     /**
@@ -125,7 +125,7 @@ class ConfigurationResolver
      */
     private static function getDefaultConfigFilename()
     {
-        if ($filename = \getenv(self::ENV_CONFIG_FILE)) {
+        if ($filename = getenv(self::ENV_CONFIG_FILE)) {
             return $filename;
         }
         return self::getHomeDir() . '/.aws/config';
@@ -142,11 +142,11 @@ class ConfigurationResolver
      */
     private static function convertType($value, $type)
     {
-        if ($type === 'bool' && !\is_null($convertedValue = \DeliciousBrains\WP_Offload_SES\Aws3\Aws\boolean_value($value))) {
+        if ($type === 'bool' && !is_null($convertedValue = \DeliciousBrains\WP_Offload_SES\Aws3\Aws\boolean_value($value))) {
             return $convertedValue;
         }
-        if ($type === 'int' && \filter_var($value, \FILTER_VALIDATE_INT)) {
-            $value = \intVal($value);
+        if ($type === 'int' && filter_var($value, \FILTER_VALIDATE_INT)) {
+            $value = intVal($value);
         }
         return $value;
     }
@@ -168,6 +168,9 @@ class ConfigurationResolver
             return null;
         }
         $services_section = \DeliciousBrains\WP_Offload_SES\Aws3\Aws\parse_ini_section_with_subsections($filename, "services {$data[$profile]['services']}");
+        if (empty($options['subsection']) || empty($options['key'])) {
+            return null;
+        }
         if (!isset($services_section[$options['subsection']][$options['key']])) {
             return null;
         }

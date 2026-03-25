@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use WP_Error;
 
 /**
@@ -349,12 +353,14 @@ class Email_Log {
 				) $charset_collate;";
 		dbDelta( $sql );
 
-		$indexes = (array) $wpdb->get_results( "SHOW INDEX FROM $this->log_table", ARRAY_A );
+		// phpcs:ignore WordPress.DB, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Schema inspection cannot be cached, table name is internally constructed.
+		$indexes = (array) $wpdb->get_results( "SHOW INDEX FROM `$this->log_table`", ARRAY_A );
 		$indexes = wp_list_pluck( $indexes, 'Key_name' );
 
-		if ( in_array( 'email_subject', $indexes ) ) {
+		if ( in_array( 'email_subject', $indexes, true ) ) {
 			// Drop the old index.
-			$wpdb->query( "ALTER TABLE $this->log_table DROP INDEX email_subject" );
+			// phpcs:ignore WordPress.DB, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Schema migration of legacy index, table name is internally constructed.
+			$wpdb->query( "ALTER TABLE `$this->log_table` DROP INDEX email_subject" );
 		}
 	}
 
@@ -376,7 +382,7 @@ class Email_Log {
 			);
 		}
 
-		if ( ! in_array( $email_status, array_keys( $wp_offload_ses->get_email_status_options() ) ) ) {
+		if ( ! in_array( $email_status, array_keys( $wp_offload_ses->get_email_status_options() ), true ) ) {
 			return new WP_Error(
 				'purge-logs-invalid-option',
 				sprintf(

@@ -71,9 +71,9 @@ class InstanceProfileProvider
      */
     public function __construct(array $config = [])
     {
-        $this->timeout = (float) \getenv(self::ENV_TIMEOUT) ?: $config['timeout'] ?? self::DEFAULT_TIMEOUT;
+        $this->timeout = (float) getenv(self::ENV_TIMEOUT) ?: $config['timeout'] ?? self::DEFAULT_TIMEOUT;
         $this->profile = $config['profile'] ?? null;
-        $this->retries = (int) \getenv(self::ENV_RETRIES) ?: $config['retries'] ?? self::DEFAULT_RETRIES;
+        $this->retries = (int) getenv(self::ENV_RETRIES) ?: $config['retries'] ?? self::DEFAULT_RETRIES;
         $this->client = $config['client'] ?? \DeliciousBrains\WP_Offload_SES\Aws3\Aws\default_http_handler();
         $this->ec2MetadataV1Disabled = $config[self::CFG_EC2_METADATA_V1_DISABLED] ?? null;
         $this->endpoint = $config[self::CFG_EC2_METADATA_SERVICE_ENDPOINT] ?? null;
@@ -91,16 +91,16 @@ class InstanceProfileProvider
     public function __invoke($previousCredentials = null)
     {
         $this->attempts = 0;
-        return Promise\Coroutine::of(function () use($previousCredentials) {
+        return Promise\Coroutine::of(function () use ($previousCredentials) {
             // Retrieve token or switch out of secure mode
             $token = null;
-            while ($this->secureMode && \is_null($token)) {
+            while ($this->secureMode && is_null($token)) {
                 try {
-                    $token = (yield $this->request(self::TOKEN_PATH, 'PUT', ['x-aws-ec2-metadata-token-ttl-seconds' => self::DEFAULT_TOKEN_TTL_SECONDS]));
+                    $token = yield $this->request(self::TOKEN_PATH, 'PUT', ['x-aws-ec2-metadata-token-ttl-seconds' => self::DEFAULT_TOKEN_TTL_SECONDS]);
                 } catch (TransferException $e) {
                     if ($this->getExceptionStatusCode($e) === 500 && $previousCredentials instanceof Credentials) {
                         goto generateCredentials;
-                    } elseif ($this->shouldFallbackToIMDSv1() && (!\method_exists($e, 'getResponse') || empty($e->getResponse()) || !\in_array($e->getResponse()->getStatusCode(), [400, 500, 502, 503, 504]))) {
+                    } elseif ($this->shouldFallbackToIMDSv1() && (!method_exists($e, 'getResponse') || empty($e->getResponse()) || !in_array($e->getResponse()->getStatusCode(), [400, 500, 502, 503, 504]))) {
                         $this->secureMode = \false;
                     } else {
                         $this->handleRetryableException($e, [], $this->createErrorMessage('Error retrieving metadata token'));
@@ -116,7 +116,7 @@ class InstanceProfileProvider
             // Retrieve profile
             while (!$this->profile) {
                 try {
-                    $this->profile = (yield $this->request(self::CRED_PATH, 'GET', $headers));
+                    $this->profile = yield $this->request(self::CRED_PATH, 'GET', $headers);
                 } catch (TransferException $e) {
                     // 401 indicates insecure flow not supported, switch to
                     // attempting secure mode for subsequent calls
@@ -131,14 +131,14 @@ class InstanceProfileProvider
             $result = null;
             while ($result == null) {
                 try {
-                    $json = (yield $this->request(self::CRED_PATH . $this->profile, 'GET', $headers));
+                    $json = yield $this->request(self::CRED_PATH . $this->profile, 'GET', $headers);
                     $result = $this->decodeResult($json);
                 } catch (InvalidJsonException $e) {
                     $this->handleRetryableException($e, ['blacklist' => [401, 403]], $this->createErrorMessage('Invalid JSON response, retries exhausted'));
                 } catch (TransferException $e) {
                     // 401 indicates insecure flow not supported, switch to
                     // attempting secure mode for subsequent calls
-                    if (($this->getExceptionStatusCode($e) === 500 || \strpos($e->getMessage(), "cURL error 28") !== \false) && $previousCredentials instanceof Credentials) {
+                    if (($this->getExceptionStatusCode($e) === 500 || strpos($e->getMessage(), "cURL error 28") !== \false) && $previousCredentials instanceof Credentials) {
                         goto generateCredentials;
                     } elseif (!empty($this->getExceptionStatusCode($e)) && $this->getExceptionStatusCode($e) === 401) {
                         $this->secureMode = \true;
@@ -151,12 +151,12 @@ class InstanceProfileProvider
             if (!isset($result)) {
                 $credentials = $previousCredentials;
             } else {
-                $credentials = new Credentials($result['AccessKeyId'], $result['SecretAccessKey'], $result['Token'], \strtotime($result['Expiration']), $result['AccountId'] ?? null);
+                $credentials = new Credentials($result['AccessKeyId'], $result['SecretAccessKey'], $result['Token'], strtotime($result['Expiration']), $result['AccountId'] ?? null, CredentialSources::IMDS);
             }
             if ($credentials->isExpired()) {
                 $credentials->extendExpiration();
             }
-            (yield $credentials);
+            yield $credentials;
         });
     }
     /**
@@ -168,14 +168,14 @@ class InstanceProfileProvider
      */
     private function request($url, $method = 'GET', $headers = [])
     {
-        $disabled = \getenv(self::ENV_DISABLE) ?: \false;
-        if (\strcasecmp($disabled, 'true') === 0) {
+        $disabled = getenv(self::ENV_DISABLE) ?: \false;
+        if (strcasecmp($disabled, 'true') === 0) {
             throw new CredentialsException($this->createErrorMessage('EC2 metadata service access disabled'));
         }
         $fn = $this->client;
         $request = new Request($method, $this->resolveEndpoint() . $url);
         $userAgent = 'aws-sdk-php/' . Sdk::VERSION;
-        if (\defined('DeliciousBrains\\WP_Offload_SES\\Aws3\\HHVM_VERSION')) {
+        if (defined('HHVM_VERSION')) {
             $userAgent .= ' HHVM/' . HHVM_VERSION;
         }
         $userAgent .= ' ' . \DeliciousBrains\WP_Offload_SES\Aws3\Aws\default_user_agent();
@@ -197,18 +197,18 @@ class InstanceProfileProvider
     private function handleRetryableException(\Exception $e, $retryOptions, $message)
     {
         $isRetryable = \true;
-        if (!empty($status = $this->getExceptionStatusCode($e)) && isset($retryOptions['blacklist']) && \in_array($status, $retryOptions['blacklist'])) {
+        if (!empty($status = $this->getExceptionStatusCode($e)) && isset($retryOptions['blacklist']) && in_array($status, $retryOptions['blacklist'])) {
             $isRetryable = \false;
         }
         if ($isRetryable && $this->attempts < $this->retries) {
-            \sleep((int) \pow(1.2, $this->attempts));
+            sleep((int) pow(1.2, $this->attempts));
         } else {
             throw new CredentialsException($message);
         }
     }
     private function getExceptionStatusCode(\Exception $e)
     {
-        if (\method_exists($e, 'getResponse') && !empty($e->getResponse())) {
+        if (method_exists($e, 'getResponse') && !empty($e->getResponse())) {
             return $e->getResponse()->getStatusCode();
         }
         return null;
@@ -219,8 +219,8 @@ class InstanceProfileProvider
     }
     private function decodeResult($response)
     {
-        $result = \json_decode($response, \true);
-        if (\json_last_error() > 0) {
+        $result = json_decode($response, \true);
+        if (json_last_error() > 0) {
             throw new InvalidJsonException();
         }
         if ($result['Code'] !== 'Success') {
@@ -238,7 +238,7 @@ class InstanceProfileProvider
      *
      * @return bool
      */
-    private function shouldFallbackToIMDSv1() : bool
+    private function shouldFallbackToIMDSv1(): bool
     {
         $isImdsV1Disabled = \DeliciousBrains\WP_Offload_SES\Aws3\Aws\boolean_value($this->ec2MetadataV1Disabled) ?? \DeliciousBrains\WP_Offload_SES\Aws3\Aws\boolean_value(ConfigurationResolver::resolve(self::CFG_EC2_METADATA_V1_DISABLED, self::DEFAULT_AWS_EC2_METADATA_V1_DISABLED, 'bool', $this->config)) ?? self::DEFAULT_AWS_EC2_METADATA_V1_DISABLED;
         return !$isImdsV1Disabled;
@@ -252,16 +252,16 @@ class InstanceProfileProvider
      *
      * @return string
      */
-    private function resolveEndpoint() : string
+    private function resolveEndpoint(): string
     {
         $endpoint = $this->endpoint;
-        if (\is_null($endpoint)) {
+        if (is_null($endpoint)) {
             $endpoint = ConfigurationResolver::resolve(self::CFG_EC2_METADATA_SERVICE_ENDPOINT, $this->getDefaultEndpoint(), 'string', $this->config);
         }
         if (!$this->isValidEndpoint($endpoint)) {
             throw new CredentialsException('The provided URI "' . $endpoint . '" is invalid, or contains an unsupported host');
         }
-        if (\substr($endpoint, \strlen($endpoint) - 1) !== '/') {
+        if (substr($endpoint, strlen($endpoint) - 1) !== '/') {
             $endpoint = $endpoint . '/';
         }
         return $endpoint . 'latest/';
@@ -275,7 +275,7 @@ class InstanceProfileProvider
      *
      * @return string
      */
-    private function getDefaultEndpoint() : string
+    private function getDefaultEndpoint(): string
     {
         $endpointMode = $this->resolveEndpointMode();
         switch ($endpointMode) {
@@ -292,10 +292,10 @@ class InstanceProfileProvider
      *
      * @return string
      */
-    private function resolveEndpointMode() : string
+    private function resolveEndpointMode(): string
     {
         $endpointMode = $this->endpointMode;
-        if (\is_null($endpointMode)) {
+        if (is_null($endpointMode)) {
             $endpointMode = ConfigurationResolver::resolve(self::CFG_EC2_METADATA_SERVICE_ENDPOINT_MODE, self::ENDPOINT_MODE_IPv4, 'string', $this->config);
         }
         return $endpointMode;
@@ -306,18 +306,18 @@ class InstanceProfileProvider
      *
      * @return string|null
      */
-    private function isValidEndpoint($uri) : bool
+    private function isValidEndpoint($uri): bool
     {
         // We make sure first the provided uri is a valid URL
-        $isValidURL = \filter_var($uri, \FILTER_VALIDATE_URL) !== \false;
+        $isValidURL = filter_var($uri, \FILTER_VALIDATE_URL) !== \false;
         if (!$isValidURL) {
             return \false;
         }
         // We make sure that if is a no secure host then it must be a loop back address.
-        $parsedUri = \parse_url($uri);
+        $parsedUri = parse_url($uri);
         if ($parsedUri['scheme'] !== 'https') {
-            $host = \trim($parsedUri['host'], '[]');
-            return CredentialsUtils::isLoopBackAddress(\gethostbyname($host)) || \in_array($uri, [self::DEFAULT_METADATA_SERVICE_IPv4_ENDPOINT, self::DEFAULT_METADATA_SERVICE_IPv6_ENDPOINT]);
+            $host = trim($parsedUri['host'], '[]');
+            return CredentialsUtils::isLoopBackAddress(gethostbyname($host)) || in_array($uri, [self::DEFAULT_METADATA_SERVICE_IPv4_ENDPOINT, self::DEFAULT_METADATA_SERVICE_IPv6_ENDPOINT]);
         }
         return \true;
     }

@@ -78,7 +78,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
             $configProviders[] = self::ini();
         }
         $configProviders[] = self::fallback();
-        $memo = self::memoize(\call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
+        $memo = self::memoize(call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
         if (isset($config['csm']) && $config['csm'] instanceof CacheInterface) {
             return self::cache($memo, $config['csm'], self::$cacheKey);
         }
@@ -93,9 +93,9 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
     {
         return function () {
             // Use credentials from environment variables, if available
-            $enabled = \getenv(self::ENV_ENABLED);
+            $enabled = getenv(self::ENV_ENABLED);
             if ($enabled !== \false) {
-                return Promise\Create::promiseFor(new Configuration($enabled, \getenv(self::ENV_HOST) ?: self::DEFAULT_HOST, \getenv(self::ENV_PORT) ?: self::DEFAULT_PORT, \getenv(self::ENV_CLIENT_ID) ?: self::DEFAULT_CLIENT_ID));
+                return Promise\Create::promiseFor(new Configuration($enabled, getenv(self::ENV_HOST) ?: self::DEFAULT_HOST, getenv(self::ENV_PORT) ?: self::DEFAULT_PORT, getenv(self::ENV_CLIENT_ID) ?: self::DEFAULT_CLIENT_ID));
             }
             return self::reject('Could not find environment variable CSM config' . ' in ' . self::ENV_ENABLED . '/' . self::ENV_HOST . '/' . self::ENV_PORT . '/' . self::ENV_CLIENT_ID);
         };
@@ -126,9 +126,9 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
     public static function ini($profile = null, $filename = null)
     {
         $filename = $filename ?: self::getDefaultConfigFilename();
-        $profile = $profile ?: (\getenv(self::ENV_PROFILE) ?: 'aws_csm');
-        return function () use($profile, $filename) {
-            if (!@\is_readable($filename)) {
+        $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'aws_csm');
+        return function () use ($profile, $filename) {
+            if (!@is_readable($filename)) {
                 return self::reject("Cannot read CSM config from {$filename}");
             }
             $data = \DeliciousBrains\WP_Offload_SES\Aws3\Aws\parse_ini_file($filename, \true);
@@ -146,7 +146,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
                 $data[$profile]['csm_host'] = self::DEFAULT_HOST;
             }
             // port is optional
-            if (empty($data[$profile]['csm_port'])) {
+            if (!filter_var($data[$profile]['csm_port'] ?? null, \FILTER_VALIDATE_INT)) {
                 $data[$profile]['csm_port'] = self::DEFAULT_PORT;
             }
             // client_id is optional
@@ -166,7 +166,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
      */
     public static function unwrap($config)
     {
-        if (\is_callable($config)) {
+        if (is_callable($config)) {
             $config = $config();
         }
         if ($config instanceof PromiseInterface) {
@@ -174,7 +174,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
         }
         if ($config instanceof ConfigurationInterface) {
             return $config;
-        } elseif (\is_array($config) && isset($config['enabled'])) {
+        } elseif (is_array($config) && isset($config['enabled'])) {
             $client_id = isset($config['client_id']) ? $config['client_id'] : self::DEFAULT_CLIENT_ID;
             $host = isset($config['host']) ? $config['host'] : self::DEFAULT_HOST;
             $port = isset($config['port']) ? $config['port'] : self::DEFAULT_PORT;

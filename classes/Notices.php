@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
 
 /**
@@ -212,7 +216,7 @@ class Notices {
 			} else {
 				$dismissed_notices = $this->get_dismissed_notices( $user_id );
 
-				if ( ! in_array( $notice['id'], $dismissed_notices ) ) {
+				if ( ! in_array( $notice['id'], $dismissed_notices, true ) ) {
 					$dismissed_notices[] = $notice['id'];
 					update_user_meta( $user_id, 'wposes_dismissed_notices', $dismissed_notices );
 				}
@@ -256,7 +260,7 @@ class Notices {
 			$dismissed_notices = $this->get_dismissed_notices( $user_id );
 		}
 
-		$key = array_search( $notice_id, $dismissed_notices );
+		$key = array_search( $notice_id, $dismissed_notices, true );
 		unset( $dismissed_notices[ $key ] );
 
 		$this->update_user_meta( $user_id, 'wposes_dismissed_notices', $dismissed_notices );
@@ -268,12 +272,14 @@ class Notices {
 	 * @param string $notice_id The ID of the notice to be un-dismissed.
 	 */
 	public function undismiss_notice_for_all( $notice_id ) {
+		// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Standard WP get_users() meta query, no alternative API.
 		$args = array(
 			'meta_key'     => 'wposes_dismissed_notices',
 			'meta_value'   => $notice_id,
 			'meta_compare' => 'LIKE',
 		);
 
+		// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 		$users = get_users( $args );
 
 		foreach ( $users as $user ) {
@@ -381,7 +387,7 @@ class Notices {
 			return;
 		}
 
-		if ( ! $notice['only_show_to_user'] && in_array( $notice['id'], $dismissed_notices ) ) {
+		if ( ! $notice['only_show_to_user'] && in_array( $notice['id'], $dismissed_notices, true ) ) {
 			return;
 		}
 

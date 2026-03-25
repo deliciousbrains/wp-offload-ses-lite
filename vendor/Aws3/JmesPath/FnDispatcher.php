@@ -36,7 +36,7 @@ class FnDispatcher
     private function fn_abs(array $args)
     {
         $this->validate('abs', $args, [['number']]);
-        return \abs($args[0]);
+        return abs($args[0]);
     }
     private function fn_avg(array $args)
     {
@@ -44,20 +44,20 @@ class FnDispatcher
         $sum = $this->reduce('avg:0', $args[0], ['number'], function ($a, $b) {
             return Utils::add($a, $b);
         });
-        return $args[0] ? $sum / \count($args[0]) : null;
+        return $args[0] ? $sum / count($args[0]) : null;
     }
     private function fn_ceil(array $args)
     {
         $this->validate('ceil', $args, [['number']]);
-        return \ceil($args[0]);
+        return ceil($args[0]);
     }
     private function fn_contains(array $args)
     {
         $this->validate('contains', $args, [['string', 'array'], ['any']]);
-        if (\is_array($args[0])) {
-            return \in_array($args[1], $args[0]);
-        } elseif (\is_string($args[1])) {
-            return \mb_strpos($args[0], $args[1], 0, 'UTF-8') !== \false;
+        if (is_array($args[0])) {
+            return in_array($args[1], $args[0]);
+        } elseif (is_string($args[1])) {
+            return mb_strpos($args[0], $args[1], 0, 'UTF-8') !== \false;
         } else {
             return null;
         }
@@ -66,26 +66,26 @@ class FnDispatcher
     {
         $this->validate('ends_with', $args, [['string'], ['string']]);
         list($search, $suffix) = $args;
-        return $suffix === '' || \mb_substr($search, -\mb_strlen($suffix, 'UTF-8'), null, 'UTF-8') === $suffix;
+        return $suffix === '' || mb_substr($search, -mb_strlen($suffix, 'UTF-8'), null, 'UTF-8') === $suffix;
     }
     private function fn_floor(array $args)
     {
         $this->validate('floor', $args, [['number']]);
-        return \floor($args[0]);
+        return floor($args[0]);
     }
     private function fn_not_null(array $args)
     {
         if (!$args) {
             throw new \RuntimeException("not_null() expects 1 or more arguments, 0 were provided");
         }
-        return \array_reduce($args, function ($carry, $item) {
+        return array_reduce($args, function ($carry, $item) {
             return $carry !== null ? $carry : $item;
         });
     }
     private function fn_join(array $args)
     {
         $this->validate('join', $args, [['string'], ['array']]);
-        $fn = function ($a, $b, $i) use($args) {
+        $fn = function ($a, $b, $i) use ($args) {
             return $i ? $a . $args[0] . $b : $b;
         };
         return $this->reduce('join:0', $args[1], ['string'], $fn);
@@ -93,12 +93,12 @@ class FnDispatcher
     private function fn_keys(array $args)
     {
         $this->validate('keys', $args, [['object']]);
-        return \array_keys((array) $args[0]);
+        return array_keys((array) $args[0]);
     }
     private function fn_length(array $args)
     {
         $this->validate('length', $args, [['string', 'array', 'object']]);
-        return \is_string($args[0]) ? \mb_strlen($args[0], 'UTF-8') : \count((array) $args[0]);
+        return is_string($args[0]) ? mb_strlen($args[0], 'UTF-8') : count((array) $args[0]);
     }
     private function fn_max(array $args)
     {
@@ -112,7 +112,7 @@ class FnDispatcher
     {
         $this->validate('max_by', $args, [['array'], ['expression']]);
         $expr = $this->wrapExpression('max_by:1', $args[1], ['number', 'string']);
-        $fn = function ($carry, $item, $index) use($expr) {
+        $fn = function ($carry, $item, $index) use ($expr) {
             return $index ? $expr($carry) >= $expr($item) ? $carry : $item : $item;
         };
         return $this->reduce('max_by:1', $args[0], ['any'], $fn);
@@ -130,7 +130,7 @@ class FnDispatcher
         $this->validate('min_by', $args, [['array'], ['expression']]);
         $expr = $this->wrapExpression('min_by:1', $args[1], ['number', 'string']);
         $i = -1;
-        $fn = function ($a, $b) use($expr, &$i) {
+        $fn = function ($a, $b) use ($expr, &$i) {
             return ++$i ? $expr($a) <= $expr($b) ? $a : $b : $b;
         };
         return $this->reduce('min_by:1', $args[0], ['any'], $fn);
@@ -138,10 +138,10 @@ class FnDispatcher
     private function fn_reverse(array $args)
     {
         $this->validate('reverse', $args, [['array', 'string']]);
-        if (\is_array($args[0])) {
-            return \array_reverse($args[0]);
-        } elseif (\is_string($args[0])) {
-            return \strrev($args[0]);
+        if (is_array($args[0])) {
+            return array_reverse($args[0]);
+        } elseif (is_string($args[0])) {
+            return strrev($args[0]);
         } else {
             throw new \RuntimeException('Cannot reverse provided argument');
         }
@@ -158,9 +158,9 @@ class FnDispatcher
     {
         $this->validate('sort', $args, [['array']]);
         $valid = ['string', 'number'];
-        return Utils::stableSort($args[0], function ($a, $b) use($valid) {
+        return Utils::stableSort($args[0], function ($a, $b) use ($valid) {
             $this->validateSeq('sort:0', $valid, $a, $b);
-            return \strnatcmp($a, $b);
+            return strnatcmp($a, $b);
         });
     }
     private function fn_sort_by(array $args)
@@ -168,44 +168,44 @@ class FnDispatcher
         $this->validate('sort_by', $args, [['array'], ['expression']]);
         $expr = $args[1];
         $valid = ['string', 'number'];
-        return Utils::stableSort($args[0], function ($a, $b) use($expr, $valid) {
+        return Utils::stableSort($args[0], function ($a, $b) use ($expr, $valid) {
             $va = $expr($a);
             $vb = $expr($b);
             $this->validateSeq('sort_by:0', $valid, $va, $vb);
-            return \strnatcmp($va, $vb);
+            return strnatcmp($va, $vb);
         });
     }
     private function fn_starts_with(array $args)
     {
         $this->validate('starts_with', $args, [['string'], ['string']]);
         list($search, $prefix) = $args;
-        return $prefix === '' || \mb_strpos($search, $prefix, 0, 'UTF-8') === 0;
+        return $prefix === '' || mb_strpos($search, $prefix, 0, 'UTF-8') === 0;
     }
     private function fn_type(array $args)
     {
-        $this->validateArity('type', \count($args), 1);
+        $this->validateArity('type', count($args), 1);
         return Utils::type($args[0]);
     }
     private function fn_to_string(array $args)
     {
-        $this->validateArity('to_string', \count($args), 1);
+        $this->validateArity('to_string', count($args), 1);
         $v = $args[0];
-        if (\is_string($v)) {
+        if (is_string($v)) {
             return $v;
-        } elseif (\is_object($v) && !$v instanceof \JsonSerializable && \method_exists($v, '__toString')) {
+        } elseif (is_object($v) && !$v instanceof \JsonSerializable && method_exists($v, '__toString')) {
             return (string) $v;
         }
-        return \json_encode($v);
+        return json_encode($v);
     }
     private function fn_to_number(array $args)
     {
-        $this->validateArity('to_number', \count($args), 1);
+        $this->validateArity('to_number', count($args), 1);
         $value = $args[0];
         $type = Utils::type($value);
         if ($type == 'number') {
             return $value;
-        } elseif ($type == 'string' && \is_numeric($value)) {
-            return \mb_strpos($value, '.', 0, 'UTF-8') ? (float) $value : (int) $value;
+        } elseif ($type == 'string' && is_numeric($value)) {
+            return mb_strpos($value, '.', 0, 'UTF-8') ? (float) $value : (int) $value;
         } else {
             return null;
         }
@@ -213,14 +213,14 @@ class FnDispatcher
     private function fn_values(array $args)
     {
         $this->validate('values', $args, [['array', 'object']]);
-        return \array_values((array) $args[0]);
+        return array_values((array) $args[0]);
     }
     private function fn_merge(array $args)
     {
         if (!$args) {
             throw new \RuntimeException("merge() expects 1 or more arguments, 0 were provided");
         }
-        return \call_user_func_array('array_replace', $args);
+        return call_user_func_array('array_replace', $args);
     }
     private function fn_to_array(array $args)
     {
@@ -238,23 +238,23 @@ class FnDispatcher
     }
     private function typeError($from, $msg)
     {
-        if (\mb_strpos($from, ':', 0, 'UTF-8')) {
-            list($fn, $pos) = \explode(':', $from);
-            throw new \RuntimeException(\sprintf('Argument %d of %s %s', $pos, $fn, $msg));
+        if (mb_strpos($from, ':', 0, 'UTF-8')) {
+            list($fn, $pos) = explode(':', $from);
+            throw new \RuntimeException(sprintf('Argument %d of %s %s', $pos, $fn, $msg));
         } else {
-            throw new \RuntimeException(\sprintf('Type error: %s %s', $from, $msg));
+            throw new \RuntimeException(sprintf('Type error: %s %s', $from, $msg));
         }
     }
     private function validateArity($from, $given, $expected)
     {
         if ($given != $expected) {
             $err = "%s() expects {$expected} arguments, {$given} were provided";
-            throw new \RuntimeException(\sprintf($err, $from));
+            throw new \RuntimeException(sprintf($err, $from));
         }
     }
     private function validate($from, $args, $types = [])
     {
-        $this->validateArity($from, \count($args), \count($types));
+        $this->validateArity($from, count($args), count($types));
         foreach ($args as $index => $value) {
             if (!isset($types[$index]) || !$types[$index]) {
                 continue;
@@ -264,10 +264,10 @@ class FnDispatcher
     }
     private function validateType($from, $value, array $types)
     {
-        if ($types[0] == 'any' || \in_array(Utils::type($value), $types) || $value === [] && \in_array('object', $types)) {
+        if ($types[0] == 'any' || in_array(Utils::type($value), $types) || $value === [] && in_array('object', $types)) {
             return;
         }
-        $msg = 'must be one of the following types: ' . \implode(', ', $types) . '. ' . Utils::type($value) . ' found';
+        $msg = 'must be one of the following types: ' . implode(', ', $types) . '. ' . Utils::type($value) . ' found';
         $this->typeError($from, $msg);
     }
     /**
@@ -287,9 +287,9 @@ class FnDispatcher
             $msg = "encountered a type mismatch in sequence: {$ta}, {$tb}";
             $this->typeError($from, $msg);
         }
-        $typeMatch = $types && $types[0] == 'any' || \in_array($ta, $types);
+        $typeMatch = $types && $types[0] == 'any' || in_array($ta, $types);
         if (!$typeMatch) {
-            $msg = 'encountered a type error in sequence. The argument must be ' . 'an array of ' . \implode('|', $types) . ' types. ' . "Found {$ta}, {$tb}.";
+            $msg = 'encountered a type error in sequence. The argument must be ' . 'an array of ' . implode('|', $types) . ' types. ' . "Found {$ta}, {$tb}.";
             $this->typeError($from, $msg);
         }
     }
@@ -306,7 +306,7 @@ class FnDispatcher
     private function reduce($from, array $values, array $types, callable $reduce)
     {
         $i = -1;
-        return \array_reduce($values, function ($carry, $item) use($from, $types, $reduce, &$i) {
+        return array_reduce($values, function ($carry, $item) use ($from, $types, $reduce, &$i) {
             if (++$i > 0) {
                 $this->validateSeq($from, $types, $carry, $item);
             }
@@ -324,9 +324,9 @@ class FnDispatcher
      */
     private function wrapExpression($from, callable $expr, array $types)
     {
-        list($fn, $pos) = \explode(':', $from);
+        list($fn, $pos) = explode(':', $from);
         $from = "The expression return value of argument {$pos} of {$fn}";
-        return function ($value) use($from, $expr, $types) {
+        return function ($value) use ($from, $expr, $types) {
             $value = $expr($value);
             $this->validateType($from, $value, $types);
             return $value;
@@ -335,7 +335,7 @@ class FnDispatcher
     /** @internal Pass function name validation off to runtime */
     public function __call($name, $args)
     {
-        $name = \str_replace('fn_', '', $name);
+        $name = str_replace('fn_', '', $name);
         throw new \RuntimeException("Call to undefined function {$name}");
     }
 }

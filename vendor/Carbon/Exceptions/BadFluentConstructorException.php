@@ -1,5 +1,6 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Carbon package.
  *
@@ -27,7 +28,7 @@ class BadFluentConstructorException extends BaseBadMethodCallException implement
      * @param int            $code
      * @param Throwable|null $previous
      */
-    public function __construct($method, $code = 0, Throwable $previous = null)
+    public function __construct($method, $code = 0, ?Throwable $previous = null)
     {
         $this->method = $method;
         parent::__construct(\sprintf("Unknown fluent constructor '%s'.", $method), $code, $previous);

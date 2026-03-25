@@ -86,7 +86,7 @@
 			var secret = $( 'input[name="aws-secret-access-key"]' );
 
 			if ( ( key.is( ':disabled' ) && secret.is( ':disabled' ) ) ) {
-				ajax_save_settings( form_data, 'sandbox-mode' );
+				ajax_save_settings( form_data, 'verify-sender' );
 			} else {
 				$.when( api['sendRequest']( 'set', {
 					'aws-access-key-id': key.val(),
@@ -94,11 +94,11 @@
 				} ) ).then( function( response, textStatus, jqXHR ) {
 					if ( response.success ) {
 						secret.val( wposes.strings.not_shown_placeholder );
-						ajax_save_settings( form_data, 'sandbox-mode' );
+						ajax_save_settings( form_data, 'verify-sender' );
 					} else {
 						if ( 'undefined' !== typeof response.data.access_keys_defined && true === response.data.access_keys_defined ) {
 							// User defined keys in wp-config.php and can continue
-							ajax_save_settings( form_data, 'sandbox-mode' );
+							ajax_save_settings( form_data, 'verify-sender' );
 						} else {
 							// Display any errors
 							$( '#wposes_access_keys' ).show();
@@ -163,9 +163,9 @@
 				'start',
 				'create-iam-user',
 				'access-keys',
-				'sandbox-mode',
 				'verify-senders',
 				'complete-verification',
+				'sandbox-mode',
 				'configure-wp-offload-ses'
 			];
 

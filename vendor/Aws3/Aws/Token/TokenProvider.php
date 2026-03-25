@@ -3,7 +3,6 @@
 namespace DeliciousBrains\WP_Offload_SES\Aws3\Aws\Token;
 
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws;
-use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Api\DateTimeResult;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\CacheInterface;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Exception\TokenException;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise;
@@ -28,8 +27,8 @@ use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise;
  */
 class TokenProvider
 {
-    use ParsesIniTrait;
     const ENV_PROFILE = 'AWS_PROFILE';
+    use ParsesIniTrait;
     /**
      * Create a default token provider tha checks for cached a SSO token from
      * the CLI
@@ -46,7 +45,7 @@ class TokenProvider
         $cacheable = ['sso'];
         $defaultChain = [];
         if (!isset($config['use_aws_shared_config_files']) || $config['use_aws_shared_config_files'] !== \false) {
-            $profileName = \getenv(self::ENV_PROFILE) ?: 'default';
+            $profileName = getenv(self::ENV_PROFILE) ?: 'default';
             $defaultChain['sso'] = self::sso($profileName, self::getHomeDir() . '/.aws/config', $config);
         }
         if (isset($config['token']) && $config['token'] instanceof CacheInterface) {
@@ -56,7 +55,7 @@ class TokenProvider
                 }
             }
         }
-        return self::memoize(\call_user_func_array([TokenProvider::class, 'chain'], \array_values($defaultChain)));
+        return self::memoize(call_user_func_array([__CLASS__, 'chain'], array_values($defaultChain)));
     }
     /**
      * Create a token provider function from a static token.
@@ -68,7 +67,7 @@ class TokenProvider
     public static function fromToken(TokenInterface $token)
     {
         $promise = Promise\Create::promiseFor($token);
-        return function () use($promise) {
+        return static function () use ($promise) {
             return $promise;
         };
     }
@@ -81,18 +80,18 @@ class TokenProvider
      */
     public static function chain()
     {
-        $links = \func_get_args();
+        $links = func_get_args();
         //Common use case for when aws_shared_config_files is false
         if (empty($links)) {
-            return function () {
+            return static function () {
                 return Promise\Create::promiseFor(\false);
             };
         }
-        return function () use($links) {
+        return static function () use ($links) {
             /** @var callable $parent */
-            $parent = \array_shift($links);
+            $parent = array_shift($links);
             $promise = $parent();
-            while ($next = \array_shift($links)) {
+            while ($next = array_shift($links)) {
                 $promise = $promise->otherwise($next);
             }
             return $promise;
@@ -107,7 +106,7 @@ class TokenProvider
      */
     public static function memoize(callable $provider)
     {
-        return function () use($provider) {
+        return static function () use ($provider) {
             static $result;
             static $isConstant;
             // Constant tokens will be returned constantly.
@@ -120,7 +119,7 @@ class TokenProvider
                 $result = $provider();
             }
             // Return a token that could expire and refresh when needed.
-            return $result->then(function (TokenInterface $token) use($provider, &$isConstant, &$result) {
+            return $result->then(function (TokenInterface $token) use ($provider, &$isConstant, &$result) {
                 // Determine if the token is constant.
                 if (!$token->getExpiration()) {
                     $isConstant = \true;
@@ -130,7 +129,7 @@ class TokenProvider
                     return $token;
                 }
                 return $result = $provider();
-            })->otherwise(function ($reason) use(&$result) {
+            })->otherwise(function ($reason) use (&$result) {
                 // Cleanup rejected promise.
                 $result = null;
                 return Promise\Create::promiseFor(null);
@@ -151,21 +150,21 @@ class TokenProvider
     public static function cache(callable $provider, CacheInterface $cache, $cacheKey = null)
     {
         $cacheKey = $cacheKey ?: 'aws_cached_token';
-        return function () use($provider, $cache, $cacheKey) {
+        return static function () use ($provider, $cache, $cacheKey) {
             $found = $cache->get($cacheKey);
-            if (\is_array($found) && isset($found['token'])) {
+            if (is_array($found) && isset($found['token'])) {
                 $foundToken = $found['token'];
                 if ($foundToken instanceof TokenInterface) {
                     if (!$foundToken->isExpired()) {
                         return Promise\Create::promiseFor($foundToken);
                     }
-                    if (isset($found['refreshMethod']) && \is_callable($found['refreshMethod'])) {
+                    if (isset($found['refreshMethod']) && is_callable($found['refreshMethod'])) {
                         return Promise\Create::promiseFor($found['refreshMethod']());
                     }
                 }
             }
-            return $provider()->then(function (TokenInterface $token) use($cache, $cacheKey) {
-                $cache->set($cacheKey, $token, null === $token->getExpiration() ? 0 : $token->getExpiration() - \time());
+            return $provider()->then(function (TokenInterface $token) use ($cache, $cacheKey) {
+                $cache->set($cacheKey, ['token' => $token], null === $token->getExpiration() ? 0 : $token->getExpiration() - time());
                 return $token;
             });
         };
@@ -177,11 +176,11 @@ class TokenProvider
     {
         $profiles = [];
         $configFile = self::getHomeDir() . '/.aws/config';
-        if (\file_exists($configFile)) {
+        if (file_exists($configFile)) {
             $configProfileData = \DeliciousBrains\WP_Offload_SES\Aws3\Aws\parse_ini_file($configFile, \true, \INI_SCANNER_RAW);
             foreach ($configProfileData as $name => $profile) {
                 // standardize config profile names
-                $name = \str_replace('profile ', '', $name);
+                $name = str_replace('profile ', '', $name);
                 if (!isset($profiles[$name])) {
                     $profiles[$name] = $profile;
                 }
@@ -205,7 +204,7 @@ class TokenProvider
      */
     public static function sso($profileName, $filename, $config = [])
     {
-        $ssoClient = isset($config['ssoClient']) ? $config['ssoClient'] : null;
+        $ssoClient = $config['ssoClient'] ?? null;
         return new SsoTokenProvider($profileName, $filename, $ssoClient);
     }
 }

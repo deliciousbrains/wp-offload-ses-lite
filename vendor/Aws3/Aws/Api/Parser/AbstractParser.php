@@ -30,6 +30,6 @@ abstract class AbstractParser
      *
      * @return ResultInterface
      */
-    public abstract function __invoke(CommandInterface $command, ResponseInterface $response);
-    public abstract function parseMemberFromStream(StreamInterface $stream, StructureShape $member, $response);
+    abstract public function __invoke(CommandInterface $command, ResponseInterface $response);
+    abstract public function parseMemberFromStream(StreamInterface $stream, StructureShape $member, $response);
 }

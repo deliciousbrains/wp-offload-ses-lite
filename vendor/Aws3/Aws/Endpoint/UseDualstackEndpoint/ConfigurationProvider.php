@@ -71,7 +71,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
             $configProviders[] = self::ini($region);
         }
         $configProviders[] = self::fallback($region);
-        $memo = self::memoize(\call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
+        $memo = self::memoize(call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
         if (isset($config['use_dual_stack_endpoint']) && $config['use_dual_stack_endpoint'] instanceof CacheInterface) {
             return self::cache($memo, $config['use_dual_stack_endpoint'], self::$cacheKey);
         }
@@ -84,9 +84,9 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
      */
     public static function env($region)
     {
-        return function () use($region) {
+        return function () use ($region) {
             // Use config from environment variables, if available
-            $useDualstackEndpoint = \getenv(self::ENV_USE_DUAL_STACK_ENDPOINT);
+            $useDualstackEndpoint = getenv(self::ENV_USE_DUAL_STACK_ENDPOINT);
             if (!empty($useDualstackEndpoint)) {
                 return Promise\Create::promiseFor(new Configuration($useDualstackEndpoint, $region));
             }
@@ -108,9 +108,9 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
     public static function ini($region, $profile = null, $filename = null)
     {
         $filename = $filename ?: self::getDefaultConfigFilename();
-        $profile = $profile ?: (\getenv(self::ENV_PROFILE) ?: 'default');
-        return function () use($region, $profile, $filename) {
-            if (!@\is_readable($filename)) {
+        $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
+        return function () use ($region, $profile, $filename) {
+            if (!@is_readable($filename)) {
                 return self::reject("Cannot read configuration from {$filename}");
             }
             // Use INI_SCANNER_NORMAL instead of INI_SCANNER_TYPED for PHP 5.5 compatibility
@@ -138,7 +138,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
      */
     public static function fallback($region)
     {
-        return function () use($region) {
+        return function () use ($region) {
             return Promise\Create::promiseFor(new Configuration(\false, $region));
         };
     }

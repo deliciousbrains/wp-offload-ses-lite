@@ -33,7 +33,7 @@ class QueryParamBuilder
     public function __invoke(StructureShape $shape, array $params)
     {
         if (!$this->methods) {
-            $this->methods = \array_fill_keys(\get_class_methods($this), \true);
+            $this->methods = array_fill_keys(get_class_methods($this), \true);
         }
         $query = [];
         $this->format_structure($shape, $params, '', $query);
@@ -71,10 +71,11 @@ class QueryParamBuilder
         if (!$this->isFlat($shape)) {
             $locationName = $shape->getMember()['locationName'] ?: 'member';
             $prefix .= ".{$locationName}";
-        } elseif ($name = $this->queryName($items)) {
-            $parts = \explode('.', $prefix);
-            $parts[\count($parts) - 1] = $name;
-            $prefix = \implode('.', $parts);
+            // flattened lists can also model a `locationName`
+        } elseif ($name = $shape['locationName'] ?? $this->queryName($items)) {
+            $parts = explode('.', $prefix);
+            $parts[count($parts) - 1] = $name;
+            $prefix = implode('.', $parts);
         }
         foreach ($value as $k => $v) {
             $this->format($items, $v, $prefix . '.' . ($k + 1), $query);
@@ -92,13 +93,13 @@ class QueryParamBuilder
         $valueName = '%s.%s.' . $this->queryName($vals, 'value');
         foreach ($value as $k => $v) {
             $i++;
-            $this->format($keys, $k, \sprintf($keyName, $prefix, $i), $query);
-            $this->format($vals, $v, \sprintf($valueName, $prefix, $i), $query);
+            $this->format($keys, $k, sprintf($keyName, $prefix, $i), $query);
+            $this->format($vals, $v, sprintf($valueName, $prefix, $i), $query);
         }
     }
     protected function format_blob(Shape $shape, $value, $prefix, array &$query)
     {
-        $query[$prefix] = \base64_encode($value);
+        $query[$prefix] = base64_encode($value);
     }
     protected function format_timestamp(TimestampShape $shape, $value, $prefix, array &$query)
     {

@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES\Queue\Jobs;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Command;
 use DeliciousBrains\WP_Offload_SES\Email;
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;

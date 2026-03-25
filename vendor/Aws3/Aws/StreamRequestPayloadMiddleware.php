@@ -20,7 +20,7 @@ class StreamRequestPayloadMiddleware
      */
     public static function wrap(Service $service)
     {
-        return function (callable $handler) use($service) {
+        return function (callable $handler) use ($service) {
             return new self($handler, $service);
         };
     }
@@ -52,14 +52,12 @@ class StreamRequestPayloadMiddleware
             if (empty($requiresLength) && empty($contentLength) && isset($operation['authtype']) && $operation['authtype'] == 'v4-unsigned-body') {
                 $request = $request->withHeader('transfer-encoding', 'chunked');
                 // Otherwise, make sure 'content-length' header is added
-            } else {
-                if (empty($contentLength)) {
-                    $size = $request->getBody()->getSize();
-                    if (\is_null($size)) {
-                        throw new IncalculablePayloadException('Payload' . ' content length is required and can not be' . ' calculated.');
-                    }
-                    $request = $request->withHeader('content-length', $size);
+            } else if (empty($contentLength)) {
+                $size = $request->getBody()->getSize();
+                if (is_null($size)) {
+                    throw new IncalculablePayloadException('Payload' . ' content length is required and can not be' . ' calculated.');
                 }
+                $request = $request->withHeader('Content-Length', $size);
             }
         }
         return $nextHandler($command, $request);

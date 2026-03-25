@@ -22,7 +22,7 @@ trait EndpointV2SerializerTrait
      *
      * @return void
      */
-    private function setEndpointV2RequestOptions(RulesetEndpoint $endpoint, array &$headers) : void
+    private function setEndpointV2RequestOptions(RulesetEndpoint $endpoint, array &$headers): void
     {
         $this->applyHeaders($endpoint, $headers);
         $resolvedUrl = $endpoint->getUrl();
@@ -36,10 +36,10 @@ trait EndpointV2SerializerTrait
      * @param $headers
      * @return void
      */
-    private function applyHeaders(RulesetEndpoint $endpoint, array &$headers) : void
+    private function applyHeaders(RulesetEndpoint $endpoint, array &$headers): void
     {
-        if (!\is_null($endpoint->getHeaders())) {
-            $headers = \array_merge($headers, $endpoint->getHeaders());
+        if (!is_null($endpoint->getHeaders())) {
+            $headers = array_merge($headers, $endpoint->getHeaders());
         }
     }
     /**
@@ -48,12 +48,12 @@ trait EndpointV2SerializerTrait
      * @param $resolvedUrl
      * @return void
      */
-    private function applyScheme(&$resolvedUrl) : void
+    private function applyScheme(&$resolvedUrl): void
     {
-        $resolvedEndpointScheme = \parse_url($resolvedUrl, \PHP_URL_SCHEME);
-        $scheme = $this->endpoint instanceof Uri ? $this->endpoint->getScheme() : \parse_url($this->endpoint, \PHP_URL_SCHEME);
+        $resolvedEndpointScheme = parse_url($resolvedUrl, \PHP_URL_SCHEME);
+        $scheme = $this->endpoint instanceof Uri ? $this->endpoint->getScheme() : parse_url($this->endpoint, \PHP_URL_SCHEME);
         if (!empty($scheme) && $scheme !== $resolvedEndpointScheme) {
-            $resolvedUrl = \str_replace($resolvedEndpointScheme, $scheme, $resolvedUrl);
+            $resolvedUrl = str_replace($resolvedEndpointScheme, $scheme, $resolvedUrl);
         }
     }
 }

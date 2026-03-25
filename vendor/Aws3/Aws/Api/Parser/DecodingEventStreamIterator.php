@@ -69,15 +69,15 @@ class DecodingEventStreamIterator implements Iterator
         $calculatedCrc = null;
         foreach (self::$preludeFormat as $key => $decodeFunction) {
             if ($key === self::CRC_PRELUDE) {
-                $hashCopy = \hash_copy($this->hashContext);
-                $calculatedCrc = \hash_final($this->hashContext, \true);
+                $hashCopy = hash_copy($this->hashContext);
+                $calculatedCrc = hash_final($this->hashContext, \true);
                 $this->hashContext = $hashCopy;
             }
             list($value, $numBytes) = $this->{$decodeFunction}();
             $bytesRead += $numBytes;
             $prelude[$key] = $value;
         }
-        if (\unpack('N', $calculatedCrc)[1] !== $prelude[self::CRC_PRELUDE]) {
+        if (unpack('N', $calculatedCrc)[1] !== $prelude[self::CRC_PRELUDE]) {
             throw new ParserException('Prelude checksum mismatch.');
         }
         return [$prelude, $bytesRead];
@@ -91,7 +91,7 @@ class DecodingEventStreamIterator implements Iterator
     {
         $event = [];
         if ($this->stream->tell() < $this->stream->getSize()) {
-            $this->hashContext = \hash_init('crc32b');
+            $this->hashContext = hash_init('crc32b');
             $bytesLeft = $this->stream->getSize() - $this->stream->tell();
             list($prelude, $numBytes) = $this->parsePrelude();
             if ($prelude[self::LENGTH_TOTAL] > $bytesLeft) {
@@ -103,7 +103,7 @@ class DecodingEventStreamIterator implements Iterator
             }
             list($event[self::HEADERS], $numBytes) = $this->parseHeaders($prelude[self::LENGTH_HEADERS]);
             $event[self::PAYLOAD] = Psr7\Utils::streamFor($this->readAndHashBytes($prelude[self::LENGTH_TOTAL] - self::BYTES_PRELUDE - $numBytes - self::BYTES_TRAILING));
-            $calculatedCrc = \hash_final($this->hashContext, \true);
+            $calculatedCrc = hash_final($this->hashContext, \true);
             $messageCrc = $this->stream->read(4);
             if ($calculatedCrc !== $messageCrc) {
                 throw new ParserException('Message checksum mismatch.');
@@ -128,6 +128,9 @@ class DecodingEventStreamIterator implements Iterator
     {
         return $this->key;
     }
+    /**
+     * @return void
+     */
     #[\ReturnTypeWillChange]
     public function next()
     {
@@ -137,6 +140,9 @@ class DecodingEventStreamIterator implements Iterator
             $this->currentEvent = $this->parseEvent();
         }
     }
+    /**
+     * @return void
+     */
     #[\ReturnTypeWillChange]
     public function rewind()
     {
@@ -157,7 +163,7 @@ class DecodingEventStreamIterator implements Iterator
     protected function readAndHashBytes($num)
     {
         $bytes = $this->stream->read($num);
-        \hash_update($this->hashContext, $bytes);
+        hash_update($this->hashContext, $bytes);
         return $bytes;
     }
     private function decodeBooleanTrue()
@@ -170,7 +176,7 @@ class DecodingEventStreamIterator implements Iterator
     }
     private function uintToInt($val, $size)
     {
-        $signedCap = \pow(2, $size - 1);
+        $signedCap = pow(2, $size - 1);
         if ($val > $signedCap) {
             $val -= 2 * $signedCap;
         }
@@ -178,30 +184,30 @@ class DecodingEventStreamIterator implements Iterator
     }
     private function decodeInt8()
     {
-        $val = (int) \unpack('C', $this->readAndHashBytes(1))[1];
+        $val = (int) unpack('C', $this->readAndHashBytes(1))[1];
         return [$this->uintToInt($val, 8), 1];
     }
     private function decodeUint8()
     {
-        return [\unpack('C', $this->readAndHashBytes(1))[1], 1];
+        return [unpack('C', $this->readAndHashBytes(1))[1], 1];
     }
     private function decodeInt16()
     {
-        $val = (int) \unpack('n', $this->readAndHashBytes(2))[1];
+        $val = (int) unpack('n', $this->readAndHashBytes(2))[1];
         return [$this->uintToInt($val, 16), 2];
     }
     private function decodeUint16()
     {
-        return [\unpack('n', $this->readAndHashBytes(2))[1], 2];
+        return [unpack('n', $this->readAndHashBytes(2))[1], 2];
     }
     private function decodeInt32()
     {
-        $val = (int) \unpack('N', $this->readAndHashBytes(4))[1];
+        $val = (int) unpack('N', $this->readAndHashBytes(4))[1];
         return [$this->uintToInt($val, 32), 4];
     }
     private function decodeUint32()
     {
-        return [\unpack('N', $this->readAndHashBytes(4))[1], 4];
+        return [unpack('N', $this->readAndHashBytes(4))[1], 4];
     }
     private function decodeInt64()
     {
@@ -214,11 +220,7 @@ class DecodingEventStreamIterator implements Iterator
     }
     private function unpackInt64($bytes)
     {
-        if (\version_compare(\PHP_VERSION, '5.6.3', '<')) {
-            $d = \unpack('N2', $bytes);
-            return [1 => $d[1] << 32 | $d[2]];
-        }
-        return \unpack('J', $bytes);
+        return unpack('J', $bytes);
     }
     private function decodeBytes($lengthBytes = 2)
     {
@@ -245,7 +247,7 @@ class DecodingEventStreamIterator implements Iterator
     }
     private function decodeUuid()
     {
-        $val = \unpack('H32', $this->readAndHashBytes(16))[1];
-        return [\substr($val, 0, 8) . '-' . \substr($val, 8, 4) . '-' . \substr($val, 12, 4) . '-' . \substr($val, 16, 4) . '-' . \substr($val, 20, 12), 16];
+        $val = unpack('H32', $this->readAndHashBytes(16))[1];
+        return [substr($val, 0, 8) . '-' . substr($val, 8, 4) . '-' . substr($val, 12, 4) . '-' . substr($val, 16, 4) . '-' . substr($val, 20, 12), 16];
     }
 }

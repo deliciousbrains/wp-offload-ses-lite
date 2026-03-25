@@ -14,8 +14,8 @@ class Configuration implements ConfigurationInterface
     private $validModes = ['legacy', 'standard', 'cross-region', 'in-region', 'mobile', 'auto'];
     public function __construct($mode = 'legacy')
     {
-        $mode = \strtolower($mode);
-        if (!\in_array($mode, $this->validModes)) {
+        $mode = strtolower($mode);
+        if (!in_array($mode, $this->validModes)) {
             throw new \InvalidArgumentException("'{$mode}' is not a valid mode." . " The mode has to be 'legacy', 'standard', 'cross-region', 'in-region'," . " 'mobile', or 'auto'.");
         }
         $this->mode = $mode;
@@ -33,20 +33,14 @@ class Configuration implements ConfigurationInterface
                 if (isset($this->{$settingName})) {
                     if (isset($settingValue['override'])) {
                         $this->{$settingName} = $settingValue['override'];
-                    } else {
-                        if (isset($settingValue['multiply'])) {
-                            $this->{$settingName} *= $settingValue['multiply'];
-                        } else {
-                            if (isset($settingValue['add'])) {
-                                $this->{$settingName} += $settingValue['add'];
-                            }
-                        }
+                    } else if (isset($settingValue['multiply'])) {
+                        $this->{$settingName} *= $settingValue['multiply'];
+                    } else if (isset($settingValue['add'])) {
+                        $this->{$settingName} += $settingValue['add'];
                     }
-                } else {
-                    if (isset($settingValue['override'])) {
-                        if (\property_exists($this, $settingName)) {
-                            $this->{$settingName} = $settingValue['override'];
-                        }
+                } else if (isset($settingValue['override'])) {
+                    if (property_exists($this, $settingName)) {
+                        $this->{$settingName} = $settingValue['override'];
                     }
                 }
             }

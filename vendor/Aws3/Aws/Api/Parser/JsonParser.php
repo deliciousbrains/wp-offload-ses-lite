@@ -26,7 +26,7 @@ class JsonParser
                         $target[$name] = $this->parse($member, $value[$locationName]);
                     }
                 }
-                if (isset($shape['union']) && $shape['union'] && \is_array($value) && empty($target)) {
+                if (isset($shape['union']) && $shape['union'] && is_array($value) && empty($target)) {
                     foreach ($value as $key => $val) {
                         $target['Unknown'][$key] = $val;
                     }
@@ -43,13 +43,16 @@ class JsonParser
                 $values = $shape->getValue();
                 $target = [];
                 foreach ($value as $k => $v) {
-                    $target[$k] = $this->parse($values, $v);
+                    // null map values should not be deserialized
+                    if (!is_null($v)) {
+                        $target[$k] = $this->parse($values, $v);
+                    }
                 }
                 return $target;
             case 'timestamp':
                 return DateTimeResult::fromTimestamp($value, !empty($shape['timestampFormat']) ? $shape['timestampFormat'] : null);
             case 'blob':
-                return \base64_decode($value);
+                return base64_decode($value);
             default:
                 return $value;
         }

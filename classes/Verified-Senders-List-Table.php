@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 // TODO: we may want to include our own version of this class.
 if ( ! class_exists( '\WP_List_Table' ) ) {
 	require_once( ABSPATH . '/wp-admin/includes/wp-list-table.php' );
@@ -99,7 +103,14 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 				array(
 					'sender'  => $identity['IdentityName'],
 					'type'    => 'EMAIL_ADDRESS' === $identity['IdentityType'] ? 'Email' : 'Domain',
-					'status'  => '<span class="sender-' . $identity['VerificationStatus'] . '">' . $identity['VerificationStatus'] . '</span>',
+					'status'  => wp_kses(
+						sprintf(
+							'<span class="sender-%s">%s</span>',
+							esc_attr( $identity['VerificationStatus'] ),
+							esc_html( $identity['VerificationStatus'] )
+						),
+						array( 'span' => array( 'class' => array() ) )
+					),
 					'actions' => $this->get_sender_actions( $identity ),
 				)
 			);
@@ -116,13 +127,22 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 	 * @return string
 	 */
 	public function get_sender_actions( array $identity ): string {
-		$actions = '<a class="wposes-remove-sender" data-sender="' . $identity['IdentityName'] . '" href="#">' . __( 'Remove', 'wp-offload-ses' ) . '</a>';
+		$actions = '<a class="wposes-remove-sender" data-sender="' . $identity['IdentityName'] . '" href="#">' . __(
+				'Remove',
+				'wp-offload-ses'
+			) . '</a>';
 
 		if ( 'PENDING' === $identity['VerificationStatus'] ) {
 			if ( isset( $identity['VerificationTokens'] ) ) {
-				$actions = '<a class="wposes-view-dns" data-sender="' . $identity['IdentityName'] . '" data-tokens=\'' . json_encode( $identity['VerificationTokens'] ) . '\' href="#">' . __( 'View DNS', 'wp-offload-ses' ) . '</a> | ' . $actions;
+				$actions = '<a class="wposes-view-dns" data-sender="' . $identity['IdentityName'] . '" data-tokens=\'' . wp_json_encode( $identity['VerificationTokens'] ) . '\' href="#">' . __(
+						'View DNS',
+						'wp-offload-ses'
+					) . '</a> | ' . $actions;
 			} else {
-				$actions = '<a class="wposes-resend-verification" data-sender="' . $identity['IdentityName'] . '" href="#">' . __( 'Resend Verification', 'wp-offload-ses' ) . '</a> | ' . $actions;
+				$actions = '<a class="wposes-resend-verification" data-sender="' . $identity['IdentityName'] . '" href="#">' . __(
+						'Resend Verification',
+						'wp-offload-ses'
+					) . '</a> | ' . $actions;
 			}
 		}
 
@@ -138,14 +158,19 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 	 * @return string
 	 */
 	public function column_default( $item, $column_name ) {
-		return $item[ $column_name ];
+		// Status and actions columns contain pre-escaped HTML
+		if ( in_array( $column_name, array( 'status', 'actions' ), true ) ) {
+			return $item[ $column_name ];
+		}
+
+		return esc_html( $item[ $column_name ] );
 	}
 
 	/**
 	 * Display the no items message
 	 */
 	public function no_items() {
-		_e( 'No verified senders found.', 'wp-offload-ses' );
+		esc_html_e( 'No verified senders found.', 'wp-offload-ses' );
 	}
 
 	public function extra_tablenav( $which = 'bottom' ) {
@@ -153,7 +178,41 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 			return;
 		}
 		?>
-		<button id="wposes-add-new-verified-sender" class="button"><?php _e( '+ Add New', 'wp-offload-ses' ); ?></button>
+		<button id="wposes-add-new-verified-sender" class="button">
+			<?php esc_html_e( '+ Add New', 'wp-offload-ses' ); ?>
+		</button>
+		<?php
+	}
+
+	/**
+	 * Display the tablenav with the bulk actions and pagination.
+	 *
+	 * Taken from core prior to the change in which an additional conditional was added
+	 * to the bulk actions to check if there are items in the table.
+	 * Added in WP 6.9, but we need to maintain the ability to show the bulk actions
+	 * even if there are no items in the table to allow for the add new sender button
+	 * to be displayed in the tablenav.
+	 *
+	 * @param string $which The location of the tablenav (top or bottom).
+	 */
+	public function display_tablenav( $which ) {
+		if ( 'top' === $which ) {
+			wp_nonce_field( 'bulk-' . $this->_args['plural'] );
+		}
+		?>
+		<div class="tablenav <?php echo esc_attr( $which ); ?>">
+
+			<?php if ( $this->has_items() ) : ?>
+				<div class="alignleft actions bulkactions">
+					<?php $this->bulk_actions( $which ); ?>
+				</div>
+			<?php
+			endif;
+			$this->extra_tablenav( $which );
+			$this->pagination( $which );
+			?>
+			<br class="clear"/>
+		</div>
 		<?php
 	}
 
@@ -166,8 +225,10 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 	 * @return int
 	 */
 	public function usort_reorder( $a, $b ) {
-		$orderby = ( ! empty( $_REQUEST['orderby'] ) ) ? $_REQUEST['orderby'] : 'sender'; // If no sort, default to sender.
-		$order   = ( ! empty( $_REQUEST['order'] ) ) ? $_REQUEST['order'] : 'asc'; // If no order, default to asc.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only table sorting parameter, sanitized
+		$orderby = ( ! empty( $_REQUEST['orderby'] ) ) ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : 'sender'; // If no sort, default to sender.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only table sorting parameter, sanitized
+		$order   = ( ! empty( $_REQUEST['order'] ) ) ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'asc'; // If no order, default to asc.
 		$result  = strcmp( $a[ $orderby ], $b[ $orderby ] ); // Determine sort order.
 
 		return ( 'asc' === $order ) ? $result : -$result; // Send final sort direction to usort.
@@ -199,8 +260,10 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 				'total_items' => $total_items,
 				'per_page'    => $per_page,
 				'total_pages' => ceil( $total_items / $per_page ),
-				'orderby'     => ! empty( $_REQUEST['orderby'] ) && '' != $_REQUEST['orderby'] ? $_REQUEST['orderby'] : 'sender',
-				'order'       => ! empty( $_REQUEST['order'] ) && '' != $_REQUEST['order'] ? $_REQUEST['order'] : 'asc',
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only table sorting parameter, sanitized
+				'orderby'     => ! empty( $_REQUEST['orderby'] ) && '' !== $_REQUEST['orderby'] ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : 'sender',
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only table sorting parameter, sanitized
+				'order'       => ! empty( $_REQUEST['order'] ) && '' !== $_REQUEST['order'] ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'asc',
 			)
 		);
 	}
@@ -256,7 +319,10 @@ class Verified_Senders_List_Table extends \WP_List_Table {
 		$response['column_headers']       = $headers;
 
 		if ( isset( $total_items ) ) {
-			$response['total_items_i18n'] = sprintf( _n( '1 item', '%s items', $total_items ), number_format_i18n( $total_items ) );
+			$response['total_items_i18n'] = sprintf(
+				_n( '1 item', '%s items', $total_items ),
+				number_format_i18n( $total_items )
+			);
 		}
 
 		if ( isset( $total_pages ) ) {

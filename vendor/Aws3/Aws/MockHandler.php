@@ -27,13 +27,13 @@ class MockHandler implements \Countable
      * @param callable $onFulfilled Callback to invoke when the return value is fulfilled.
      * @param callable $onRejected  Callback to invoke when the return value is rejected.
      */
-    public function __construct(array $resultOrQueue = [], callable $onFulfilled = null, callable $onRejected = null)
+    public function __construct(array $resultOrQueue = [], ?callable $onFulfilled = null, ?callable $onRejected = null)
     {
         $this->queue = [];
         $this->onFulfilled = $onFulfilled;
         $this->onRejected = $onRejected;
         if ($resultOrQueue) {
-            \call_user_func_array([$this, 'append'], \array_values($resultOrQueue));
+            call_user_func_array([$this, 'append'], array_values($resultOrQueue));
         }
     }
     /**
@@ -42,11 +42,11 @@ class MockHandler implements \Countable
      */
     public function append()
     {
-        foreach (\func_get_args() as $value) {
-            if ($value instanceof ResultInterface || $value instanceof Exception || \is_callable($value)) {
+        foreach (func_get_args() as $value) {
+            if ($value instanceof ResultInterface || $value instanceof Exception || is_callable($value)) {
                 $this->queue[] = $value;
             } else {
-                throw new \InvalidArgumentException('Expected an Aws\\ResultInterface or Exception.');
+                throw new \InvalidArgumentException('Expected an Aws\ResultInterface or Exception.');
             }
         }
     }
@@ -55,11 +55,11 @@ class MockHandler implements \Countable
      */
     public function appendException()
     {
-        foreach (\func_get_args() as $value) {
+        foreach (func_get_args() as $value) {
             if ($value instanceof \Exception || $value instanceof \Throwable) {
                 $this->queue[] = $value;
             } else {
-                throw new \InvalidArgumentException('Expected an \\Exception or \\Throwable.');
+                throw new \InvalidArgumentException('Expected an \Exception or \Throwable.');
             }
         }
     }
@@ -71,8 +71,8 @@ class MockHandler implements \Countable
         }
         $this->lastCommand = $command;
         $this->lastRequest = $request;
-        $result = \array_shift($this->queue);
-        if (\is_callable($result)) {
+        $result = array_shift($this->queue);
+        if (is_callable($result)) {
             $result = $result($command, $request);
         }
         if ($result instanceof \Exception) {
@@ -95,7 +95,7 @@ class MockHandler implements \Countable
     /**
      * Get the last received request.
      *
-     * @return RequestInterface
+     * @return RequestInterface|null
      */
     public function getLastRequest()
     {
@@ -118,6 +118,6 @@ class MockHandler implements \Countable
     #[\ReturnTypeWillChange]
     public function count()
     {
-        return \count($this->queue);
+        return count($this->queue);
     }
 }

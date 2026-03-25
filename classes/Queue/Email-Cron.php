@@ -2,6 +2,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES\Queue;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Cron;
 
@@ -92,7 +96,7 @@ class Email_Cron extends Cron {
 		} else {
 			$memory_limit = '256M';
 		}
-		if ( ! $memory_limit || -1 == $memory_limit ) {
+		if ( ! $memory_limit || -1 === $memory_limit ) {
 			// Unlimited, set to 1GB
 			$memory_limit = '1000M';
 		}

@@ -1,4 +1,9 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 $failed_emails         = $this->get_health_report()->get_failed_emails();
 $num_failed            = (int) $this->get_health_report()->get_total_email_failures();
 $retried_automatically = 0;
@@ -12,17 +17,17 @@ if ( $this->is_pro() ) {
 <table width="100%">
 	<tr>
 		<td>
-			<h3 style="margin: 10px 0 0 0; font-size: 18px; font-weight: normal;"><?php _e( 'Email Failures', 'wp-offload-ses' ); ?></h3>
+			<h3 style="margin: 10px 0 0 0; font-size: 18px; font-weight: normal;"><?php esc_html_e( 'Email Failures', 'wp-offload-ses' ); ?></h3>
 			<?php if ( $num_failed ) : ?>
 			<p style="margin: 4px 0 0 0;">
 				<?php
 				$total_failed = $num_failed + $retried_automatically + $retried_manually;
-				printf(
+				echo esc_html( sprintf(
 					__( 'Showing %1$s of %2$s emails that failed to send in the past %3$s', 'wp-offload-ses' ),
 					number_format_i18n( count( $failed_emails ) ),
 					number_format_i18n( $total_failed ),
 					$this->get_health_report()->get_reporting_period()
-				);
+				) );
 				?>	
 			</p>
 			<?php endif; ?>
@@ -41,7 +46,7 @@ if ( $this->is_pro() ) {
 			?>
 		</td>
 		<td style="vertical-align: bottom; text-align: right;" align="right">
-			<?php echo $this->get_health_report()->get_view_full_report_link( 'failed' ); ?>
+			<?php echo wp_kses_post( $this->get_health_report()->get_view_full_report_link( 'failed' ) ); ?>
 		</td>
 	</tr>
 	<tr>

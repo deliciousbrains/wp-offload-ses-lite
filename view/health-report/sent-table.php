@@ -1,10 +1,16 @@
+<?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+?>
 <td colspan="2" style="padding: 10px 0">
 	<table width="100%" style="border: 1px solid #ccd0d4; border-collapse: collapse;">
 		<tr style="background-color: #f9f9f9;">
-			<th style="padding: 8px 10px;" align="left"><?php _e( 'Subject', 'wp-offload-ses' ); ?></th>
-			<th style="width:85px; padding: 8px 10px;"><?php _e( 'Emails Sent', 'wp-offload-ses' ); ?></th>
-			<th style="width:85px; padding: 8px 10px;"><?php _e( 'Open Count', 'wp-offload-ses' ); ?></th>
-			<th style="width:85px; padding: 8px 10px;"><?php _e( 'Click Count', 'wp-offload-ses' ); ?></th>
+			<th style="padding: 8px 10px;" align="left"><?php esc_html_e( 'Subject', 'wp-offload-ses' ); ?></th>
+			<th style="width:85px; padding: 8px 10px;"><?php esc_html_e( 'Emails Sent', 'wp-offload-ses' ); ?></th>
+			<th style="width:85px; padding: 8px 10px;"><?php esc_html_e( 'Open Count', 'wp-offload-ses' ); ?></th>
+			<th style="width:85px; padding: 8px 10px;"><?php esc_html_e( 'Click Count', 'wp-offload-ses' ); ?></th>
 		</tr>
 		<?php
 		foreach ( $sent_emails as $key => $email ) {
@@ -21,11 +27,11 @@
 				$click_count = $click_count ? number_format_i18n( $click_count ) : 0;
 			}
 			?>
-			<tr style="<?php echo $style; ?>">
+			<tr style="<?php echo esc_attr( $style ); ?>">
 				<td style="padding: 8px 10px;"><a href="#" style="text-decoration: none; color: black; cursor: default;"><?php echo esc_html( $email['subject'] ); ?></a></td>
-				<td style="padding: 8px 10px;" align="center"><?php echo number_format_i18n( $email['emails_sent'] ); ?></td>
-				<td style="padding: 8px 10px;" align="center"><?php echo $open_count; ?></td>
-				<td style="padding: 8px 10px;" align="center"><?php echo $click_count; ?></td>
+				<td style="padding: 8px 10px;" align="center"><?php echo esc_html( number_format_i18n( $email['emails_sent'] ) ); ?></td>
+				<td style="padding: 8px 10px;" align="center"><?php echo wp_kses_post( $open_count ); ?></td>
+				<td style="padding: 8px 10px;" align="center"><?php echo wp_kses_post( $click_count ); ?></td>
 			</tr>
 			<?php
 		}

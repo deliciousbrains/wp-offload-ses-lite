@@ -34,6 +34,7 @@ class ResultPaginator implements \Iterator
         $this->operation = $operation;
         $this->args = $args;
         $this->config = $config;
+        MetricsBuilder::appendMetricsCaptureMiddleware($this->client->getHandlerList(), MetricsBuilder::PAGINATOR);
     }
     /**
      * Runs a paginator asynchronously and uses a callback to handle results.
@@ -56,15 +57,15 @@ class ResultPaginator implements \Iterator
      */
     public function each(callable $handleResult)
     {
-        return Promise\Coroutine::of(function () use($handleResult) {
+        return Promise\Coroutine::of(function () use ($handleResult) {
             $nextToken = null;
             do {
                 $command = $this->createNextCommand($this->args, $nextToken);
-                $result = (yield $this->client->executeAsync($command));
+                $result = yield $this->client->executeAsync($command);
                 $nextToken = $this->determineNextToken($result);
                 $retVal = $handleResult($result);
                 if ($retVal !== null) {
-                    (yield Promise\Create::promiseFor($retVal));
+                    yield Promise\Create::promiseFor($retVal);
                 }
             } while ($nextToken);
         });
@@ -80,7 +81,7 @@ class ResultPaginator implements \Iterator
     public function search($expression)
     {
         // Apply JMESPath expression on each result, but as a flat sequence.
-        return flatmap($this, function (Result $result) use($expression) {
+        return flatmap($this, function (Result $result) use ($expression) {
             return (array) $result->search($expression);
         });
     }
@@ -92,16 +93,25 @@ class ResultPaginator implements \Iterator
     {
         return $this->valid() ? $this->result : \false;
     }
+    /**
+     * @return mixed
+     */
     #[\ReturnTypeWillChange]
     public function key()
     {
         return $this->valid() ? $this->requestCount - 1 : null;
     }
+    /**
+     * @return void
+     */
     #[\ReturnTypeWillChange]
     public function next()
     {
         $this->result = null;
     }
+    /**
+     * @return bool
+     */
     #[\ReturnTypeWillChange]
     public function valid()
     {
@@ -126,6 +136,9 @@ class ResultPaginator implements \Iterator
         }
         return \false;
     }
+    /**
+     * @return void
+     */
     #[\ReturnTypeWillChange]
     public function rewind()
     {
@@ -133,9 +146,9 @@ class ResultPaginator implements \Iterator
         $this->nextToken = null;
         $this->result = null;
     }
-    private function createNextCommand(array $args, array $nextToken = null)
+    private function createNextCommand(array $args, ?array $nextToken = null)
     {
-        return $this->client->getCommand($this->operation, \array_merge($args, $nextToken ?: []));
+        return $this->client->getCommand($this->operation, array_merge($args, $nextToken ?: []));
     }
     private function determineNextToken(Result $result)
     {
@@ -145,8 +158,8 @@ class ResultPaginator implements \Iterator
         if ($this->config['more_results'] && !$result->search($this->config['more_results'])) {
             return null;
         }
-        $nextToken = \is_scalar($this->config['output_token']) ? [$this->config['input_token'] => $this->config['output_token']] : \array_combine($this->config['input_token'], $this->config['output_token']);
-        return \array_filter(\array_map(function ($outputToken) use($result) {
+        $nextToken = is_scalar($this->config['output_token']) ? [$this->config['input_token'] => $this->config['output_token']] : array_combine($this->config['input_token'], $this->config['output_token']);
+        return array_filter(array_map(function ($outputToken) use ($result) {
             return $result->search($outputToken);
         }, $nextToken));
     }

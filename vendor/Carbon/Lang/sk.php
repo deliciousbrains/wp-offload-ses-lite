@@ -33,6 +33,7 @@ namespace DeliciousBrains\WP_Offload_SES;
  * - Jakub ADAMEC
  * - Marek Adamický
  * - AlterwebStudio
+ * - Peter Kundis
  */
 use DeliciousBrains\WP_Offload_SES\Carbon\CarbonInterface;
 $fromNow = function ($time) {
@@ -40,7 +41,7 @@ $fromNow = function ($time) {
 };
 $ago = function ($time) {
     $replacements = ['/\\bhodina\\b/' => 'hodinou', '/\\bminúta\\b/' => 'minútou', '/\\bsekunda\\b/' => 'sekundou', '/\\bdeň\\b/u' => 'dňom', '/\\btýždeň\\b/u' => 'týždňom', '/\\bmesiac\\b/' => 'mesiacom', '/\\brok\\b/' => 'rokom'];
-    $replacementsPlural = ['/\\bhodiny\\b/' => 'hodinami', '/\\bminúty\\b/' => 'minútami', '/\\bsekundy\\b/' => 'sekundami', '/\\bdni\\b/' => 'dňami', '/\\btýždne\\b/' => 'týždňami', '/\\bmesiace\\b/' => 'mesiacmi', '/\\broky\\b/' => 'rokmi'];
+    $replacementsPlural = ['/\\b(?:hodiny|hodín)\\b/' => 'hodinami', '/\\b(?:minúty|minút)\\b/' => 'minútami', '/\\b(?:sekundy|sekúnd)\\b/' => 'sekundami', '/\\bdeň\\b/' => 'dňom', '/\\bdni\\b/' => 'dňami', '/\\bdní\\b/u' => 'dňami', '/\\b(?:týždne|týždňov)\\b/' => 'týždňami', '/\\b(?:mesiace|mesiacov)\\b/' => 'mesiacmi', '/\\b(?:roky|rokov)\\b/' => 'rokmi'];
     foreach ($replacements + $replacementsPlural as $pattern => $replacement) {
         $time = \preg_replace($pattern, $replacement, $time);
     }
@@ -57,4 +58,4 @@ return ['year' => ':count rok|:count roky|:count rokov', 'a_year' => 'rok|:count
         default:
             return '[minulá] dddd [o] LT';
     }
-}, 'sameElse' => 'L'], 'weekdays' => ['nedeľa', 'pondelok', 'utorok', 'streda', 'štvrtok', 'piatok', 'sobota'], 'weekdays_short' => ['ned', 'pon', 'uto', 'str', 'štv', 'pia', 'sob'], 'weekdays_min' => ['ne', 'po', 'ut', 'st', 'št', 'pi', 'so'], 'months' => ['január', 'február', 'marec', 'apríl', 'máj', 'jún', 'júl', 'august', 'september', 'október', 'november', 'december'], 'months_short' => ['jan', 'feb', 'mar', 'apr', 'máj', 'jún', 'júl', 'aug', 'sep', 'okt', 'nov', 'dec'], 'meridiem' => ['dopoludnia', 'popoludní']];
+}, 'sameElse' => 'L'], 'weekdays' => ['nedeľa', 'pondelok', 'utorok', 'streda', 'štvrtok', 'piatok', 'sobota'], 'weekdays_short' => ['ned', 'pon', 'uto', 'str', 'štv', 'pia', 'sob'], 'weekdays_min' => ['ne', 'po', 'ut', 'st', 'št', 'pi', 'so'], 'months' => ['januára', 'februára', 'marca', 'apríla', 'mája', 'júna', 'júla', 'augusta', 'septembra', 'októbra', 'novembra', 'decembra'], 'months_standalone' => ['január', 'február', 'marec', 'apríl', 'máj', 'jún', 'júl', 'august', 'september', 'október', 'november', 'december'], 'months_short' => ['jan', 'feb', 'mar', 'apr', 'máj', 'jún', 'júl', 'aug', 'sep', 'okt', 'nov', 'dec'], 'months_regexp' => '/(DD?o?\\.?(\\[[^\\[\\]]*\\]|\\s)+MMMM?|L{2,4}|l{2,4})/', 'meridiem' => ['dopoludnia', 'popoludní']];

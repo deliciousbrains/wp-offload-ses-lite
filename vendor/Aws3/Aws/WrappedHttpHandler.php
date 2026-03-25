@@ -66,16 +66,16 @@ class WrappedHttpHandler
         $options = $command['@http'] ?: [];
         $stats = [];
         if ($this->collectStats || !empty($options['collect_stats'])) {
-            $options['http_stats_receiver'] = static function (array $transferStats) use(&$stats) {
+            $options['http_stats_receiver'] = static function (array $transferStats) use (&$stats) {
                 $stats = $transferStats;
             };
         } elseif (isset($options['http_stats_receiver'])) {
-            throw new \InvalidArgumentException('Providing a custom HTTP stats' . ' receiver to Aws\\WrappedHttpHandler is not supported.');
+            throw new \InvalidArgumentException('Providing a custom HTTP stats' . ' receiver to Aws\WrappedHttpHandler is not supported.');
         }
-        return Promise\Create::promiseFor($fn($request, $options))->then(function (ResponseInterface $res) use($command, $request, &$stats) {
+        return Promise\Create::promiseFor($fn($request, $options))->then(function (ResponseInterface $res) use ($command, $request, &$stats) {
             return $this->parseResponse($command, $request, $res, $stats);
-        }, function ($err) use($request, $command, &$stats) {
-            if (\is_array($err)) {
+        }, function ($err) use ($request, $command, &$stats) {
+            if (is_array($err)) {
                 $err = $this->parseError($err, $request, $command, $stats);
             }
             return new Promise\RejectedPromise($err);
@@ -100,7 +100,7 @@ class WrappedHttpHandler
         }
         // Bring headers into the metadata array.
         foreach ($response->getHeaders() as $name => $values) {
-            $metadata['headers'][\strtolower($name)] = $values[0];
+            $metadata['headers'][strtolower($name)] = $values[0];
         }
         $result['@metadata'] = $metadata;
         return $result;
@@ -125,7 +125,7 @@ class WrappedHttpHandler
             $parts = ['response' => null];
         } else {
             try {
-                $parts = \call_user_func($this->errorParser, $err['response'], $command);
+                $parts = call_user_func($this->errorParser, $err['response'], $command);
                 $serviceError .= " {$parts['code']} ({$parts['type']}): " . "{$parts['message']} - " . $err['response']->getBody();
             } catch (ParserException $e) {
                 $parts = [];
@@ -137,6 +137,6 @@ class WrappedHttpHandler
         $parts['request'] = $request;
         $parts['connection_error'] = !empty($err['connection_error']);
         $parts['transfer_stats'] = $stats;
-        return new $this->exceptionClass(\sprintf('Error executing "%s" on "%s"; %s', $command->getName(), $request->getUri(), $serviceError), $command, $parts, $err['exception']);
+        return new $this->exceptionClass(sprintf('Error executing "%s" on "%s"; %s', $command->getName(), $request->getUri(), $serviceError), $command, $parts, $err['exception']);
     }
 }

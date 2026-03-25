@@ -1,10 +1,15 @@
-<?php 
-	use DeliciousBrains\WP_Offload_SES\Utils;
+<?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
+use DeliciousBrains\WP_Offload_SES\Utils;
 ?>
 
 <div id="tab-configure-wp-offload-ses"  data-prefix="wposes" class="wposes-tab wposes-content">
-	<h2><?php _e( 'Configure WP Offload SES', 'wp-offload-ses' ); ?></h2>
-	<p><?php _e( 'Configure the settings below to finish setting up the plugin.', 'wp-offload-ses' ); ?></p>
+	<h2><?php esc_html_e( 'Configure WP Offload SES', 'wp-offload-ses' ); ?></h2>
+	<p><?php esc_html_e( 'Configure the settings below to finish setting up the plugin.', 'wp-offload-ses' ); ?></p>
 
 	<form id="wposes-setup-final-settings" method="post">
 		<input type="hidden" name="completed-setup" value="1" />
@@ -20,7 +25,7 @@
 
 	<?php
 		$args = array(
-			'previous_hash' => 'complete-verification',
+			'previous_hash' => 'sandbox-mode',
 			'next_hash'     => 'settings',
 			'next_title'    => __( 'Save and Complete Setup', 'wp-offload-ses' ),
 			'step'          => 6,

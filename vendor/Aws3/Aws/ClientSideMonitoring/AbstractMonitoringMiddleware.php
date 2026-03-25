@@ -86,7 +86,7 @@ abstract class AbstractMonitoringMiddleware implements MonitoringMiddlewareInter
             $cmd['@http']['collect_stats'] = \true;
             $eventData = $this->populateRequestEventData($cmd, $request, $this->getNewEvent($cmd, $request));
         }
-        $g = function ($value) use($eventData, $enabled) {
+        $g = function ($value) use ($eventData, $enabled) {
             if ($enabled) {
                 $eventData = $this->populateResultEventData($value, $eventData);
                 $this->sendEventData($eventData);
@@ -107,7 +107,7 @@ abstract class AbstractMonitoringMiddleware implements MonitoringMiddlewareInter
     }
     private function getNewEvent(CommandInterface $cmd, RequestInterface $request)
     {
-        $event = ['Api' => $cmd->getName(), 'ClientId' => $this->getClientId(), 'Region' => $this->getRegion(), 'Service' => $this->getService(), 'Timestamp' => (int) \floor(\microtime(\true) * 1000), 'UserAgent' => \substr($request->getHeaderLine('User-Agent') . ' ' . \DeliciousBrains\WP_Offload_SES\Aws3\Aws\default_user_agent(), 0, 256), 'Version' => 1];
+        $event = ['Api' => $cmd->getName(), 'ClientId' => $this->getClientId(), 'Region' => $this->getRegion(), 'Service' => $this->getService(), 'Timestamp' => (int) floor(microtime(\true) * 1000), 'UserAgent' => substr($request->getHeaderLine('User-Agent') . ' ' . \DeliciousBrains\WP_Offload_SES\Aws3\Aws\default_user_agent(), 0, 256), 'Version' => 1];
         return $event;
     }
     private function getHost()
@@ -178,15 +178,15 @@ abstract class AbstractMonitoringMiddleware implements MonitoringMiddlewareInter
      *
      * @return bool Returns true if the socket is created, false otherwise.
      */
-    private function isSocketCreated() : bool
+    private function isSocketCreated(): bool
     {
         // Before version 8, sockets are resources
         // After version 8, sockets are instances of Socket
         if (\PHP_MAJOR_VERSION >= 8) {
-            $socketClass = '\\Socket';
+            $socketClass = '\Socket';
             return self::$socket instanceof $socketClass;
         } else {
-            return \is_resource(self::$socket);
+            return is_resource(self::$socket);
         }
     }
     /**
@@ -200,10 +200,10 @@ abstract class AbstractMonitoringMiddleware implements MonitoringMiddlewareInter
      */
     private function prepareSocket($forceNewConnection = \false)
     {
-        if (!$this->isSocketCreated() || $forceNewConnection || \socket_last_error(self::$socket)) {
-            self::$socket = \socket_create(\AF_INET, \SOCK_DGRAM, \SOL_UDP);
-            \socket_clear_error(self::$socket);
-            \socket_connect(self::$socket, $this->getHost(), $this->getPort());
+        if (!$this->isSocketCreated() || $forceNewConnection || socket_last_error(self::$socket)) {
+            self::$socket = socket_create(\AF_INET, \SOCK_DGRAM, \SOL_UDP);
+            socket_clear_error(self::$socket);
+            socket_connect(self::$socket, $this->getHost(), $this->getPort());
         }
         return self::$socket;
     }
@@ -217,8 +217,8 @@ abstract class AbstractMonitoringMiddleware implements MonitoringMiddlewareInter
     private function sendEventData(array $eventData)
     {
         $socket = $this->prepareSocket();
-        $datagram = \json_encode($eventData);
-        $result = \socket_write($socket, $datagram, \strlen($datagram));
+        $datagram = json_encode($eventData);
+        $result = socket_write($socket, $datagram, strlen($datagram));
         if ($result === \false) {
             $this->prepareSocket(\true);
         }

@@ -1,5 +1,6 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Carbon package.
  *
@@ -10,35 +11,29 @@
  */
 namespace DeliciousBrains\WP_Offload_SES\Carbon\Traits;
 
+use DateTimeZone;
 /**
  * Trait Timestamp.
  */
 trait Timestamp
 {
     /**
-     * Create a Carbon instance from a timestamp and set the timezone (use default one if not specified).
+     * Create a Carbon instance from a timestamp and set the timezone (UTC by default).
      *
      * Timestamp input can be given as int, float or a string containing one or more numbers.
-     *
-     * @param float|int|string          $timestamp
-     * @param \DateTimeZone|string|null $tz
-     *
-     * @return static
      */
-    public static function createFromTimestamp($timestamp, $tz = null)
+    #[\ReturnTypeWillChange]
+    public static function createFromTimestamp(float|int|string $timestamp, DateTimeZone|string|int|null $timezone = null) : static
     {
-        return static::createFromTimestampUTC($timestamp)->setTimezone($tz);
+        $date = static::createFromTimestampUTC($timestamp);
+        return $timezone === null ? $date : $date->setTimezone($timezone);
     }
     /**
-     * Create a Carbon instance from an timestamp keeping the timezone to UTC.
+     * Create a Carbon instance from a timestamp keeping the timezone to UTC.
      *
      * Timestamp input can be given as int, float or a string containing one or more numbers.
-     *
-     * @param float|int|string $timestamp
-     *
-     * @return static
      */
-    public static function createFromTimestampUTC($timestamp)
+    public static function createFromTimestampUTC(float|int|string $timestamp) : static
     {
         [$integer, $decimal] = self::getIntegerAndDecimalParts($timestamp);
         $delta = \floor($decimal / static::MICROSECONDS_PER_SECOND);
@@ -56,7 +51,7 @@ trait Timestamp
      *
      * @return static
      */
-    public static function createFromTimestampMsUTC($timestamp)
+    public static function createFromTimestampMsUTC($timestamp) : static
     {
         [$milliseconds, $microseconds] = self::getIntegerAndDecimalParts($timestamp, 3);
         $sign = $milliseconds < 0 || $milliseconds === 0.0 && $microseconds < 0 ? -1 : 1;
@@ -64,37 +59,29 @@ trait Timestamp
         $microseconds = $sign * \abs($microseconds) + static::MICROSECONDS_PER_MILLISECOND * ($milliseconds % static::MILLISECONDS_PER_SECOND);
         $seconds = $sign * \floor($milliseconds / static::MILLISECONDS_PER_SECOND);
         $delta = \floor($microseconds / static::MICROSECONDS_PER_SECOND);
-        $seconds += $delta;
+        $seconds = (int) ($seconds + $delta);
         $microseconds -= $delta * static::MICROSECONDS_PER_SECOND;
-        $microseconds = \str_pad($microseconds, 6, '0', \STR_PAD_LEFT);
+        $microseconds = \str_pad((string) (int) $microseconds, 6, '0', \STR_PAD_LEFT);
         return static::rawCreateFromFormat('U u', "{$seconds} {$microseconds}");
     }
     /**
      * Create a Carbon instance from a timestamp in milliseconds.
      *
      * Timestamp input can be given as int, float or a string containing one or more numbers.
-     *
-     * @param float|int|string          $timestamp
-     * @param \DateTimeZone|string|null $tz
-     *
-     * @return static
      */
-    public static function createFromTimestampMs($timestamp, $tz = null)
+    public static function createFromTimestampMs(float|int|string $timestamp, DateTimeZone|string|int|null $timezone = null) : static
     {
-        return static::createFromTimestampMsUTC($timestamp)->setTimezone($tz);
+        $date = static::createFromTimestampMsUTC($timestamp);
+        return $timezone === null ? $date : $date->setTimezone($timezone);
     }
     /**
      * Set the instance's timestamp.
      *
      * Timestamp input can be given as int, float or a string containing one or more numbers.
-     *
-     * @param float|int|string $unixTimestamp
-     *
-     * @return static
      */
-    public function timestamp($unixTimestamp)
+    public function timestamp(float|int|string $timestamp) : static
     {
-        return $this->setTimestamp($unixTimestamp);
+        return $this->setTimestamp($timestamp);
     }
     /**
      * Returns a timestamp rounded with the given precision (6 by default).
@@ -114,7 +101,7 @@ trait Timestamp
      *
      * @return float
      */
-    public function getPreciseTimestamp($precision = 6)
+    public function getPreciseTimestamp($precision = 6) : float
     {
         return \round((float) $this->rawFormat('Uu') / \pow(10, 6 - $precision));
     }
@@ -123,7 +110,7 @@ trait Timestamp
      *
      * @return float
      */
-    public function valueOf()
+    public function valueOf() : float
     {
         return $this->getPreciseTimestamp(3);
     }
@@ -132,7 +119,7 @@ trait Timestamp
      *
      * @return int
      */
-    public function getTimestampMs()
+    public function getTimestampMs() : int
     {
         return (int) $this->getPreciseTimestamp(3);
     }
@@ -143,7 +130,7 @@ trait Timestamp
      *
      * @return int
      */
-    public function unix()
+    public function unix() : int
     {
         return $this->getTimestamp();
     }
@@ -159,7 +146,7 @@ trait Timestamp
      *
      * @return array 0-index is integer part, 1-index is decimal part digits
      */
-    private static function getIntegerAndDecimalParts($numbers, $decimals = 6)
+    private static function getIntegerAndDecimalParts($numbers, $decimals = 6) : array
     {
         if (\is_int($numbers) || \is_float($numbers)) {
             $numbers = \number_format($numbers, $decimals, '.', '');

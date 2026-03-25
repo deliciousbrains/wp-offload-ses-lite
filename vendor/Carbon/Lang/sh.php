@@ -10,14 +10,6 @@ namespace DeliciousBrains\WP_Offload_SES;
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-// @codeCoverageIgnoreStart
-use DeliciousBrains\WP_Offload_SES\Symfony\Component\Translation\PluralizationRules;
-if (\class_exists('DeliciousBrains\\WP_Offload_SES\\Symfony\\Component\\Translation\\PluralizationRules')) {
-    PluralizationRules::set(static function ($number) {
-        return $number % 10 == 1 && $number % 100 != 11 ? 0 : ($number % 10 >= 2 && $number % 10 <= 4 && ($number % 100 < 10 || $number % 100 >= 20) ? 1 : 2);
-    }, 'sh');
-}
-// @codeCoverageIgnoreEnd
 /*
  * Authors:
  * - Томица Кораћ

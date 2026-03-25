@@ -3,13 +3,15 @@
 Plugin Name: WP Offload SES Lite
 Description: Automatically send WordPress mail through Amazon SES (Simple Email Service).
 Author: Delicious Brains
-Version: 1.7.2
+Version: 1.8.0
 Author URI: https://deliciousbrains.com/
 Plugin URI: https://deliciousbrains.com/
 Update URI: false
 Network: True
 Text Domain: wp-offload-ses
 Domain Path: /languages/
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 // Copyright (c) 2018 Delicious Brains. All rights reserved.
 //
@@ -37,7 +39,8 @@ if ( defined( 'WPOSES_FILE' ) ) {
 	return;
 }
 
-$GLOBALS['wposes_meta']['wp-ses']['version'] = '1.7.2';
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- wposes is the plugin's established prefix.
+$GLOBALS['wposes_meta']['wp-ses']['version'] = '1.8.0';
 
 if ( ! defined( 'WPOSESLITE_FILE' ) ) {
 	// Defines the path to the main plugin file.
@@ -51,7 +54,9 @@ if ( ! class_exists( 'DeliciousBrains\WP_Offload_SES\Compatibility_Check' ) ) {
 	require_once WPOSESLITE_PATH . 'classes/Compatibility-Check.php';
 }
 
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- wposes is the plugin's established prefix.
 global $wposes_compat_check;
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 $wposes_compat_check = new DeliciousBrains\WP_Offload_SES\Compatibility_Check(
 	'WP Offload SES Lite',
 	'wp-ses',
@@ -63,12 +68,14 @@ add_action( 'activated_plugin', array( $wposes_compat_check, 'deactivate_other_i
 /**
  * Initiate the WP Offload SES plugin.
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 function wp_offload_ses_lite_init() {
 	if ( class_exists( 'DeliciousBrains\WP_Offload_SES\WP_Offload_SES' ) ) {
 		return;
 	}
 
 	/** @var WP_Offload_SES $wp_offload_ses */
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 	global $wp_offload_ses;
 
 	/** @var Compatibility_Check $wposes_compat_check */
@@ -109,6 +116,7 @@ add_action( 'init', 'wp_offload_ses_lite_init', 1 );
  *
  * @return string
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- wposes is the plugin's established prefix.
 function wposes_lite_get_plugin_dir_path() {
 	$abspath    = wp_normalize_path( dirname( WPOSESLITE_FILE ) );
 	$mu_path    = $abspath . '/wp-ses';
@@ -127,6 +135,7 @@ function wposes_lite_get_plugin_dir_path() {
  *
  * @return bool
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- wposes is the plugin's established prefix.
 function wposes_lite_sending_enabled() {
 	if ( defined( 'WPOSES_SETTINGS' ) ) {
 		require_once WPOSESLITE_PATH . 'classes/Utils.php';
@@ -170,11 +179,13 @@ if ( ! function_exists( 'wp_mail' ) ) {
 		 *
 		 * @return bool
 		 */
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Intentional wp_mail() override for SES integration.
 		function wp_mail( $to, $subject, $message, $headers = '', $attachments = array() ) {
 			/** @var WP_Offload_SES $wp_offload_ses */
 			global $wp_offload_ses;
 
 			if ( is_null( $wp_offload_ses ) ) {
+				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 				$wp_offload_ses = wp_offload_ses_lite_init();
 			}
 
@@ -187,6 +198,7 @@ if ( ! function_exists( 'wp_mail' ) ) {
 		}
 	}
 } else {
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- WordPress core global.
 	global $pagenow;
 
 	if ( ! in_array( $pagenow, array( 'plugins.php', 'update-core.php' ), true ) ) {

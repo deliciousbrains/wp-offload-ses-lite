@@ -29,12 +29,12 @@ abstract class AbstractConfigurationProvider
     public static function cache(callable $provider, CacheInterface $cache, $cacheKey = null)
     {
         $cacheKey = $cacheKey ?: static::$cacheKey;
-        return function () use($provider, $cache, $cacheKey) {
+        return function () use ($provider, $cache, $cacheKey) {
             $found = $cache->get($cacheKey);
             if ($found instanceof static::$interfaceClass) {
                 return Promise\Create::promiseFor($found);
             }
-            return $provider()->then(function ($config) use($cache, $cacheKey) {
+            return $provider()->then(function ($config) use ($cache, $cacheKey) {
                 $cache->set($cacheKey, $config);
                 return $config;
             });
@@ -49,15 +49,15 @@ abstract class AbstractConfigurationProvider
      */
     public static function chain()
     {
-        $links = \func_get_args();
+        $links = func_get_args();
         if (empty($links)) {
             throw new \InvalidArgumentException('No providers in chain');
         }
-        return function () use($links) {
+        return function () use ($links) {
             /** @var callable $parent */
-            $parent = \array_shift($links);
+            $parent = array_shift($links);
             $promise = $parent();
-            while ($next = \array_shift($links)) {
+            while ($next = array_shift($links)) {
                 $promise = $promise->otherwise($next);
             }
             return $promise;
@@ -71,12 +71,12 @@ abstract class AbstractConfigurationProvider
     protected static function getHomeDir()
     {
         // On Linux/Unix-like systems, use the HOME environment variable
-        if ($homeDir = \getenv('HOME')) {
+        if ($homeDir = getenv('HOME')) {
             return $homeDir;
         }
         // Get the HOMEDRIVE and HOMEPATH values for Windows hosts
-        $homeDrive = \getenv('HOMEDRIVE');
-        $homePath = \getenv('HOMEPATH');
+        $homeDrive = getenv('HOMEDRIVE');
+        $homePath = getenv('HOMEPATH');
         return $homeDrive && $homePath ? $homeDrive . $homePath : null;
     }
     /**
@@ -87,7 +87,7 @@ abstract class AbstractConfigurationProvider
      */
     protected static function getDefaultConfigFilename()
     {
-        if ($filename = \getenv(self::ENV_CONFIG_FILE)) {
+        if ($filename = getenv(self::ENV_CONFIG_FILE)) {
             return $filename;
         }
         return self::getHomeDir() . '/.aws/config';
@@ -101,7 +101,7 @@ abstract class AbstractConfigurationProvider
      */
     public static function memoize(callable $provider)
     {
-        return function () use($provider) {
+        return function () use ($provider) {
             static $result;
             static $isConstant;
             // Constant config will be returned constantly.
@@ -113,7 +113,7 @@ abstract class AbstractConfigurationProvider
                 $result = $provider();
             }
             // Return config and set flag that provider is already set
-            return $result->then(function ($config) use(&$isConstant) {
+            return $result->then(function ($config) use (&$isConstant) {
                 $isConstant = \true;
                 return $config;
             });

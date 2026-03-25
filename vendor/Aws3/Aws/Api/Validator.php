@@ -3,6 +3,7 @@
 namespace DeliciousBrains\WP_Offload_SES\Aws3\Aws\Api;
 
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws;
+use stdClass;
 /**
  * Validates a schema against a hash of input.
  */
@@ -18,7 +19,7 @@ class Validator
      *                           "max", and "pattern". If a key is not
      *                           provided, the constraint will assume false.
      */
-    public function __construct(array $constraints = null)
+    public function __construct(?array $constraints = null)
     {
         static $assumedFalseValues = ['required' => \false, 'min' => \false, 'max' => \false, 'pattern' => \false];
         $this->constraints = empty($constraints) ? self::$defaultConstraints : $constraints + $assumedFalseValues;
@@ -36,7 +37,7 @@ class Validator
     {
         $this->dispatch($shape, $input);
         if ($this->errors) {
-            $message = \sprintf("Found %d error%s while validating the input provided for the " . "%s operation:\n%s", \count($this->errors), \count($this->errors) > 1 ? 's' : '', $name, \implode("\n", $this->errors));
+            $message = sprintf("Found %d error%s while validating the input provided for the " . "%s operation:\n%s", count($this->errors), count($this->errors) > 1 ? 's' : '', $name, implode("\n", $this->errors));
             $this->errors = [];
             throw new \InvalidArgumentException($message);
         }
@@ -71,7 +72,7 @@ class Validator
                 if (!isset($value[$req])) {
                     $this->path[] = $req;
                     $this->addError('is missing and is a required parameter');
-                    \array_pop($this->path);
+                    array_pop($this->path);
                 }
             }
         }
@@ -80,23 +81,23 @@ class Validator
                 if ($shape->hasMember($name)) {
                     $this->path[] = $name;
                     $this->dispatch($shape->getMember($name), isset($value[$name]) ? $value[$name] : null);
-                    \array_pop($this->path);
+                    array_pop($this->path);
                 }
             }
         }
     }
     private function check_list(ListShape $shape, $value)
     {
-        if (!\is_array($value)) {
+        if (!is_array($value)) {
             $this->addError('must be an array. Found ' . Aws\describe_type($value));
             return;
         }
-        $this->validateRange($shape, \count($value), "list element count");
+        $this->validateRange($shape, count($value), "list element count");
         $items = $shape->getMember();
         foreach ($value as $index => $v) {
             $this->path[] = $index;
             $this->dispatch($items, $v);
-            \array_pop($this->path);
+            array_pop($this->path);
         }
     }
     private function check_map(MapShape $shape, $value)
@@ -108,22 +109,22 @@ class Validator
         foreach ($value as $key => $v) {
             $this->path[] = $key;
             $this->dispatch($values, $v);
-            \array_pop($this->path);
+            array_pop($this->path);
         }
     }
     private function check_blob(Shape $shape, $value)
     {
         static $valid = ['string' => \true, 'integer' => \true, 'double' => \true, 'resource' => \true];
-        $type = \gettype($value);
+        $type = gettype($value);
         if (!isset($valid[$type])) {
-            if ($type != 'object' || !\method_exists($value, '__toString')) {
-                $this->addError('must be an fopen resource, a ' . 'DeliciousBrains\\WP_Offload_SES\\Aws3\\GuzzleHttp\\Stream\\StreamInterface object, or something ' . 'that can be cast to a string. Found ' . Aws\describe_type($value));
+            if ($type != 'object' || !method_exists($value, '__toString')) {
+                $this->addError('must be an fopen resource, a ' . 'GuzzleHttp\Stream\StreamInterface object, or something ' . 'that can be cast to a string. Found ' . Aws\describe_type($value));
             }
         }
     }
     private function check_numeric(Shape $shape, $value)
     {
-        if (!\is_numeric($value)) {
+        if (!is_numeric($value)) {
             $this->addError('must be numeric. Found ' . Aws\describe_type($value));
             return;
         }
@@ -131,7 +132,7 @@ class Validator
     }
     private function check_boolean(Shape $shape, $value)
     {
-        if (!\is_bool($value)) {
+        if (!is_bool($value)) {
             $this->addError('must be a boolean. Found ' . Aws\describe_type($value));
         }
     }
@@ -148,10 +149,10 @@ class Validator
             return;
         }
         $value = isset($value) ? $value : '';
-        $this->validateRange($shape, \strlen($value), "string length");
+        $this->validateRange($shape, strlen($value), "string length");
         if ($this->constraints['pattern']) {
             $pattern = $shape['pattern'];
-            if ($pattern && !\preg_match("/{$pattern}/", $value)) {
+            if ($pattern && !preg_match("/{$pattern}/", $value)) {
                 $this->addError("Pattern /{$pattern}/ failed to match '{$value}'");
             }
         }
@@ -173,32 +174,24 @@ class Validator
     }
     private function checkArray($arr)
     {
-        return $this->isIndexed($arr) || $this->isAssociative($arr);
-    }
-    private function isAssociative($arr)
-    {
-        return \count(\array_filter(\array_keys($arr), "is_string")) == \count($arr);
-    }
-    private function isIndexed(array $arr)
-    {
-        return $arr == \array_values($arr);
+        return array_is_list($arr) || Aws\is_associative($arr);
     }
     private function checkCanString($value)
     {
         static $valid = ['string' => \true, 'integer' => \true, 'double' => \true, 'NULL' => \true];
-        $type = \gettype($value);
-        return isset($valid[$type]) || $type == 'object' && \method_exists($value, '__toString');
+        $type = gettype($value);
+        return isset($valid[$type]) || $type == 'object' && method_exists($value, '__toString');
     }
     private function checkAssociativeArray($value)
     {
         $isAssociative = \false;
-        if (\is_array($value)) {
+        if (is_array($value)) {
             $expectedIndex = 0;
-            $key = \key($value);
+            $key = key($value);
             do {
                 $isAssociative = $key !== $expectedIndex++;
-                \next($value);
-                $key = \key($value);
+                next($value);
+                $key = key($value);
             } while (!$isAssociative && null !== $key);
         }
         if (!$isAssociative) {
@@ -209,38 +202,43 @@ class Validator
     }
     private function checkDocumentType($value)
     {
-        if (\is_array($value)) {
-            $typeOfFirstKey = \gettype(\key($value));
+        // To allow objects like value, which
+        // can be used within a member which type is `Document`
+        if ($value instanceof stdClass) {
+            $value = (array) $value;
+        }
+        if (is_array($value)) {
+            $typeOfFirstKey = gettype(key($value));
             foreach ($value as $key => $val) {
-                if (!$this->checkDocumentType($val) || \gettype($key) != $typeOfFirstKey) {
+                if (!$this->checkDocumentType($val) || gettype($key) != $typeOfFirstKey) {
                     return \false;
                 }
             }
             return $this->checkArray($value);
         }
-        return \is_null($value) || \is_numeric($value) || \is_string($value) || \is_bool($value);
+        return is_null($value) || is_numeric($value) || is_string($value) || is_bool($value);
     }
     private function checkUnion($value)
     {
-        if (\is_array($value)) {
+        if (is_array($value)) {
             $nonNullCount = 0;
             foreach ($value as $key => $val) {
-                if (!\is_null($val) && !(\strpos($key, "@") === 0)) {
+                if (!is_null($val) && !(strpos($key, "@") === 0)) {
                     $nonNullCount++;
                 }
             }
             return $nonNullCount == 1;
         }
-        return !\is_null($value);
+        return !is_null($value);
     }
     private function addError($message)
     {
-        $this->errors[] = \implode('', \array_map(function ($s) {
+        $this->errors[] = implode('', array_map(function ($s) {
             return "[{$s}]";
         }, $this->path)) . ' ' . $message;
     }
     private function canJsonEncode($data)
     {
-        return !\is_resource($data);
+        return !is_resource($data);
     }
 }

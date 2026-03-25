@@ -1,4 +1,9 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 use DeliciousBrains\WP_Offload_SES\Pro\Reports_List_Table;
 use DeliciousBrains\WP_Offload_SES\Utils;
 
@@ -17,7 +22,7 @@ if ( $hide_stats && constant( $hide_stats ) ) {
 	<?php elseif ( $this->get_aws()->needs_access_keys() ): ?>
 		<div class="wposes-need-help wposes-error inline">
 			<span class="dashicons dashicons-info"></span>
-			<?php printf( __( '<a href="%s">Define your AWS keys</a> to view reports and send statistics.', 'wp-offload-ses' ), '#settings' ) ?>
+			<?php echo wp_kses( sprintf( __( '<a href="%s">Define your AWS keys</a> to view reports and send statistics.', 'wp-offload-ses' ), '#settings' ), array( 'a' => array( 'href' => array() ) ) ); ?>
 		</div>
 	<?php else: ?>
 		<?php
@@ -28,20 +33,20 @@ if ( $hide_stats && constant( $hide_stats ) ) {
 		?>
 		<div class="wposes-notice inline subtle wposes-quota">
 			<dl>
-				<dt><?php _e( 'Sending Quota:', 'wp-offload-ses' ); ?></dt>
-				<dd><?php printf( _n( '%s email per 24 hour period', '%s emails per 24 hour period', $quota['limit'], 'wp-offload-ses' ), $quota['limit'] ) ?></dd>
-				<dt><?php _e( 'Max Send Rate:', 'wp-offload-ses' ); ?></dt>
-				<dd><?php printf( _n( '%s email per second', '%s emails per second', $quota['rate'], 'wp-offload-ses' ), $quota['rate'] ) ?></dd>
-				<dt><?php _e( 'Total Sent:', 'wp-offload-ses' ); ?></dt>
-				<dd><?php printf( _n( '%s email sent during the previous 24 hours', '%s emails sent during the previous 24 hours', $quota['sent'], 'wp-offload-ses' ), $quota['sent'] ) ?></dd>
-				<dt><?php _e( 'Quota Used:', 'wp-offload-ses' ); ?></dt>
-				<dd><?php printf( __( '%d%%', 'wp-offload-ses' ), $quota['used'] ) ?></dd>
+				<dt><?php esc_html_e( 'Sending Quota:', 'wp-offload-ses' ); ?></dt>
+				<dd><?php echo esc_html( sprintf( _n( '%s email per 24 hour period', '%s emails per 24 hour period', $quota['limit'], 'wp-offload-ses' ), $quota['limit'] ) ); ?></dd>
+				<dt><?php esc_html_e( 'Max Send Rate:', 'wp-offload-ses' ); ?></dt>
+				<dd><?php echo esc_html( sprintf( _n( '%s email per second', '%s emails per second', $quota['rate'], 'wp-offload-ses' ), $quota['rate'] ) ); ?></dd>
+				<dt><?php esc_html_e( 'Total Sent:', 'wp-offload-ses' ); ?></dt>
+				<dd><?php echo esc_html( sprintf( _n( '%s email sent during the previous 24 hours', '%s emails sent during the previous 24 hours', $quota['sent'], 'wp-offload-ses' ), $quota['sent'] ) ); ?></dd>
+				<dt><?php esc_html_e( 'Quota Used:', 'wp-offload-ses' ); ?></dt>
+				<dd><?php echo esc_html( sprintf( __( '%d%%', 'wp-offload-ses' ), $quota['used'] ) ); ?></dd>
 			</dl>
-			<p><a href="https://aws.amazon.com/ses/extendedaccessrequest/" target="_blank"><?php _e( 'Increase Sending Limits', 'wp-offload-ses' ); ?></a></p>
+			<p><a href="https://console.aws.amazon.com/ses/" target="_blank"><?php esc_html_e( 'Request Production Access', 'wp-offload-ses' ); ?></a></p>
 		</div>
 		<?php else: ?>
 		<div class="notice error inline wposes-notice">
-			<p><?php echo $quota->get_error_message(); ?></p>
+			<p><?php echo esc_html( $quota->get_error_message() ); ?></p>
 		</div>
 		<?php endif; ?>
 	<?php endif; ?>
@@ -56,9 +61,9 @@ if ( $hide_stats && constant( $hide_stats ) ) {
 			?>
 			<div id="wposes-reports-bg">
 				<div id="wposes-reports-prompt">
-					<h2><?php _e( 'Activate Your License', 'wp-offload-ses' ); ?></h2>
-					<p><?php _e( 'To view reports, queue emails, and gain access to email support.', 'wp-offload-ses' ); ?></p>
-					<a class="button button-primary" href="#licence"><?php _e( 'Enter License Key', 'wp-offload-ses' ); ?></a>
+					<h2><?php esc_html_e( 'Activate Your License', 'wp-offload-ses' ); ?></h2>
+					<p><?php esc_html_e( 'To view reports, queue emails, and gain access to email support.', 'wp-offload-ses' ); ?></p>
+					<a class="button button-primary" href="#licence"><?php esc_html_e( 'Enter License Key', 'wp-offload-ses' ); ?></a>
 				</div>
 			</div>
 			<?php
@@ -67,9 +72,9 @@ if ( $hide_stats && constant( $hide_stats ) ) {
 		?>
 		<div id="wposes-reports-bg">
 			<div id="wposes-reports-prompt">
-				<h2><?php _e( 'Upgrade to WP Offload SES', 'wp-offload-ses' ); ?></h2>
-				<p><?php _e( 'And get access to detailed reports, click and open tracking, and more.', 'wp-offload-ses' ); ?></p>
-				<a class="button button-primary" href="<?php echo $this->dbrains_url( '/wp-offload-ses/' ); ?>"><?php _e( 'Upgrade Now', 'wp-offload-ses' ); ?></a>
+				<h2><?php esc_html_e( 'Upgrade to WP Offload SES', 'wp-offload-ses' ); ?></h2>
+				<p><?php esc_html_e( 'And get access to detailed reports, click and open tracking, and more.', 'wp-offload-ses' ); ?></p>
+				<a class="button button-primary" href="<?php echo esc_url( $this->dbrains_url( '/wp-offload-ses/' ) ); ?>"><?php esc_html_e( 'Upgrade Now', 'wp-offload-ses' ); ?></a>
 			</div>
 		</div>
 		<?php

@@ -29,7 +29,7 @@ class ApiCallMonitoringMiddleware extends AbstractMonitoringMiddleware
      */
     public static function wrap(callable $credentialProvider, $options, $region, $service)
     {
-        return function (callable $handler) use($credentialProvider, $options, $region, $service) {
+        return function (callable $handler) use ($credentialProvider, $options, $region, $service) {
             return new static($handler, $credentialProvider, $options, $region, $service);
         };
     }
@@ -57,7 +57,7 @@ class ApiCallMonitoringMiddleware extends AbstractMonitoringMiddleware
     private static function getResultAttemptCount(ResultInterface $result)
     {
         if (isset($result['@metadata']['transferStats']['http'])) {
-            return \count($result['@metadata']['transferStats']['http']);
+            return count($result['@metadata']['transferStats']['http']);
         }
         return 1;
     }
@@ -90,8 +90,8 @@ class ApiCallMonitoringMiddleware extends AbstractMonitoringMiddleware
     }
     private static function getFinalAttempt(array $events)
     {
-        for (\end($events); \key($events) !== null; \prev($events)) {
-            $current = \current($events);
+        for (end($events); key($events) !== null; prev($events)) {
+            $current = current($events);
             if (isset($current['Type']) && $current['Type'] === 'ApiCallAttempt') {
                 return $current;
             }
@@ -120,7 +120,7 @@ class ApiCallMonitoringMiddleware extends AbstractMonitoringMiddleware
     protected function populateResultEventData($result, array $event)
     {
         $event = parent::populateResultEventData($result, $event);
-        $event['Latency'] = (int) (\floor(\microtime(\true) * 1000) - $event['Timestamp']);
+        $event['Latency'] = (int) (floor(microtime(\true) * 1000) - $event['Timestamp']);
         return $event;
     }
 }

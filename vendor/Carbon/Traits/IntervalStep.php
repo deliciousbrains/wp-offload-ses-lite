@@ -1,5 +1,6 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Carbon package.
  *
@@ -10,6 +11,7 @@
  */
 namespace DeliciousBrains\WP_Offload_SES\Carbon\Traits;
 
+use DeliciousBrains\WP_Offload_SES\Carbon\Callback;
 use DeliciousBrains\WP_Offload_SES\Carbon\Carbon;
 use DeliciousBrains\WP_Offload_SES\Carbon\CarbonImmutable;
 use DeliciousBrains\WP_Offload_SES\Carbon\CarbonInterface;
@@ -59,7 +61,8 @@ trait IntervalStep
         /** @var CarbonInterface $carbonDate */
         $carbonDate = $dateTime instanceof CarbonInterface ? $dateTime : $this->resolveCarbon($dateTime);
         if ($this->step) {
-            return $carbonDate->setDateTimeFrom(($this->step)($carbonDate->avoidMutation(), $negated));
+            $carbonDate = Callback::parameter($this->step, $carbonDate->avoidMutation());
+            return $carbonDate->modify(($this->step)($carbonDate, $negated)->format('Y-m-d H:i:s.u e O'));
         }
         if ($negated) {
             return $carbonDate->rawSub($this);
@@ -68,12 +71,8 @@ trait IntervalStep
     }
     /**
      * Convert DateTimeImmutable instance to CarbonImmutable instance and DateTime instance to Carbon instance.
-     *
-     * @param DateTimeInterface $dateTime
-     *
-     * @return Carbon|CarbonImmutable
      */
-    private function resolveCarbon(DateTimeInterface $dateTime)
+    private function resolveCarbon(DateTimeInterface $dateTime) : Carbon|CarbonImmutable
     {
         if ($dateTime instanceof DateTimeImmutable) {
             return CarbonImmutable::instance($dateTime);

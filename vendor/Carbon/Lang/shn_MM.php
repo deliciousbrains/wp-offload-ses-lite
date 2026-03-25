@@ -15,6 +15,7 @@ namespace DeliciousBrains\WP_Offload_SES;
  * - ubuntu Myanmar LoCo Team https://ubuntu-mm.net Bone Pyae Sone bone.burma@mail.com
  */
 return \array_replace_recursive(require __DIR__ . '/en.php', [
+    'first_day_of_week' => 0,
     'formats' => ['L' => 'OY MMM OD dddd'],
     'months' => ['လိူၼ်ၵမ်', 'လိူၼ်သၢမ်', 'လိူၼ်သီ', 'လိူၼ်ႁႃႈ', 'လိူၼ်ႁူၵ်း', 'လိူၼ်ၸဵတ်း', 'လိူၼ်ပႅတ်ႇ', 'လိူၼ်ၵဝ်ႈ', 'လိူၼ်သိပ်း', 'လိူၼ်သိပ်းဢိတ်း', 'လိူၼ်သိပ်းဢိတ်းသွင်', 'လိူၼ်ၸဵင်'],
     'months_short' => ['လိူၼ်ၵမ်', 'လိူၼ်သၢမ်', 'လိူၼ်သီ', 'လိူၼ်ႁႃႈ', 'လိူၼ်ႁူၵ်း', 'လိူၼ်ၸဵတ်း', 'လိူၼ်ပႅတ်ႇ', 'လိူၼ်ၵဝ်ႈ', 'လိူၼ်သိပ်း', 'လိူၼ်သိပ်းဢိတ်း', 'လိူၼ်သိပ်းဢိတ်းသွင်', 'လိူၼ်ၸဵင်'],

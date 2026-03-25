@@ -35,7 +35,7 @@ class Parser
     /**
      * @param Lexer|null $lexer Lexer used to tokenize expressions
      */
-    public function __construct(Lexer $lexer = null)
+    public function __construct(?Lexer $lexer = null)
     {
         $this->lexer = $lexer ?: new Lexer();
     }
@@ -255,12 +255,12 @@ class Parser
         $this->next();
         return ['type' => 'key_val_pair', 'value' => $key, 'children' => [$this->expr()]];
     }
-    private function parseWildcardObject(array $left = null)
+    private function parseWildcardObject(?array $left = null)
     {
         $this->next();
         return ['type' => 'projection', 'from' => 'object', 'children' => [$left ?: self::$currentNode, $this->parseProjection(self::$bp[T::T_STAR])]];
     }
-    private function parseWildcardArray(array $left = null)
+    private function parseWildcardArray(?array $left = null)
     {
         static $getRbracket = [T::T_RBRACKET => \true];
         $this->next($getRbracket);
@@ -319,7 +319,7 @@ class Parser
     {
         return !isset($this->tokens[$this->tpos + 1]) ? T::T_EOF : $this->tokens[$this->tpos + 1]['type'];
     }
-    private function next(array $match = null)
+    private function next(?array $match = null)
     {
         if (!isset($this->tokens[$this->tpos + 1])) {
             $this->token = self::$nullToken;
@@ -341,13 +341,13 @@ class Parser
      */
     public function __call($method, $args)
     {
-        $prefix = \substr($method, 0, 4);
+        $prefix = substr($method, 0, 4);
         if ($prefix == 'nud_' || $prefix == 'led_') {
-            $token = \substr($method, 4);
-            $message = "Unexpected \"{$token}\" token ({$method}). Expected one of" . " the following tokens: " . \implode(', ', \array_map(function ($i) {
-                return '"' . \substr($i, 4) . '"';
-            }, \array_filter(\get_class_methods($this), function ($i) use($prefix) {
-                return \strpos($i, $prefix) === 0;
+            $token = substr($method, 4);
+            $message = "Unexpected \"{$token}\" token ({$method}). Expected one of" . " the following tokens: " . implode(', ', array_map(function ($i) {
+                return '"' . substr($i, 4) . '"';
+            }, array_filter(get_class_methods($this), function ($i) use ($prefix) {
+                return strpos($i, $prefix) === 0;
             })));
             throw $this->syntax($message);
         }

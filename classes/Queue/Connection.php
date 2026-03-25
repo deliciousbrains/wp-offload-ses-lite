@@ -2,6 +2,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES\Queue;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Connections\DatabaseConnection;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Job;

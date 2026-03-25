@@ -72,9 +72,9 @@ class Ruleset
     {
         foreach ($this->parameters as $paramName => $param) {
             $inputParam = isset($inputParameters[$paramName]) ? $inputParameters[$paramName] : null;
-            if (\is_null($inputParam) && !\is_null($param->getDefault())) {
+            if (is_null($inputParam) && !is_null($param->getDefault())) {
                 $inputParameters[$paramName] = $param->getDefault();
-            } elseif (!\is_null($inputParam)) {
+            } elseif (!is_null($inputParam)) {
                 $param->validateInputParam($inputParam);
             }
         }

@@ -25,7 +25,7 @@ class ApiCallAttemptMonitoringMiddleware extends AbstractMonitoringMiddleware
      */
     public static function wrap(callable $credentialProvider, $options, $region, $service)
     {
-        return function (callable $handler) use($credentialProvider, $options, $region, $service) {
+        return function (callable $handler) use ($credentialProvider, $options, $region, $service) {
             return new static($handler, $credentialProvider, $options, $region, $service);
         };
     }
@@ -45,19 +45,19 @@ class ApiCallAttemptMonitoringMiddleware extends AbstractMonitoringMiddleware
             return ['AttemptLatency' => self::getResultAttemptLatency($klass), 'DestinationIp' => self::getResultDestinationIp($klass), 'DnsLatency' => self::getResultDnsLatency($klass), 'HttpStatusCode' => self::getResultHttpStatusCode($klass), 'XAmzId2' => self::getResultHeader($klass, 'x-amz-id-2'), 'XAmzRequestId' => self::getResultHeader($klass, 'x-amz-request-id'), 'XAmznRequestId' => self::getResultHeader($klass, 'x-amzn-RequestId')];
         }
         if ($klass instanceof AwsException) {
-            return ['AttemptLatency' => self::getAwsExceptionAttemptLatency($klass), 'AwsException' => \substr(self::getAwsExceptionErrorCode($klass), 0, 128), 'AwsExceptionMessage' => \substr(self::getAwsExceptionMessage($klass), 0, 512), 'DestinationIp' => self::getAwsExceptionDestinationIp($klass), 'DnsLatency' => self::getAwsExceptionDnsLatency($klass), 'HttpStatusCode' => self::getAwsExceptionHttpStatusCode($klass), 'XAmzId2' => self::getAwsExceptionHeader($klass, 'x-amz-id-2'), 'XAmzRequestId' => self::getAwsExceptionHeader($klass, 'x-amz-request-id'), 'XAmznRequestId' => self::getAwsExceptionHeader($klass, 'x-amzn-RequestId')];
+            return ['AttemptLatency' => self::getAwsExceptionAttemptLatency($klass), 'AwsException' => substr(self::getAwsExceptionErrorCode($klass), 0, 128), 'AwsExceptionMessage' => substr(self::getAwsExceptionMessage($klass), 0, 512), 'DestinationIp' => self::getAwsExceptionDestinationIp($klass), 'DnsLatency' => self::getAwsExceptionDnsLatency($klass), 'HttpStatusCode' => self::getAwsExceptionHttpStatusCode($klass), 'XAmzId2' => self::getAwsExceptionHeader($klass, 'x-amz-id-2'), 'XAmzRequestId' => self::getAwsExceptionHeader($klass, 'x-amz-request-id'), 'XAmznRequestId' => self::getAwsExceptionHeader($klass, 'x-amzn-RequestId')];
         }
         if ($klass instanceof \Exception) {
-            return ['HttpStatusCode' => self::getExceptionHttpStatusCode($klass), 'SdkException' => \substr(self::getExceptionCode($klass), 0, 128), 'SdkExceptionMessage' => \substr(self::getExceptionMessage($klass), 0, 512), 'XAmzId2' => self::getExceptionHeader($klass, 'x-amz-id-2'), 'XAmzRequestId' => self::getExceptionHeader($klass, 'x-amz-request-id'), 'XAmznRequestId' => self::getExceptionHeader($klass, 'x-amzn-RequestId')];
+            return ['HttpStatusCode' => self::getExceptionHttpStatusCode($klass), 'SdkException' => substr(self::getExceptionCode($klass), 0, 128), 'SdkExceptionMessage' => substr(self::getExceptionMessage($klass), 0, 512), 'XAmzId2' => self::getExceptionHeader($klass, 'x-amz-id-2'), 'XAmzRequestId' => self::getExceptionHeader($klass, 'x-amz-request-id'), 'XAmznRequestId' => self::getExceptionHeader($klass, 'x-amzn-RequestId')];
         }
         throw new \InvalidArgumentException('Parameter must be an instance of ResultInterface, AwsException or Exception.');
     }
     private static function getResultAttemptLatency(ResultInterface $result)
     {
         if (isset($result['@metadata']['transferStats']['http'])) {
-            $attempt = \end($result['@metadata']['transferStats']['http']);
+            $attempt = end($result['@metadata']['transferStats']['http']);
             if (isset($attempt['total_time'])) {
-                return (int) \floor($attempt['total_time'] * 1000);
+                return (int) floor($attempt['total_time'] * 1000);
             }
         }
         return null;
@@ -65,7 +65,7 @@ class ApiCallAttemptMonitoringMiddleware extends AbstractMonitoringMiddleware
     private static function getResultDestinationIp(ResultInterface $result)
     {
         if (isset($result['@metadata']['transferStats']['http'])) {
-            $attempt = \end($result['@metadata']['transferStats']['http']);
+            $attempt = end($result['@metadata']['transferStats']['http']);
             if (isset($attempt['primary_ip'])) {
                 return $attempt['primary_ip'];
             }
@@ -75,9 +75,9 @@ class ApiCallAttemptMonitoringMiddleware extends AbstractMonitoringMiddleware
     private static function getResultDnsLatency(ResultInterface $result)
     {
         if (isset($result['@metadata']['transferStats']['http'])) {
-            $attempt = \end($result['@metadata']['transferStats']['http']);
+            $attempt = end($result['@metadata']['transferStats']['http']);
             if (isset($attempt['namelookup_time'])) {
-                return (int) \floor($attempt['namelookup_time'] * 1000);
+                return (int) floor($attempt['namelookup_time'] * 1000);
             }
         }
         return null;
@@ -90,7 +90,7 @@ class ApiCallAttemptMonitoringMiddleware extends AbstractMonitoringMiddleware
     {
         $attempt = $e->getTransferInfo();
         if (isset($attempt['total_time'])) {
-            return (int) \floor($attempt['total_time'] * 1000);
+            return (int) floor($attempt['total_time'] * 1000);
         }
         return null;
     }
@@ -114,7 +114,7 @@ class ApiCallAttemptMonitoringMiddleware extends AbstractMonitoringMiddleware
     {
         $attempt = $e->getTransferInfo();
         if (isset($attempt['namelookup_time'])) {
-            return (int) \floor($attempt['namelookup_time'] * 1000);
+            return (int) floor($attempt['namelookup_time'] * 1000);
         }
         return null;
     }
@@ -139,7 +139,7 @@ class ApiCallAttemptMonitoringMiddleware extends AbstractMonitoringMiddleware
     private static function getExceptionCode(\Exception $e)
     {
         if (!$e instanceof AwsException) {
-            return \get_class($e);
+            return get_class($e);
         }
         return null;
     }
@@ -174,7 +174,7 @@ class ApiCallAttemptMonitoringMiddleware extends AbstractMonitoringMiddleware
             $event['SessionToken'] = $sessionToken;
         }
         if (empty($event['AttemptLatency'])) {
-            $event['AttemptLatency'] = (int) (\floor(\microtime(\true) * 1000) - $event['Timestamp']);
+            $event['AttemptLatency'] = (int) (floor(microtime(\true) * 1000) - $event['Timestamp']);
         }
         return $event;
     }

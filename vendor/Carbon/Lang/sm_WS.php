@@ -15,6 +15,7 @@ namespace DeliciousBrains\WP_Offload_SES;
  * - Samsung Electronics Co., Ltd.    akhilesh.k@samsung.com
  */
 return \array_replace_recursive(require __DIR__ . '/en.php', [
+    'first_day_of_week' => 0,
     'formats' => ['L' => 'DD/MM/YYYY'],
     'months' => ['Ianuari', 'Fepuari', 'Mati', 'Aperila', 'Me', 'Iuni', 'Iulai', 'Auguso', 'Setema', 'Oketopa', 'Novema', 'Tesema'],
     'months_short' => ['Ian', 'Fep', 'Mat', 'Ape', 'Me', 'Iun', 'Iul', 'Aug', 'Set', 'Oke', 'Nov', 'Tes'],

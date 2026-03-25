@@ -22,25 +22,25 @@ class HashingStream implements StreamInterface
      * @param callable        $onComplete Optional function invoked when the
      *                                    hash calculation is completed.
      */
-    public function __construct(StreamInterface $stream, HashInterface $hash, callable $onComplete = null)
+    public function __construct(StreamInterface $stream, HashInterface $hash, ?callable $onComplete = null)
     {
         $this->stream = $stream;
         $this->hash = $hash;
         $this->callback = $onComplete;
     }
-    public function read($length) : string
+    public function read($length): string
     {
         $data = $this->stream->read($length);
         $this->hash->update($data);
         if ($this->eof()) {
             $result = $this->hash->complete();
             if ($this->callback) {
-                \call_user_func($this->callback, $result);
+                call_user_func($this->callback, $result);
             }
         }
         return $data;
     }
-    public function seek($offset, $whence = \SEEK_SET) : void
+    public function seek($offset, $whence = \SEEK_SET): void
     {
         // Seeking arbitrarily is not supported.
         if ($offset !== 0) {

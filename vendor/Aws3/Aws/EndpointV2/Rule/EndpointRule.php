@@ -53,7 +53,7 @@ class EndpointRule extends AbstractRule
      */
     private function resolveProperties($properties, array $inputParameters, RulesetStandardLibrary $standardLibrary)
     {
-        if (\is_array($properties)) {
+        if (is_array($properties)) {
             $propertiesArr = [];
             foreach ($properties as $key => $val) {
                 $propertiesArr[$key] = $this->resolveProperties($val, $inputParameters, $standardLibrary);
@@ -73,7 +73,7 @@ class EndpointRule extends AbstractRule
     private function resolveHeaders(array $inputParameters, RulesetStandardLibrary $standardLibrary)
     {
         $headers = isset($this->endpoint['headers']) ? $this->endpoint['headers'] : null;
-        if (\is_null($headers)) {
+        if (is_null($headers)) {
             return null;
         }
         $resolvedHeaders = [];

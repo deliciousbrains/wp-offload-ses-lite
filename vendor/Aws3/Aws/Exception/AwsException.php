@@ -12,6 +12,7 @@ use DeliciousBrains\WP_Offload_SES\Aws3\Aws\ResultInterface;
 use DeliciousBrains\WP_Offload_SES\Aws3\JmesPath\Env as JmesPath;
 use DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\ResponseInterface;
 use DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface;
+use Throwable;
 /**
  * Represents an AWS exception that is thrown when a command fails.
  */
@@ -33,25 +34,25 @@ class AwsException extends \RuntimeException implements MonitoringEventsInterfac
     private $errorMessage;
     private $maxRetriesExceeded;
     /**
-     * @param string           $message Exception message
+     * @param string $message Exception message
      * @param CommandInterface $command
-     * @param array            $context Exception context
-     * @param \Exception       $previous  Previous exception (if any)
+     * @param array $context Exception context
+     * @param Throwable|null $previous Previous exception (if any)
      */
-    public function __construct($message, CommandInterface $command, array $context = [], \Exception $previous = null)
+    public function __construct($message, CommandInterface $command, array $context = [], ?Throwable $previous = null)
     {
-        $this->data = isset($context['body']) ? $context['body'] : [];
+        $this->data = $context['body'] ?? [];
         $this->command = $command;
-        $this->response = isset($context['response']) ? $context['response'] : null;
-        $this->request = isset($context['request']) ? $context['request'] : null;
-        $this->requestId = isset($context['request_id']) ? $context['request_id'] : null;
-        $this->errorType = isset($context['type']) ? $context['type'] : null;
-        $this->errorCode = isset($context['code']) ? $context['code'] : null;
-        $this->errorShape = isset($context['error_shape']) ? $context['error_shape'] : null;
+        $this->response = $context['response'] ?? null;
+        $this->request = $context['request'] ?? null;
+        $this->requestId = $context['request_id'] ?? null;
+        $this->errorType = $context['type'] ?? null;
+        $this->errorCode = $context['code'] ?? null;
+        $this->errorShape = $context['error_shape'] ?? null;
         $this->connectionError = !empty($context['connection_error']);
-        $this->result = isset($context['result']) ? $context['result'] : null;
-        $this->transferInfo = isset($context['transfer_stats']) ? $context['transfer_stats'] : [];
-        $this->errorMessage = isset($context['message']) ? $context['message'] : null;
+        $this->result = $context['result'] ?? null;
+        $this->transferInfo = $context['transfer_stats'] ?? [];
+        $this->errorMessage = $context['message'] ?? null;
         $this->monitoringEvents = [];
         $this->maxRetriesExceeded = \false;
         parent::__construct($message, 0, $previous);
@@ -67,7 +68,7 @@ class AwsException extends \RuntimeException implements MonitoringEventsInterfac
         // might not even get shown, causing developers to attempt to catch
         // the inner exception instead of the actual exception because they
         // can't see the outer exception's __toString output.
-        return \sprintf("exception '%s' with message '%s'\n\n%s", \get_class($this), $this->getMessage(), parent::__toString());
+        return sprintf("exception '%s' with message '%s'\n\n%s", get_class($this), $this->getMessage(), parent::__toString());
     }
     /**
      * Get the command that was executed.
@@ -184,7 +185,7 @@ class AwsException extends \RuntimeException implements MonitoringEventsInterfac
         if (!$name) {
             return $this->transferInfo;
         }
-        return isset($this->transferInfo[$name]) ? $this->transferInfo[$name] : null;
+        return $this->transferInfo[$name] ?? null;
     }
     /**
      * Replace the transfer information associated with an exception.

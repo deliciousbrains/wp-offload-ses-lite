@@ -27,9 +27,9 @@ class PartitionEndpointProvider
      */
     public function __construct(array $partitions, $defaultPartition = 'aws', $options = [])
     {
-        $this->partitions = \array_map(function (array $definition) {
+        $this->partitions = array_map(function (array $definition) {
             return new Partition($definition);
-        }, \array_values($partitions));
+        }, array_values($partitions));
         $this->defaultPartition = $defaultPartition;
         $this->options = $options;
     }

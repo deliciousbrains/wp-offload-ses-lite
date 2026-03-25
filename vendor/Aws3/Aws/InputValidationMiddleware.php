@@ -24,10 +24,10 @@ class InputValidationMiddleware
      * @return callable     */
     public static function wrap(Service $service, $mandatoryAttributeList)
     {
-        if (!\is_array($mandatoryAttributeList) || \array_filter($mandatoryAttributeList, 'is_string') !== $mandatoryAttributeList) {
+        if (!is_array($mandatoryAttributeList) || array_filter($mandatoryAttributeList, 'is_string') !== $mandatoryAttributeList) {
             throw new \InvalidArgumentException("The mandatory attribute list must be an array of strings");
         }
-        return function (callable $handler) use($service, $mandatoryAttributeList) {
+        return function (callable $handler) use ($service, $mandatoryAttributeList) {
             return new self($handler, $service, $mandatoryAttributeList);
         };
     }
@@ -46,8 +46,8 @@ class InputValidationMiddleware
             if (!empty($input = $service['shapes'][$op['input']['shape']])) {
                 if (!empty($input['required'])) {
                     foreach ($input['required'] as $key => $member) {
-                        if (\in_array($member, $this->mandatoryAttributeList)) {
-                            $argument = \is_string($cmd[$member]) ? \trim($cmd[$member]) : $cmd[$member];
+                        if (in_array($member, $this->mandatoryAttributeList)) {
+                            $argument = is_string($cmd[$member]) ? trim($cmd[$member]) : $cmd[$member];
                             if ($argument === '' || $argument === null) {
                                 $commandName = $cmd->getName();
                                 throw new \InvalidArgumentException("The {$commandName} operation requires non-empty parameter: {$member}");

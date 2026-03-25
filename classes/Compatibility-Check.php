@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( class_exists( 'DeliciousBrains\WP_Offload_SES\Compatibility_Check' ) ) {
 	return;
 }
@@ -120,8 +124,8 @@ class Compatibility_Check {
 		$nonce_action = $action . '-plugin_' . $basename;
 		$page         = 'plugins';
 
-		if ( in_array( $action, array( 'upgrade', 'install' ) ) ) {
-			$page   = 'update';
+		if ( in_array( $action, array( 'upgrade', 'install' ), true ) ) {
+			$page    = 'update';
 			$action .= '-plugin';
 		}
 
@@ -168,7 +172,7 @@ class Compatibility_Check {
 		$plugin_basename = $this->get_plugin_basename();
 		$deactivate_url  = $this->get_plugin_action_url( 'deactivate', $plugin_basename );
 		$deactivate_link = sprintf( '<a style="text-decoration:none;" href="%s">%s</a>', $deactivate_url, __( 'deactivate' ) );
-		$hide_notice_msg = '<br><em>' . sprintf( __( 'You can %s the %s plugin to get rid of this notice.' ), $deactivate_link, $this->plugin_name ) . '</em>';
+		$hide_notice_msg = '<br><em>' . sprintf( __( 'You can %1$s the %2$s plugin to get rid of this notice.' ), $deactivate_link, $this->plugin_name ) . '</em>';
 
 		// Check basic requirements for AWS SDK.
 		$sdk_errors = $this->get_sdk_requirements_errors();
@@ -239,7 +243,7 @@ class Compatibility_Check {
 	 * @param string $message
 	 */
 	public function render_notice( $message ) {
-		printf( '<div id="wposes-compat-notice' . $this->plugin_slug . '" class="' . $this->notice_class . ' wposes-compatibility-notice"><p>%s</p></div>', $message );
+		printf( '<div id="wposes-compat-notice%s" class="%s wposes-compatibility-notice"><p>%s</p></div>', esc_attr( $this->plugin_slug ), esc_attr( $this->notice_class ), wp_kses_post( $message ) );
 	}
 
 	/**
@@ -256,25 +260,24 @@ class Compatibility_Check {
 
 		global $pagenow;
 
-		if ( 'update.php' === $pagenow && isset( $_GET['action'] ) && 'install-plugin' === $_GET['action'] ) {
-			// We are installing a plugin
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing -- WordPress core handles nonce verification for plugin installation/updates
+		$get_action  = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : '';
+		$post_action = isset( $_POST['action'] ) ? sanitize_text_field( wp_unslash( $_POST['action'] ) ) : '';
+
+		if ( isset( $_POST['action2'] ) && '-1' !== sanitize_text_field( wp_unslash( $_POST['action2'] ) ) ) {
+			$post_action = sanitize_text_field( wp_unslash( $_POST['action2'] ) );
+		}
+		// phpcs:enable
+
+		if ( 'update.php' === $pagenow && 'install-plugin' === $get_action ) {
 			self::$is_installing_or_updating_plugins = true;
 		}
 
-		if ( 'plugins.php' === $pagenow && isset( $_POST['action'] ) ) {
-			$action = $_POST['action'];
-			if ( isset( $_POST['action2'] ) && '-1' !== $_POST['action2'] ) {
-				$action = $_POST['action2'];
-			}
-
-			if ( 'update-selected' === $action ) {
-				// We are updating plugins from the plugin page
-				self::$is_installing_or_updating_plugins = true;
-			}
+		if ( 'plugins.php' === $pagenow && 'update-selected' === $post_action ) {
+			self::$is_installing_or_updating_plugins = true;
 		}
 
-		if ( 'update-core.php' === $pagenow && isset( $_GET['action'] ) && 'do-plugin-upgrade' === $_GET['action'] ) {
-			// We are updating plugins from the updates page
+		if ( 'update-core.php' === $pagenow && 'do-plugin-upgrade' === $get_action ) {
 			self::$is_installing_or_updating_plugins = true;
 		}
 
@@ -290,7 +293,7 @@ class Compatibility_Check {
 	 * @return bool
 	 */
 	public static function deactivate_other_instances( $plugin ) {
-		if ( ! in_array( basename( $plugin ), array( 'wp-offload-ses.php', 'wp-ses.php' ) ) ) {
+		if ( ! in_array( basename( $plugin ), array( 'wp-offload-ses.php', 'wp-ses.php' ), true ) ) {
 			return false;
 		}
 
@@ -382,8 +385,8 @@ class Compatibility_Check {
 
 		$errors = array();
 
-		if ( version_compare( PHP_VERSION, '5.5', '<' ) ) {
-			$errors[] = __( 'a PHP version less than 5.5', 'wp-offload-ses' );
+		if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
+			$errors[] = __( 'a PHP version less than 8.1', 'wp-offload-ses' );
 		}
 
 		if ( ! class_exists( '\SimpleXMLElement' ) ) {
@@ -439,7 +442,7 @@ class Compatibility_Check {
 			return '';
 		}
 
-		$msg = __( 'The official Amazon&nbsp;Web&nbsp;Services SDK requires PHP 5.5+ with SimpleXML and XMLWriter modules, and cURL 7.16.2+ compiled with OpenSSL and zlib. Your server currently has', 'wp-offload-ses' );
+		$msg = __( 'The official Amazon&nbsp;Web&nbsp;Services SDK requires PHP 8.1+ with SimpleXML and XMLWriter modules, and cURL 7.16.2+ compiled with OpenSSL and zlib. Your server currently has', 'wp-offload-ses' );
 
 		if ( count( $errors ) > 1 ) {
 			$last_one = ' and ' . array_pop( $errors );
@@ -451,5 +454,4 @@ class Compatibility_Check {
 
 		return $msg;
 	}
-
 }

@@ -44,7 +44,7 @@ use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise\PromiseInterface;
  */
 class ConfigurationProvider extends AbstractConfigurationProvider implements ConfigurationProviderInterface
 {
-    const DEFAULT_ENDPOINTS_TYPE = 'legacy';
+    const DEFAULT_ENDPOINTS_TYPE = 'regional';
     const ENV_ENDPOINTS_TYPE = 'AWS_STS_REGIONAL_ENDPOINTS';
     const ENV_PROFILE = 'AWS_PROFILE';
     const INI_ENDPOINTS_TYPE = 'sts_regional_endpoints';
@@ -73,7 +73,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
             $configProviders[] = self::ini();
         }
         $configProviders[] = self::fallback();
-        $memo = self::memoize(\call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
+        $memo = self::memoize(call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
         if (isset($config['sts_regional_endpoints']) && $config['sts_regional_endpoints'] instanceof CacheInterface) {
             return self::cache($memo, $config['sts_regional_endpoints'], self::$cacheKey);
         }
@@ -88,7 +88,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
     {
         return function () {
             // Use config from environment variables, if available
-            $endpointsType = \getenv(self::ENV_ENDPOINTS_TYPE);
+            $endpointsType = getenv(self::ENV_ENDPOINTS_TYPE);
             if (!empty($endpointsType)) {
                 return Promise\Create::promiseFor(new Configuration($endpointsType));
             }
@@ -121,9 +121,9 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
     public static function ini($profile = null, $filename = null)
     {
         $filename = $filename ?: self::getDefaultConfigFilename();
-        $profile = $profile ?: (\getenv(self::ENV_PROFILE) ?: 'default');
-        return function () use($profile, $filename) {
-            if (!@\is_readable($filename)) {
+        $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
+        return function () use ($profile, $filename) {
+            if (!@is_readable($filename)) {
                 return self::reject("Cannot read configuration from {$filename}");
             }
             $data = \DeliciousBrains\WP_Offload_SES\Aws3\Aws\parse_ini_file($filename, \true);
@@ -149,7 +149,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
      */
     public static function unwrap($config)
     {
-        if (\is_callable($config)) {
+        if (is_callable($config)) {
             $config = $config();
         }
         if ($config instanceof PromiseInterface) {
@@ -158,10 +158,10 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
         if ($config instanceof ConfigurationInterface) {
             return $config;
         }
-        if (\is_string($config)) {
+        if (is_string($config)) {
             return new Configuration($config);
         }
-        if (\is_array($config) && isset($config['endpoints_type'])) {
+        if (is_array($config) && isset($config['endpoints_type'])) {
             return new Configuration($config['endpoints_type']);
         }
         throw new \InvalidArgumentException('Not a valid STS regional endpoints ' . 'configuration argument.');

@@ -17,8 +17,8 @@ class MultipartUploadException extends \RuntimeException implements MonitoringEv
     public function __construct(UploadState $state, $prev = null)
     {
         $msg = 'An exception occurred while performing a multipart upload';
-        if (\is_array($prev)) {
-            $msg = \strtr($msg, ['performing' => 'uploading parts to']);
+        if (is_array($prev)) {
+            $msg = strtr($msg, ['performing' => 'uploading parts to']);
             $msg .= ". The following parts had errors:\n";
             /** @var $error AwsException */
             foreach ($prev as $part => $error) {
@@ -35,7 +35,7 @@ class MultipartUploadException extends \RuntimeException implements MonitoringEv
                     break;
             }
             if (isset($action)) {
-                $msg = \strtr($msg, ['performing' => $action]);
+                $msg = strtr($msg, ['performing' => $action]);
             }
             $msg .= ": {$prev->getMessage()}";
         }

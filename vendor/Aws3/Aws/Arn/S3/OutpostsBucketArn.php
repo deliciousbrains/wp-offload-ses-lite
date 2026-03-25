@@ -37,7 +37,7 @@ class OutpostsBucketArn extends Arn implements BucketArnInterface, OutpostsArnIn
     }
     private static function parseOutpostData(array $data)
     {
-        $resourceData = \preg_split("/[\\/:]/", $data['resource_id'], 3);
+        $resourceData = preg_split("/[\\/:]/", $data['resource_id'], 3);
         $data['outpost_id'] = isset($resourceData[0]) ? $resourceData[0] : null;
         $data['bucket_label'] = isset($resourceData[1]) ? $resourceData[1] : null;
         $data['bucket_name'] = isset($resourceData[2]) ? $resourceData[2] : null;

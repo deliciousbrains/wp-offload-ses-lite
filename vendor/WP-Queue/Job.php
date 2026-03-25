@@ -132,6 +132,7 @@ abstract class Job
      */
     public function release()
     {
+        // phpcs:ignore Generic.Formatting.MultipleStatementAlignment.NotSameWarning
         $this->released = \true;
         $this->attempts += 1;
     }

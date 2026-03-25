@@ -26,21 +26,14 @@ namespace DeliciousBrains\WP_Offload_SES;
  * - shankesgk2
  * - Daniel Cheung (danvim)
  */
-return ['year' => ':count:optional-space年', 'y' => ':count:optional-space年', 'month' => ':count:optional-space個月', 'm' => ':count:optional-space月', 'week' => ':count:optional-space週', 'w' => ':count:optional-space週', 'day' => ':count:optional-space天', 'd' => ':count:optional-space天', 'hour' => ':count:optional-space小時', 'h' => ':count:optional-space小時', 'minute' => ':count:optional-space分鐘', 'min' => ':count:optional-space分鐘', 'second' => ':count:optional-space秒', 'a_second' => '{1}幾秒|]1,Inf[:count:optional-space秒', 's' => ':count:optional-space秒', 'ago' => ':time前', 'from_now' => ':time後', 'after' => ':time後', 'before' => ':time前', 'diff_now' => '現在', 'diff_today' => '今天', 'diff_yesterday' => '昨天', 'diff_tomorrow' => '明天', 'formats' => ['LT' => 'HH:mm', 'LTS' => 'HH:mm:ss', 'L' => 'YYYY/MM/DD', 'LL' => 'YYYY年M月D日', 'LLL' => 'YYYY年M月D日 HH:mm', 'LLLL' => 'YYYY年M月D日dddd HH:mm'], 'calendar' => ['sameDay' => '[今天] LT', 'nextDay' => '[明天] LT', 'nextWeek' => '[下]dddd LT', 'lastDay' => '[昨天] LT', 'lastWeek' => '[上]dddd LT', 'sameElse' => 'L'], 'ordinal' => function ($number, $period) {
-    switch ($period) {
-        case 'd':
-        case 'D':
-        case 'DDD':
-            return $number . '日';
-        case 'M':
-            return $number . '月';
-        case 'w':
-        case 'W':
-            return $number . '周';
-        default:
-            return $number;
-    }
-}, 'meridiem' => function ($hour, $minute) {
+return ['year' => ':count:optional-space年', 'y' => ':count:optional-space年', 'month' => ':count:optional-space個月', 'm' => ':count:optional-space月', 'week' => ':count:optional-space週', 'w' => ':count:optional-space週', 'day' => ':count:optional-space天', 'd' => ':count:optional-space天', 'hour' => ':count:optional-space小時', 'h' => ':count:optional-space小時', 'minute' => ':count:optional-space分鐘', 'min' => ':count:optional-space分鐘', 'second' => ':count:optional-space秒', 'a_second' => '{1}幾秒|[-Inf,Inf]:count:optional-space秒', 's' => ':count:optional-space秒', 'ago' => ':time前', 'from_now' => ':time後', 'after' => ':time後', 'before' => ':time前', 'diff_now' => '現在', 'diff_today' => '今天', 'diff_yesterday' => '昨天', 'diff_tomorrow' => '明天', 'formats' => ['LT' => 'HH:mm', 'LTS' => 'HH:mm:ss', 'L' => 'YYYY/MM/DD', 'LL' => 'YYYY年M月D日', 'LLL' => 'YYYY年M月D日 HH:mm', 'LLLL' => 'YYYY年M月D日dddd HH:mm'], 'calendar' => ['sameDay' => '[今天] LT', 'nextDay' => '[明天] LT', 'nextWeek' => '[下]dddd LT', 'lastDay' => '[昨天] LT', 'lastWeek' => '[上]dddd LT', 'sameElse' => 'L'], 'ordinal' => static function ($number, $period) {
+    return match ($period) {
+        'd', 'D', 'DDD' => $number . '日',
+        'M' => $number . '月',
+        'w', 'W' => $number . '周',
+        default => $number,
+    };
+}, 'meridiem' => static function ($hour, $minute) {
     $time = $hour * 100 + $minute;
     if ($time < 600) {
         return '凌晨';

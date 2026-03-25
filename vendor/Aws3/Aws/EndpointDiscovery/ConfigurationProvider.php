@@ -74,7 +74,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
             $configProviders[] = self::ini();
         }
         $configProviders[] = self::fallback($config);
-        $memo = self::memoize(\call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
+        $memo = self::memoize(call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
         if (isset($config['endpoint_discovery']) && $config['endpoint_discovery'] instanceof CacheInterface) {
             return self::cache($memo, $config['endpoint_discovery'], self::$cacheKey);
         }
@@ -88,11 +88,11 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
      */
     public static function env($cacheLimit = self::DEFAULT_CACHE_LIMIT)
     {
-        return function () use($cacheLimit) {
+        return function () use ($cacheLimit) {
             // Use config from environment variables, if available
-            $enabled = \getenv(self::ENV_ENABLED);
+            $enabled = getenv(self::ENV_ENABLED);
             if ($enabled === \false || $enabled === '') {
-                $enabled = \getenv(self::ENV_ENABLED_ALT);
+                $enabled = getenv(self::ENV_ENABLED_ALT);
             }
             if ($enabled !== \false && $enabled !== '') {
                 return Promise\Create::promiseFor(new Configuration($enabled, $cacheLimit));
@@ -123,7 +123,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
                 }
             }
         }
-        return function () use($enabled) {
+        return function () use ($enabled) {
             return Promise\Create::promiseFor(new Configuration($enabled, self::DEFAULT_CACHE_LIMIT));
         };
     }
@@ -143,9 +143,9 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
     public static function ini($profile = null, $filename = null, $cacheLimit = self::DEFAULT_CACHE_LIMIT)
     {
         $filename = $filename ?: self::getDefaultConfigFilename();
-        $profile = $profile ?: (\getenv(self::ENV_PROFILE) ?: 'default');
-        return function () use($profile, $filename, $cacheLimit) {
-            if (!@\is_readable($filename)) {
+        $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
+        return function () use ($profile, $filename, $cacheLimit) {
+            if (!@is_readable($filename)) {
                 return self::reject("Cannot read configuration from {$filename}");
             }
             $data = \DeliciousBrains\WP_Offload_SES\Aws3\Aws\parse_ini_file($filename, \true);
@@ -171,7 +171,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
      */
     public static function unwrap($config)
     {
-        if (\is_callable($config)) {
+        if (is_callable($config)) {
             $config = $config();
         }
         if ($config instanceof PromiseInterface) {
@@ -179,7 +179,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
         }
         if ($config instanceof ConfigurationInterface) {
             return $config;
-        } elseif (\is_array($config) && isset($config['enabled'])) {
+        } elseif (is_array($config) && isset($config['enabled'])) {
             if (isset($config['cache_limit'])) {
                 return new Configuration($config['enabled'], $config['cache_limit']);
             }

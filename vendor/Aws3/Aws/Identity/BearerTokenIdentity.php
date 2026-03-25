@@ -15,5 +15,5 @@ abstract class BearerTokenIdentity implements IdentityInterface
      *
      * @return int|null
      */
-    public abstract function getExpiration();
+    abstract public function getExpiration();
 }

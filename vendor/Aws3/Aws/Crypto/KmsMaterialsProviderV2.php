@@ -55,15 +55,15 @@ class KmsMaterialsProviderV2 extends MaterialsProviderV2 implements MaterialsPro
         if (empty($this->kmsKeyId)) {
             throw new CryptoException('A KMS key id is required for encryption' . ' with KMS keywrap. Use a KmsMaterialsProviderV2 that has been' . ' instantiated with a KMS key id.');
         }
-        $options = \array_change_key_case($options);
-        if (!isset($options['@kmsencryptioncontext']) || !\is_array($options['@kmsencryptioncontext'])) {
+        $options = array_change_key_case($options);
+        if (!isset($options['@kmsencryptioncontext']) || !is_array($options['@kmsencryptioncontext'])) {
             throw new CryptoException("'@KmsEncryptionContext' is a" . " required argument when using KmsMaterialsProviderV2, and" . " must be an associative array (or empty array).");
         }
         if (isset($options['@kmsencryptioncontext']['aws:x-amz-cek-alg'])) {
             throw new CryptoException("Conflict in reserved @KmsEncryptionContext" . " key aws:x-amz-cek-alg. This value is reserved for the S3" . " Encryption Client and cannot be set by the user.");
         }
-        $context = \array_merge($options['@kmsencryptioncontext'], $context);
+        $context = array_merge($options['@kmsencryptioncontext'], $context);
         $result = $this->kmsClient->generateDataKey(['KeyId' => $this->kmsKeyId, 'KeySpec' => "AES_{$keySize}", 'EncryptionContext' => $context]);
-        return ['Plaintext' => $result['Plaintext'], 'Ciphertext' => \base64_encode($result['CiphertextBlob']), 'UpdatedContext' => $context];
+        return ['Plaintext' => $result['Plaintext'], 'Ciphertext' => base64_encode($result['CiphertextBlob']), 'UpdatedContext' => $context];
     }
 }

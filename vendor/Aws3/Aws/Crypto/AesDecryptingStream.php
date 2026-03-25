@@ -53,7 +53,7 @@ class AesDecryptingStream implements AesStreamInterface
     {
         return $this->cipherMethod->getCurrentIv();
     }
-    public function getSize() : ?int
+    public function getSize(): ?int
     {
         $plainTextSize = $this->stream->getSize();
         if ($this->cipherMethod->requiresPadding()) {
@@ -65,20 +65,20 @@ class AesDecryptingStream implements AesStreamInterface
         }
         return $plainTextSize;
     }
-    public function isWritable() : bool
+    public function isWritable(): bool
     {
         return \false;
     }
-    public function read($length) : string
+    public function read($length): string
     {
-        if ($length > \strlen($this->buffer)) {
-            $this->buffer .= $this->decryptBlock((int) (self::BLOCK_SIZE * \ceil(($length - \strlen($this->buffer)) / self::BLOCK_SIZE)));
+        if ($length > strlen($this->buffer)) {
+            $this->buffer .= $this->decryptBlock((int) (self::BLOCK_SIZE * ceil(($length - strlen($this->buffer)) / self::BLOCK_SIZE)));
         }
-        $data = \substr($this->buffer, 0, $length);
-        $this->buffer = \substr($this->buffer, $length);
+        $data = substr($this->buffer, 0, $length);
+        $this->buffer = substr($this->buffer, $length);
         return $data ? $data : '';
     }
-    public function seek($offset, $whence = \SEEK_SET) : void
+    public function seek($offset, $whence = \SEEK_SET): void
     {
         if ($offset === 0 && $whence === \SEEK_SET) {
             $this->buffer = '';
@@ -95,13 +95,13 @@ class AesDecryptingStream implements AesStreamInterface
         }
         $cipherText = '';
         do {
-            $cipherText .= $this->stream->read((int) ($length - \strlen($cipherText)));
-        } while (\strlen($cipherText) < $length && !$this->stream->eof());
+            $cipherText .= $this->stream->read((int) ($length - strlen($cipherText)));
+        } while (strlen($cipherText) < $length && !$this->stream->eof());
         $options = \OPENSSL_RAW_DATA;
         if (!$this->stream->eof() && $this->stream->getSize() !== $this->stream->tell()) {
             $options |= \OPENSSL_ZERO_PADDING;
         }
-        $plaintext = \openssl_decrypt($cipherText, $this->cipherMethod->getOpenSslName(), $this->key, $options, $this->cipherMethod->getCurrentIv());
+        $plaintext = openssl_decrypt($cipherText, $this->cipherMethod->getOpenSslName(), $this->key, $options, $this->cipherMethod->getCurrentIv());
         $this->cipherMethod->update($cipherText);
         return $plaintext;
     }

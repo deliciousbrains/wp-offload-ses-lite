@@ -50,7 +50,7 @@ class HandlerList implements \Countable
     /**
      * @param callable $handler HTTP handler.
      */
-    public function __construct(callable $handler = null)
+    public function __construct(?callable $handler = null)
     {
         $this->handler = $handler;
     }
@@ -63,8 +63,8 @@ class HandlerList implements \Countable
     {
         $str = '';
         $i = 0;
-        foreach (\array_reverse($this->steps) as $k => $step) {
-            foreach (\array_reverse($step) as $j => $tuple) {
+        foreach (array_reverse($this->steps) as $k => $step) {
+            foreach (array_reverse($step) as $j => $tuple) {
                 $str .= "{$i}) Step: {$k}, ";
                 if ($tuple[1]) {
                     $str .= "Name: {$tuple[1]}, ";
@@ -96,6 +96,19 @@ class HandlerList implements \Countable
     public function hasHandler()
     {
         return (bool) $this->handler;
+    }
+    /**
+     * Checks if a middleware exists. The middleware
+     * should have been added with a name in order to
+     * use this method.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasMiddleware(string $name): bool
+    {
+        return isset($this->named[$name]);
     }
     /**
      * Append a middleware to the init step.
@@ -226,9 +239,9 @@ class HandlerList implements \Countable
      */
     public function remove($nameOrInstance)
     {
-        if (\is_callable($nameOrInstance)) {
+        if (is_callable($nameOrInstance)) {
             $this->removeByInstance($nameOrInstance);
-        } elseif (\is_string($nameOrInstance)) {
+        } elseif (is_string($nameOrInstance)) {
             $this->removeByName($nameOrInstance);
         }
     }
@@ -246,7 +259,7 @@ class HandlerList implements \Countable
      *
      * @param callable|null $fn Pass null to remove any previously set function
      */
-    public function interpose(callable $fn = null)
+    public function interpose(?callable $fn = null)
     {
         $this->sorted = null;
         $this->interposeFn = $fn;
@@ -258,7 +271,7 @@ class HandlerList implements \Countable
      */
     public function resolve()
     {
-        if (!($prev = $this->handler)) {
+        if (!$prev = $this->handler) {
             throw new \LogicException('No handler has been specified');
         }
         if ($this->sorted === null) {
@@ -275,7 +288,7 @@ class HandlerList implements \Countable
     #[\ReturnTypeWillChange]
     public function count()
     {
-        return \count($this->steps[self::INIT]) + \count($this->steps[self::VALIDATE]) + \count($this->steps[self::BUILD]) + \count($this->steps[self::SIGN]) + \count($this->steps[self::ATTEMPT]);
+        return count($this->steps[self::INIT]) + count($this->steps[self::VALIDATE]) + count($this->steps[self::BUILD]) + count($this->steps[self::SIGN]) + count($this->steps[self::ATTEMPT]);
     }
     /**
      * Splices a function into the middleware list at a specific position.
@@ -302,7 +315,7 @@ class HandlerList implements \Countable
             }
         }
         $replacement = $before ? [$this->steps[$step][$idx], [$middleware, $withName]] : [[$middleware, $withName], $this->steps[$step][$idx]];
-        \array_splice($this->steps[$step], $idx, 1, $replacement);
+        array_splice($this->steps[$step], $idx, 1, $replacement);
     }
     /**
      * Provides a debug string for a given callable.
@@ -313,14 +326,14 @@ class HandlerList implements \Countable
      */
     private function debugCallable($fn)
     {
-        if (\is_string($fn)) {
+        if (is_string($fn)) {
             return "callable({$fn})";
         }
-        if (\is_array($fn)) {
-            $ele = \is_string($fn[0]) ? $fn[0] : \get_class($fn[0]);
+        if (is_array($fn)) {
+            $ele = is_string($fn[0]) ? $fn[0] : get_class($fn[0]);
             return "callable(['{$ele}', '{$fn[1]}'])";
         }
-        return 'callable(' . \spl_object_hash($fn) . ')';
+        return 'callable(' . spl_object_hash($fn) . ')';
     }
     /**
      * Sort the middleware, and interpose if needed in the sorted list.
@@ -352,7 +365,7 @@ class HandlerList implements \Countable
         }
         $this->sorted = null;
         $step = $this->named[$name];
-        $this->steps[$step] = \array_values(\array_filter($this->steps[$step], function ($tuple) use($name) {
+        $this->steps[$step] = array_values(array_filter($this->steps[$step], function ($tuple) use ($name) {
             return $tuple[1] !== $name;
         }));
     }
@@ -382,7 +395,7 @@ class HandlerList implements \Countable
         if ($prepend) {
             $this->steps[$step][] = [$middleware, $name];
         } else {
-            \array_unshift($this->steps[$step], [$middleware, $name]);
+            array_unshift($this->steps[$step], [$middleware, $name]);
         }
         if ($name) {
             $this->named[$name] = $step;

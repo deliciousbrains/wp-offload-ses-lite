@@ -26,7 +26,7 @@ class RequestCompressionMiddleware
      */
     public static function wrap(array $config)
     {
-        return function (callable $handler) use($config) {
+        return function (callable $handler) use ($config) {
             return new self($handler, $config);
         };
     }
@@ -38,28 +38,34 @@ class RequestCompressionMiddleware
     }
     public function __invoke(CommandInterface $command, RequestInterface $request)
     {
-        if (isset($command['@request_min_compression_size_bytes']) && \is_int($command['@request_min_compression_size_bytes']) && $this->isValidCompressionSize($command['@request_min_compression_size_bytes'])) {
+        if (isset($command['@request_min_compression_size_bytes']) && is_int($command['@request_min_compression_size_bytes']) && $this->isValidCompressionSize($command['@request_min_compression_size_bytes'])) {
             $this->minimumCompressionSize = $command['@request_min_compression_size_bytes'];
         }
         $nextHandler = $this->nextHandler;
         $operation = $this->api->getOperation($command->getName());
-        $compressionInfo = isset($operation['requestcompression']) ? $operation['requestcompression'] : null;
+        $compressionInfo = $operation['requestcompression'] ?? null;
         if (!$this->shouldCompressRequestBody($compressionInfo, $command, $operation, $request)) {
             return $nextHandler($command, $request);
         }
         $this->encodings = $compressionInfo['encodings'];
         $request = $this->compressRequestBody($request);
+        // Capture request compression metric
+        $command->getMetricsBuilder()->identifyMetricByValueAndAppend('request_compression', $request->getHeaderLine('content-encoding'));
         return $nextHandler($command, $request);
     }
     private function compressRequestBody(RequestInterface $request)
     {
         $fn = $this->determineEncoding();
-        if (\is_null($fn)) {
+        if (is_null($fn)) {
             return $request;
         }
         $body = $request->getBody()->getContents();
         $compressedBody = $fn($body);
-        return $request->withBody(Psr7\Utils::streamFor($compressedBody))->withHeader('content-encoding', $this->encoding);
+        $request = $request->withBody(Psr7\Utils::streamFor($compressedBody));
+        if ($request->hasHeader('Content-Encoding')) {
+            return $request->withAddedHeader('Content-Encoding', $this->encoding);
+        }
+        return $request->withHeader('Content-Encoding', $this->encoding);
     }
     private function determineEncoding()
     {
@@ -97,7 +103,7 @@ class RequestCompressionMiddleware
     }
     private function determineMinimumCompressionSize($config)
     {
-        if (\is_callable($config['request_min_compression_size_bytes'])) {
+        if (is_callable($config['request_min_compression_size_bytes'])) {
             $minCompressionSz = $config['request_min_compression_size_bytes']();
         } else {
             $minCompressionSz = $config['request_min_compression_size_bytes'];
@@ -108,7 +114,7 @@ class RequestCompressionMiddleware
     }
     private function isValidCompressionSize($compressionSize)
     {
-        if (\is_numeric($compressionSize) && ($compressionSize >= 0 && $compressionSize <= 10485760)) {
+        if (is_numeric($compressionSize) && ($compressionSize >= 0 && $compressionSize <= 10485760)) {
             return \true;
         }
         throw new \InvalidArgumentException('The minimum request compression size must be a ' . 'non-negative integer value between 0 and 10485760 bytes, inclusive.');

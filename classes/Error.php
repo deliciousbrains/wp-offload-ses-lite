@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use WP_Error;
 
 /**
@@ -74,10 +78,12 @@ class Error extends WP_Error {
 				$message .= ' (' . $data . ')';
 			}
 
-			error_log( 'WP Offload SES #' . $code . ': ' . $message ); // phpcs:ignore
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( 'WP Offload SES #' . $code . ': ' . $message );
 
 			if ( is_array( $data ) || is_object( $data ) ) {
-				error_log( print_r( $data, true ) ); // phpcs:ignore
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( wp_json_encode( $data ) );
 			}
 		}
 	}

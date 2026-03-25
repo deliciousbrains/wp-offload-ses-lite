@@ -39,7 +39,7 @@ body.settings_page_wp-offload-ses #wpfooter {
   margin-right: 5px;
 }
 .wposes-main.wrap h2.nav-tab-wrapper a.nav-tab-active {
-  color: #464646;
+  color: var(--wp-admin-theme-color-darker-10);
   cursor: default;
 }
 .wposes-main.wrap h2.nav-tab-wrapper a[data-tab=settings].nav-tab-active {
@@ -48,6 +48,9 @@ body.settings_page_wp-offload-ses #wpfooter {
 }
 .wposes-main.wrap h2.nav-tab-wrapper a:focus {
   box-shadow: none;
+}
+.wposes-main.wrap .nav-tab {
+  color: var(--wp-admin-theme-color-darker-10);
 }
 .wposes-main.wrap .sub-nav-tab-container {
   margin: -15px 0 20px 0;
@@ -60,7 +63,6 @@ body.settings_page_wp-offload-ses #wpfooter {
 }
 .wposes-main.wrap .sub-nav-tab-container .nav-tab {
   background: none;
-  color: #0073aa;
   font-weight: normal;
   box-shadow: none;
   padding-left: 8px;
@@ -354,10 +356,6 @@ body.settings_page_wp-offload-ses #wpfooter {
   display: none;
   position: relative;
   width: 700px;
-  /* Hide the tooltip content by default */
-  /* Position tooltip above the element */
-  /* Triangle hack to make tooltip look like a speech bubble */
-  /* Show tooltip content on hover */
 }
 .wposes-tab .wposes-main-settings p {
   font-size: 13px;
@@ -498,6 +496,9 @@ body.settings_page_wp-offload-ses #wpfooter {
   z-index: 2;
   cursor: pointer;
 }
+.wposes-tab {
+  /* Hide the tooltip content by default */
+}
 .wposes-tab .tooltip:before,
 .wposes-tab .tooltip:after {
   visibility: hidden;
@@ -505,6 +506,9 @@ body.settings_page_wp-offload-ses #wpfooter {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
   opacity: 0;
   pointer-events: none;
+}
+.wposes-tab {
+  /* Position tooltip above the element */
 }
 .wposes-tab .tooltip:before {
   position: absolute;
@@ -523,6 +527,9 @@ body.settings_page_wp-offload-ses #wpfooter {
   font-size: 14px;
   line-height: 1.3;
 }
+.wposes-tab {
+  /* Triangle hack to make tooltip look like a speech bubble */
+}
 .wposes-tab .tooltip:after {
   position: absolute;
   bottom: 150%;
@@ -536,6 +543,9 @@ body.settings_page_wp-offload-ses #wpfooter {
   content: " ";
   font-size: 0;
   line-height: 0;
+}
+.wposes-tab {
+  /* Show tooltip content on hover */
 }
 .wposes-tab .tooltip:hover:before,
 .wposes-tab .tooltip:hover:after {
@@ -920,6 +930,14 @@ body.settings_page_wp-offload-ses #wpfooter {
 #tab-reports .wposes-need-help {
   margin-bottom: 15px;
 }
+#tab-reports .tablenav.top {
+  margin: 6px 0 10px;
+}
+#tab-reports .tablenav.top:has(br:first-child:last-child) {
+  height: 0;
+  margin: 0;
+  padding: 0;
+}
 #tab-reports .tablenav.top label {
   vertical-align: baseline;
 }
@@ -927,11 +945,22 @@ body.settings_page_wp-offload-ses #wpfooter {
 #tab-reports .tablenav.top .tablenav-pages {
   display: none;
 }
+#tab-reports .tablenav.top #wposes-reports-form {
+  height: inherit;
+}
+#tab-reports .tablenav.top #wposes-reports-form input[type=text], #tab-reports .tablenav.top #wposes-reports-form .button {
+  height: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  margin-top: 0;
+}
 #tab-reports .tablenav.top #wposes-reports-from,
 #tab-reports .tablenav.top #wposes-reports-to {
   width: 150px;
-  height: 28px;
   margin-top: 0;
+}
+#tab-reports .tablenav.top .search-box {
+  margin: 0;
 }
 #tab-reports .wp-list-table {
   table-layout: auto;
@@ -993,13 +1022,29 @@ body.settings_page_wp-offload-ses #wpfooter {
 #tab-activity .tablenav.top #wposes-subject-search,
 #tab-activity .tablenav.top #wposes-recipient-search {
   width: 115px;
-  height: 26px;
 }
 #tab-activity .tablenav.top .tablenav-pages {
   display: none;
 }
+#tab-activity .tablenav .actions {
+  height: inherit;
+  padding: 0;
+  font-size: 0;
+}
+#tab-activity .tablenav .actions select,
+#tab-activity .tablenav .actions input[type=text],
+#tab-activity .tablenav .actions .button {
+  height: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  margin-top: 0;
+  margin-right: 6px;
+}
 #tab-activity .tablenav .alignleft {
   margin: 0 8px 10px 0;
+}
+#tab-activity .tablenav .alignright :last-child {
+  margin-right: 0;
 }
 #tab-activity .widefat .column-date {
   width: 100px;

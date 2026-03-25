@@ -11,6 +11,7 @@ namespace DeliciousBrains\WP_Offload_SES;
  * file that was distributed with this source code.
  */
 return \array_replace_recursive(require __DIR__ . '/en.php', [
+    'first_day_of_week' => 0,
     'weekdays' => ['Sonto', 'Mvulo', 'Sibili', 'Sithathu', 'Sine', 'Sihlanu', 'Mgqibelo'],
     'weekdays_short' => ['Son', 'Mvu', 'Sib', 'Sit', 'Sin', 'Sih', 'Mgq'],
     'weekdays_min' => ['Son', 'Mvu', 'Sib', 'Sit', 'Sin', 'Sih', 'Mgq'],

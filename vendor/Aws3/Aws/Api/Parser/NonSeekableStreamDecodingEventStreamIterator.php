@@ -30,30 +30,40 @@ class NonSeekableStreamDecodingEventStreamIterator extends DecodingEventStreamIt
      *
      * @return array
      */
-    protected function parseEvent() : array
+    protected function parseEvent(): array
     {
         $event = [];
-        $this->hashContext = \hash_init('crc32b');
+        $this->hashContext = hash_init('crc32b');
         $prelude = $this->parsePrelude()[0];
         list($event[self::HEADERS], $numBytes) = $this->parseHeaders($prelude[self::LENGTH_HEADERS]);
         $event[self::PAYLOAD] = Psr7\Utils::streamFor($this->readAndHashBytes($prelude[self::LENGTH_TOTAL] - self::BYTES_PRELUDE - $numBytes - self::BYTES_TRAILING));
-        $calculatedCrc = \hash_final($this->hashContext, \true);
+        $calculatedCrc = hash_final($this->hashContext, \true);
         $messageCrc = $this->stream->read(4);
         if ($calculatedCrc !== $messageCrc) {
             throw new ParserException('Message checksum mismatch.');
         }
         return $event;
     }
-    protected function readAndHashBytes($num) : string
+    protected function readAndHashBytes($num): string
     {
         $bytes = '';
         while (!empty($this->tempBuffer) && $num > 0) {
-            $byte = \array_shift($this->tempBuffer);
+            $byte = array_shift($this->tempBuffer);
             $bytes .= $byte;
-            $num = $num - 1;
+            $num -= 1;
         }
-        $bytes = $bytes . $this->stream->read($num);
-        \hash_update($this->hashContext, $bytes);
+        // Loop until we've read the expected number of bytes
+        while ($num > 0 && !$this->stream->eof()) {
+            $chunk = $this->stream->read($num);
+            $chunkLen = strlen($chunk);
+            $bytes .= $chunk;
+            $num -= $chunkLen;
+            if ($chunkLen === 0) {
+                break;
+                // Prevent infinite loop on unexpected EOF
+            }
+        }
+        hash_update($this->hashContext, $bytes);
         return $bytes;
     }
     // Iterator Functionality

@@ -29,9 +29,9 @@ class QueryCompatibleInputMiddleware
      * @param Service $service
      * @return Closure
      */
-    public static function wrap(Service $service) : Closure
+    public static function wrap(Service $service): Closure
     {
-        return static function (callable $handler) use($service) {
+        return static function (callable $handler) use ($service) {
             return new self($handler, $service);
         };
     }
@@ -65,7 +65,7 @@ class QueryCompatibleInputMiddleware
      *
      * @return void
      */
-    private function processInput($input, $shape, array $path) : void
+    private function processInput($input, $shape, array $path): void
     {
         switch ($shape->getType()) {
             case 'structure':
@@ -88,11 +88,11 @@ class QueryCompatibleInputMiddleware
      *
      * @return void
      */
-    private function processStructure(array $input, StructureShape $shape, array $path) : void
+    private function processStructure(array $input, StructureShape $shape, array $path): void
     {
         foreach ($input as $param => $value) {
             if ($shape->hasMember($param)) {
-                $memberPath = \array_merge($path, [$param]);
+                $memberPath = array_merge($path, [$param]);
                 $this->processInput($value, $shape->getMember($param), $memberPath);
             }
         }
@@ -104,10 +104,10 @@ class QueryCompatibleInputMiddleware
      *
      * @return void
      */
-    private function processList(array $input, ListShape $shape, array $path) : void
+    private function processList(array $input, ListShape $shape, array $path): void
     {
         foreach ($input as $param => $value) {
-            $memberPath = \array_merge($path, [$param]);
+            $memberPath = array_merge($path, [$param]);
             $this->processInput($value, $shape->getMember(), $memberPath);
         }
     }
@@ -118,10 +118,10 @@ class QueryCompatibleInputMiddleware
      *
      * @return void
      */
-    private function processMap(array $input, MapShape $shape, array $path) : void
+    private function processMap(array $input, MapShape $shape, array $path): void
     {
         foreach ($input as $param => $value) {
-            $memberPath = \array_merge($path, [$param]);
+            $memberPath = array_merge($path, [$param]);
             $this->processInput($value, $shape->getValue(), $memberPath);
         }
     }
@@ -132,11 +132,11 @@ class QueryCompatibleInputMiddleware
      *
      * @return void
      */
-    private function processScalar($input, Shape $shape, array $path) : void
+    private function processScalar($input, Shape $shape, array $path): void
     {
         $expectedType = $shape->getType();
         if (!$this->isModeledType($input, $expectedType)) {
-            \trigger_error("The provided type for `" . \implode(' -> ', $path) . "` value was `" . (\gettype($input) === 'double' ? 'float' : \gettype($input)) . "`." . " The modeled type is `{$expectedType}`.", \E_USER_WARNING);
+            trigger_error("The provided type for `" . implode(' -> ', $path) . "` value was `" . (gettype($input) === 'double' ? 'float' : gettype($input)) . "`." . " The modeled type is `{$expectedType}`.", \E_USER_WARNING);
             $value = $this->castValue($input, $expectedType);
             $this->changeValueAtPath($path, $value);
         }
@@ -149,7 +149,7 @@ class QueryCompatibleInputMiddleware
      *
      * @return void
      */
-    private function changeValueAtPath(array $path, $newValue) : void
+    private function changeValueAtPath(array $path, $newValue): void
     {
         $commandRef =& $this->command;
         foreach ($path as $segment) {
@@ -166,16 +166,16 @@ class QueryCompatibleInputMiddleware
      *
      * @return bool
      */
-    private function isModeledType($value, $type) : bool
+    private function isModeledType($value, $type): bool
     {
         switch ($type) {
             case 'string':
-                return \is_string($value);
+                return is_string($value);
             case 'integer':
             case 'long':
-                return \is_int($value);
+                return is_int($value);
             case 'float':
-                return \is_float($value);
+                return is_float($value);
             default:
                 return \true;
         }

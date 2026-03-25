@@ -1,3 +1,8 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+?>
 <div id="tab-support" class="wposes-content wposes-tab">
 <?php
 if ( ! $this->is_pro() ) {

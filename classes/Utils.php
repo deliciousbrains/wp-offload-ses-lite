@@ -2,6 +2,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use \Datetime;
 
 class Utils {
@@ -63,7 +67,7 @@ class Utils {
 			$url = 'http:' . $url;
 		}
 
-		$parts = parse_url( $url, $component );
+		$parts = wp_parse_url( $url, $component );
 
 		if ( 0 < $component ) {
 			return $parts;
@@ -145,7 +149,7 @@ class Utils {
 	 * @return string|false
 	 */
 	public static function current_domain() {
-		return parse_url( home_url(), PHP_URL_HOST );
+		return wp_parse_url( home_url(), PHP_URL_HOST );
 	}
 
 	/**
@@ -157,7 +161,7 @@ class Utils {
 		$domain = static::current_domain();
 		$parts  = explode( '.', $domain, 2 );
 
-		if ( isset( $parts[1] ) && in_array( $parts[0], array( 'www' ) ) ) {
+		if ( isset( $parts[1] ) && in_array( $parts[0], array( 'www' ), true ) ) {
 			return $parts[1];
 		}
 
@@ -192,7 +196,7 @@ class Utils {
 		// Get the site domain and get rid of www.
 		$sitename = wp_parse_url( network_home_url(), PHP_URL_HOST );
 
-		if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+		if ( substr( $sitename, 0, 4 ) === 'www.' ) {
 			$sitename = substr( $sitename, 4 );
 		}
 
@@ -202,6 +206,7 @@ class Utils {
 			return $from_email;
 		}
 
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WP core hook for wp_mail() compatibility.
 		return apply_filters( 'wp_mail_from', $from_email );
 	}
 
@@ -217,7 +222,7 @@ class Utils {
 			 * Workaround - `is_network_admin()` won't work w/ AJAX.
 			 * https://core.trac.wordpress.org/ticket/22589
 			 */
-			if ( isset( $_SERVER['HTTP_REFERER'] ) && false !== strpos( $_SERVER['HTTP_REFERER'], 'wp-admin/network' ) ) {
+			if ( isset( $_SERVER['HTTP_REFERER'] ) && false !== strpos( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ), 'wp-admin/network' ) ) {
 				return true;
 			}
 

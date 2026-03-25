@@ -19,16 +19,10 @@ namespace DeliciousBrains\WP_Offload_SES;
  * - Glavić
  */
 use DeliciousBrains\WP_Offload_SES\Carbon\CarbonInterface;
-return ['year' => ':count година|:count години', 'a_year' => 'година|:count години', 'y' => ':count година|:count години', 'month' => ':count месец|:count месеца', 'a_month' => 'месец|:count месеца', 'm' => ':count месец|:count месеца', 'week' => ':count седмица|:count седмици', 'a_week' => 'седмица|:count седмици', 'w' => ':count седмица|:count седмици', 'day' => ':count ден|:count дни', 'a_day' => 'ден|:count дни', 'd' => ':count ден|:count дни', 'hour' => ':count час|:count часа', 'a_hour' => 'час|:count часа', 'h' => ':count час|:count часа', 'minute' => ':count минута|:count минути', 'a_minute' => 'минута|:count минути', 'min' => ':count минута|:count минути', 'second' => ':count секунда|:count секунди', 'a_second' => 'няколко секунди|:count секунди', 's' => ':count секунда|:count секунди', 'ago' => 'преди :time', 'from_now' => 'след :time', 'after' => 'след :time', 'before' => 'преди :time', 'diff_now' => 'сега', 'diff_today' => 'Днес', 'diff_today_regexp' => 'Днес(?:\\s+в)?', 'diff_yesterday' => 'вчера', 'diff_yesterday_regexp' => 'Вчера(?:\\s+в)?', 'diff_tomorrow' => 'утре', 'diff_tomorrow_regexp' => 'Утре(?:\\s+в)?', 'formats' => ['LT' => 'H:mm', 'LTS' => 'H:mm:ss', 'L' => 'D.MM.YYYY', 'LL' => 'D MMMM YYYY', 'LLL' => 'D MMMM YYYY H:mm', 'LLLL' => 'dddd, D MMMM YYYY H:mm'], 'calendar' => ['sameDay' => '[Днес в] LT', 'nextDay' => '[Утре в] LT', 'nextWeek' => 'dddd [в] LT', 'lastDay' => '[Вчера в] LT', 'lastWeek' => function (CarbonInterface $current) {
-    switch ($current->dayOfWeek) {
-        case 0:
-        case 3:
-        case 6:
-            return '[В изминалата] dddd [в] LT';
-        default:
-            return '[В изминалия] dddd [в] LT';
-    }
-}, 'sameElse' => 'L'], 'ordinal' => function ($number) {
+return ['year' => ':count година|:count години', 'a_year' => 'година|:count години', 'y' => ':count година|:count години', 'month' => ':count месец|:count месеца', 'a_month' => 'месец|:count месеца', 'm' => ':count месец|:count месеца', 'week' => ':count седмица|:count седмици', 'a_week' => 'седмица|:count седмици', 'w' => ':count седмица|:count седмици', 'day' => ':count ден|:count дни', 'a_day' => 'ден|:count дни', 'd' => ':count ден|:count дни', 'hour' => ':count час|:count часа', 'a_hour' => 'час|:count часа', 'h' => ':count час|:count часа', 'minute' => ':count минута|:count минути', 'a_minute' => 'минута|:count минути', 'min' => ':count минута|:count минути', 'second' => ':count секунда|:count секунди', 'a_second' => 'няколко секунди|:count секунди', 's' => ':count секунда|:count секунди', 'ago' => 'преди :time', 'from_now' => 'след :time', 'after' => 'след :time', 'before' => 'преди :time', 'diff_now' => 'сега', 'diff_today' => 'Днес', 'diff_today_regexp' => 'Днес(?:\\s+в)?', 'diff_yesterday' => 'вчера', 'diff_yesterday_regexp' => 'Вчера(?:\\s+в)?', 'diff_tomorrow' => 'утре', 'diff_tomorrow_regexp' => 'Утре(?:\\s+в)?', 'formats' => ['LT' => 'H:mm', 'LTS' => 'H:mm:ss', 'L' => 'D.MM.YYYY', 'LL' => 'D MMMM YYYY', 'LLL' => 'D MMMM YYYY H:mm', 'LLLL' => 'dddd, D MMMM YYYY H:mm'], 'calendar' => ['sameDay' => '[Днес в] LT', 'nextDay' => '[Утре в] LT', 'nextWeek' => 'dddd [в] LT', 'lastDay' => '[Вчера в] LT', 'lastWeek' => static fn(CarbonInterface $current) => match ($current->dayOfWeek) {
+    0, 3, 6 => '[В изминалата] dddd [в] LT',
+    default => '[В изминалия] dddd [в] LT',
+}, 'sameElse' => 'L'], 'ordinal' => static function ($number) {
     $lastDigit = $number % 10;
     $last2Digits = $number % 100;
     if ($number === 0) {

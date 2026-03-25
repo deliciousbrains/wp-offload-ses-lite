@@ -34,12 +34,12 @@ class OutpostsAccessPointArn extends BaseAccessPointArn implements AccessPointAr
     }
     private static function parseOutpostData(array $data)
     {
-        $resourceData = \preg_split("/[\\/:]/", $data['resource_id']);
+        $resourceData = preg_split("/[\\/:]/", $data['resource_id']);
         $data['outpost_id'] = isset($resourceData[0]) ? $resourceData[0] : null;
         $data['accesspoint_type'] = isset($resourceData[1]) ? $resourceData[1] : null;
         $data['accesspoint_name'] = isset($resourceData[2]) ? $resourceData[2] : null;
         if (isset($resourceData[3])) {
-            $data['resource_extra'] = \implode(':', \array_slice($resourceData, 3));
+            $data['resource_extra'] = implode(':', array_slice($resourceData, 3));
         }
         return $data;
     }

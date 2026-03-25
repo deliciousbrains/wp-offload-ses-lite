@@ -2,6 +2,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\SesV2\SesV2Client;
 use Exception;
 
@@ -175,9 +179,12 @@ class Amazon_Web_Services {
 	public function get_client( array $args ): SesV2Client {
 		if ( $this->needs_access_keys() ) {
 			throw new Exception(
-				sprintf(
-					__( 'You must first <a href="%s">set your AWS access keys</a> to use this plugin.', 'wp-offload-ses' ),
-					$this->wposes->get_plugin_page_url( array(), 'self' ) . '#settings'
+				wp_kses(
+					sprintf(
+						__( 'You must first <a href="%s">set your AWS access keys</a> to use this plugin.', 'wp-offload-ses' ),
+						esc_url( $this->wposes->get_plugin_page_url( array(), 'self' ) . '#settings' )
+					),
+					array( 'a' => array( 'href' => array() ) )
 				)
 			);
 		}
@@ -198,6 +205,7 @@ class Amazon_Web_Services {
 			$args['version']                     = '2019-09-27';
 			$args['signature_version']           = 'v4';
 			$args['use_aws_shared_config_files'] = false;
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Shared cross-plugin filter for AWS client configuration.
 			$args                                = apply_filters( 'aws_get_client_args', $args );
 
 			$this->client = new SesV2Client( $args );

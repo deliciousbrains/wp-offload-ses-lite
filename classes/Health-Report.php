@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DateTime;
 use Exception;
 use phpmailerException;
@@ -132,8 +136,8 @@ class Health_Report {
 			return true;
 		}
 
-		$current_date        = (int) date( 'z', current_time( 'timestamp', 1 ) );
-		$next_scheduled_date = (int) date( 'z', $next_scheduled );
+		$current_date        = (int) gmdate( 'z', current_time( 'timestamp', 1 ) );
+		$next_scheduled_date = (int) gmdate( 'z', $next_scheduled );
 		$expected_time       = $send_time;
 
 		if ( $next_scheduled_date === $current_date ) {
@@ -465,6 +469,7 @@ class Health_Report {
 	 */
 	public function get_plugin_logo(): string {
 		$src = $this->wposes->plugins_url( 'assets/img/SES-circle.png' );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Shared cross-plugin filter from WP Offload Media.
 		$src = apply_filters( 'as3cf_get_asset', $src );
 
 		return '<img width="50" alt="" style="width: 50px; display: block;" src="' . esc_url( $src ) . '" />';
@@ -488,7 +493,7 @@ class Health_Report {
 		return sprintf(
 			'<a href="%1$s" style="float: right;">%2$s</a>',
 			esc_url( $this->wposes->get_plugin_page_url( $args, $method ) ),
-			__( 'View Full Report', 'wp-offload-ses' )
+			esc_html( __( 'View Full Report', 'wp-offload-ses' ) )
 		);
 	}
 
@@ -501,15 +506,26 @@ class Health_Report {
 		$domain = Utils::current_base_domain();
 
 		if ( is_multisite() && ! is_main_site() ) {
-			$parts  = parse_url( home_url() );
+			$parts  = wp_parse_url( home_url() );
 			$url    = $parts['host'] . ( $parts['path'] ?? '' );
 			$domain = untrailingslashit( $url );
 		}
 
+		$number_of_failures = (int) $this->get_total_email_failures();
+
+		if ( 0 === $number_of_failures ) {
+			return sprintf(
+				__( '[WP Offload SES] %1$s email sending health for %2$s', 'wp-offload-ses' ),
+				$this->get_report_date_range(),
+				$domain
+			);
+		}
+
 		return sprintf(
-			__( '[WP Offload SES] %1$s email sending health for %2$s', 'wp-offload-ses' ),
+			__( '[WP Offload SES] %1$s email sending health for %2$s - Failures: %3$d', 'wp-offload-ses' ),
 			$this->get_report_date_range(),
-			$domain
+			$domain,
+			$number_of_failures
 		);
 	}
 

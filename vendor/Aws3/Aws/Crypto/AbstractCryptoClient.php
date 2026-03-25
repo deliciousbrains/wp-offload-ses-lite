@@ -25,7 +25,7 @@ abstract class AbstractCryptoClient
      */
     public static function isSupportedCipher($cipherName)
     {
-        return \in_array($cipherName, self::$supportedCiphers);
+        return in_array($cipherName, self::$supportedCiphers);
     }
     /**
      * Returns an identifier recognizable by `openssl_*` functions, such as
@@ -38,7 +38,7 @@ abstract class AbstractCryptoClient
      *
      * @return string
      */
-    protected abstract function getCipherOpenSslName($cipherName, $keySize);
+    abstract protected function getCipherOpenSslName($cipherName, $keySize);
     /**
      * Constructs a CipherMethod for the given name, initialized with the other
      * data passed for use in encrypting or decrypting.
@@ -52,7 +52,7 @@ abstract class AbstractCryptoClient
      *
      * @internal
      */
-    protected abstract function buildCipherMethod($cipherName, $iv, $keySize);
+    abstract protected function buildCipherMethod($cipherName, $iv, $keySize);
     /**
      * Performs a reverse lookup to get the openssl_* cipher name from the
      * AESName passed in from the MetadataEnvelope.
@@ -63,7 +63,7 @@ abstract class AbstractCryptoClient
      *
      * @internal
      */
-    protected abstract function getCipherFromAesName($aesName);
+    abstract protected function getCipherFromAesName($aesName);
     /**
      * Dependency to provide an interface for building an encryption stream for
      * data given cipher details, metadata, and materials to do so.
@@ -81,7 +81,7 @@ abstract class AbstractCryptoClient
      *
      * @internal
      */
-    public abstract function encrypt(Stream $plaintext, array $cipherOptions, MaterialsProvider $provider, MetadataEnvelope $envelope);
+    abstract public function encrypt(Stream $plaintext, array $cipherOptions, MaterialsProvider $provider, MetadataEnvelope $envelope);
     /**
      * Dependency to provide an interface for building a decryption stream for
      * cipher text given metadata and materials to do so.
@@ -98,5 +98,5 @@ abstract class AbstractCryptoClient
      *
      * @internal
      */
-    public abstract function decrypt($cipherText, MaterialsProviderInterface $provider, MetadataEnvelope $envelope, array $cipherOptions = []);
+    abstract public function decrypt($cipherText, MaterialsProviderInterface $provider, MetadataEnvelope $envelope, array $cipherOptions = []);
 }

@@ -76,7 +76,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
             $configProviders[] = self::ini();
         }
         $configProviders[] = self::fallback();
-        $memo = self::memoize(\call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
+        $memo = self::memoize(call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
         if (isset($config['retries']) && $config['retries'] instanceof CacheInterface) {
             return self::cache($memo, $config['retries'], self::$cacheKey);
         }
@@ -91,8 +91,8 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
     {
         return function () {
             // Use config from environment variables, if available
-            $mode = \getenv(self::ENV_MODE);
-            $maxAttempts = \getenv(self::ENV_MAX_ATTEMPTS) ? \getenv(self::ENV_MAX_ATTEMPTS) : self::DEFAULT_MAX_ATTEMPTS;
+            $mode = getenv(self::ENV_MODE);
+            $maxAttempts = getenv(self::ENV_MAX_ATTEMPTS) ? getenv(self::ENV_MAX_ATTEMPTS) : self::DEFAULT_MAX_ATTEMPTS;
             if (!empty($mode)) {
                 return Promise\Create::promiseFor(new Configuration($mode, $maxAttempts));
             }
@@ -125,9 +125,9 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
     public static function ini($profile = null, $filename = null)
     {
         $filename = $filename ?: self::getDefaultConfigFilename();
-        $profile = $profile ?: (\getenv(self::ENV_PROFILE) ?: 'default');
-        return function () use($profile, $filename) {
-            if (!@\is_readable($filename)) {
+        $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
+        return function () use ($profile, $filename) {
+            if (!@is_readable($filename)) {
                 return self::reject("Cannot read configuration from {$filename}");
             }
             $data = \DeliciousBrains\WP_Offload_SES\Aws3\Aws\parse_ini_file($filename, \true);
@@ -154,7 +154,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
      */
     public static function unwrap($config)
     {
-        if (\is_callable($config)) {
+        if (is_callable($config)) {
             $config = $config();
         }
         if ($config instanceof PromiseInterface) {
@@ -165,10 +165,10 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
         }
         // An integer value for this config indicates the legacy 'retries'
         // config option, which is incremented to translate to max attempts
-        if (\is_int($config)) {
+        if (is_int($config)) {
             return new Configuration('legacy', $config + 1);
         }
-        if (\is_array($config) && isset($config['mode'])) {
+        if (is_array($config) && isset($config['mode'])) {
             $maxAttempts = isset($config['max_attempts']) ? $config['max_attempts'] : self::DEFAULT_MAX_ATTEMPTS;
             return new Configuration($config['mode'], $maxAttempts);
         }

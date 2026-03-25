@@ -21,7 +21,7 @@ class QueueManager
      * @param array  $allowed_job_classes Job classes that may be handled, default any Job subclass.
      *
      * @return Queue
-     * @throws Exception
+     * @throws ConnectionNotFoundException
      */
     public static function resolve($connection, array $allowed_job_classes = [])
     {
@@ -37,7 +37,7 @@ class QueueManager
      * @param array  $allowed_job_classes Job classes that may be handled, default any Job subclass.
      *
      * @return Queue
-     * @throws Exception
+     * @throws ConnectionNotFoundException
      */
     protected static function build($connection, array $allowed_job_classes = [])
     {

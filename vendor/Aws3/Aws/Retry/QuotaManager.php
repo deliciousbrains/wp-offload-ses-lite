@@ -54,7 +54,7 @@ class QuotaManager
                 $amount = $this->noRetryIncrement;
                 $this->availableCapacity += $amount;
             }
-            $this->availableCapacity = \min($this->availableCapacity, $this->maxCapacity);
+            $this->availableCapacity = min($this->availableCapacity, $this->maxCapacity);
         }
         return isset($amount) ? $amount : 0;
     }

@@ -11,6 +11,8 @@ abstract class AbstractUploader extends AbstractUploadManager
 {
     /** @var Stream Source of the data to be uploaded. */
     protected $source;
+    /** @var bool Configuration used to indicate if upload progress will be displayed. */
+    protected $displayProgress;
     /**
      * @param Client $client
      * @param mixed  $source
@@ -42,7 +44,7 @@ abstract class AbstractUploader extends AbstractUploadManager
             // If we haven't already uploaded this part, yield a new part.
             if (!$this->state->hasPartBeenUploaded($partNumber)) {
                 $partStartPos = $this->source->tell();
-                if (!($data = $this->createPart($seekable, $partNumber))) {
+                if (!$data = $this->createPart($seekable, $partNumber)) {
                     break;
                 }
                 $command = $this->client->getCommand($this->info['command']['upload'], $data + $this->state->getId());
@@ -51,14 +53,14 @@ abstract class AbstractUploader extends AbstractUploadManager
                 if (isset($numberOfParts) && $partNumber > $numberOfParts) {
                     throw new $this->config['exception_class']($this->state, new AwsException("Maximum part number for this job exceeded, file has likely been corrupted." . "  Please restart this upload.", $command));
                 }
-                (yield $command);
+                yield $command;
                 if ($this->source->tell() > $partStartPos) {
                     continue;
                 }
             }
             // Advance the source's offset if not already advanced.
             if ($seekable) {
-                $this->source->seek(\min($this->source->tell() + $this->state->getPartSize(), $this->source->getSize()));
+                $this->source->seek(min($this->source->tell() + $this->state->getPartSize(), $this->source->getSize()));
             } else {
                 $this->source->read($this->state->getPartSize());
             }
@@ -73,7 +75,7 @@ abstract class AbstractUploader extends AbstractUploadManager
      *
      * @return array|null
      */
-    protected abstract function createPart($seekable, $number);
+    abstract protected function createPart($seekable, $number);
     /**
      * Checks if the source is at EOF.
      *
@@ -98,7 +100,7 @@ abstract class AbstractUploader extends AbstractUploadManager
     private function determineSource($source)
     {
         // Use the contents of a file as the data source.
-        if (\is_string($source)) {
+        if (is_string($source)) {
             $source = Psr7\Utils::tryFopen($source, 'r');
         }
         // Create a source stream.
@@ -111,7 +113,7 @@ abstract class AbstractUploader extends AbstractUploadManager
     protected function getNumberOfParts($partSize)
     {
         if ($sourceSize = $this->source->getSize()) {
-            return \ceil($sourceSize / $partSize);
+            return ceil($sourceSize / $partSize);
         }
         return null;
     }

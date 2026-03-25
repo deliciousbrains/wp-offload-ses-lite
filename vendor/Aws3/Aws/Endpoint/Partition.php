@@ -65,7 +65,7 @@ final class Partition implements ArrayAccess, PartitionInterface
             return \true;
         }
         if (isset($this->data['regionRegex'])) {
-            return (bool) \preg_match("@{$this->data['regionRegex']}@", $region);
+            return (bool) preg_match("@{$this->data['regionRegex']}@", $region);
         }
         return \false;
     }
@@ -75,8 +75,8 @@ final class Partition implements ArrayAccess, PartitionInterface
             return [$this->getPartitionEndpoint($service)];
         }
         if (isset($this->data['services'][$service]['endpoints'])) {
-            $serviceRegions = \array_keys($this->data['services'][$service]['endpoints']);
-            return $allowNonRegionalEndpoints ? $serviceRegions : \array_intersect($serviceRegions, \array_keys($this->data['regions']));
+            $serviceRegions = array_keys($this->data['services'][$service]['endpoints']);
+            return $allowNonRegionalEndpoints ? $serviceRegions : array_intersect($serviceRegions, array_keys($this->data['regions']));
         }
         return [];
     }
@@ -107,8 +107,8 @@ final class Partition implements ArrayAccess, PartitionInterface
     private function getSignatureVersion(array $data)
     {
         static $supportedBySdk = ['s3v4', 'v4', 'anonymous'];
-        $possibilities = \array_intersect($supportedBySdk, isset($data['signatureVersions']) ? $data['signatureVersions'] : ['v4']);
-        return \array_shift($possibilities);
+        $possibilities = array_intersect($supportedBySdk, isset($data['signatureVersions']) ? $data['signatureVersions'] : ['v4']);
+        return array_shift($possibilities);
     }
     private function resolveRegion($service, $region, $options)
     {
@@ -135,7 +135,7 @@ final class Partition implements ArrayAccess, PartitionInterface
      */
     private function isStsLegacyEndpointUsed($service, $region, $options)
     {
-        return $service === 'sts' && \in_array($region, $this->stsLegacyGlobalRegions) && (empty($options['sts_regional_endpoints']) || ConfigurationProvider::unwrap($options['sts_regional_endpoints'])->getEndpointsType() !== 'regional');
+        return $service === 'sts' && in_array($region, $this->stsLegacyGlobalRegions) && (empty($options['sts_regional_endpoints']) || ConfigurationProvider::unwrap($options['sts_regional_endpoints'])->getEndpointsType() !== 'regional');
     }
     /**
      * S3 legacy us-east-1 endpoint used for valid regions unless option is explicitly
@@ -156,7 +156,7 @@ final class Partition implements ArrayAccess, PartitionInterface
     }
     private function formatEndpoint($template, $service, $region, $dnsSuffix)
     {
-        return \strtr($template, ['{service}' => $service, '{region}' => $region, '{dnsSuffix}' => $dnsSuffix]);
+        return strtr($template, ['{service}' => $service, '{region}' => $region, '{dnsSuffix}' => $dnsSuffix]);
     }
     /**
      * @param $region
@@ -164,7 +164,7 @@ final class Partition implements ArrayAccess, PartitionInterface
      */
     private function isFipsEndpointUsed($region)
     {
-        return \strpos($region, "fips") !== \false;
+        return strpos($region, "fips") !== \false;
     }
     /**
      * @param array $options
@@ -176,16 +176,16 @@ final class Partition implements ArrayAccess, PartitionInterface
         $variantTags = [];
         if (isset($options['use_fips_endpoint'])) {
             $useFips = $options['use_fips_endpoint'];
-            if (\is_bool($useFips)) {
-                $useFips && ($variantTags[] = 'fips');
+            if (is_bool($useFips)) {
+                $useFips && $variantTags[] = 'fips';
             } elseif ($useFips->isUseFipsEndpoint()) {
                 $variantTags[] = 'fips';
             }
         }
         if (isset($options['use_dual_stack_endpoint'])) {
             $useDualStack = $options['use_dual_stack_endpoint'];
-            if (\is_bool($useDualStack)) {
-                $useDualStack && ($variantTags[] = 'dualstack');
+            if (is_bool($useDualStack)) {
+                $useDualStack && $variantTags[] = 'dualstack';
             } elseif ($useDualStack->isUseDualStackEndpoint()) {
                 $variantTags[] = 'dualstack';
             }
@@ -193,14 +193,14 @@ final class Partition implements ArrayAccess, PartitionInterface
         if (!empty($variantTags)) {
             if (isset($data['variants'])) {
                 foreach ($data['variants'] as $variant) {
-                    if (\array_count_values($variant['tags']) == \array_count_values($variantTags)) {
+                    if (array_count_values($variant['tags']) == array_count_values($variantTags)) {
                         return $variant;
                     }
                 }
             }
             if (isset($this->data['defaults']['variants'])) {
                 foreach ($this->data['defaults']['variants'] as $variant) {
-                    if (\array_count_values($variant['tags']) == \array_count_values($variantTags)) {
+                    if (array_count_values($variant['tags']) == array_count_values($variantTags)) {
                         return $variant;
                     }
                 }

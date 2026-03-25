@@ -7,6 +7,7 @@ use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Retry\ConfigurationInterface;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Retry\QuotaManager;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Retry\RateLimiter;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Retry\RetryHelperTrait;
+use Exception;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Exception\RequestException;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise;
 use DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface;
@@ -34,17 +35,17 @@ class RetryMiddlewareV2
     private $rateLimiter;
     public static function wrap($config, $options)
     {
-        return function (callable $handler) use($config, $options) {
+        return function (callable $handler) use ($config, $options) {
             return new static($config, $handler, $options);
         };
     }
     public static function createDefaultDecider(QuotaManager $quotaManager, $maxAttempts = 3, $options = [])
     {
         $retryCurlErrors = [];
-        if (\extension_loaded('curl')) {
+        if (extension_loaded('curl')) {
             $retryCurlErrors[\CURLE_RECV_ERROR] = \true;
         }
-        return function ($attempts, CommandInterface $command, $result) use($options, $quotaManager, $retryCurlErrors, $maxAttempts) {
+        return function ($attempts, CommandInterface $command, $result) use ($options, $quotaManager, $retryCurlErrors, $maxAttempts) {
             // Release retry tokens back to quota on a successful result
             $quotaManager->releaseToQuota($result);
             // Allow command-level option to override this value
@@ -92,19 +93,19 @@ class RetryMiddlewareV2
         $monitoringEvents = [];
         $requestStats = [];
         $req = $this->addRetryHeader($req, 0, 0);
-        $callback = function ($value) use($handler, $cmd, $req, $decider, $delayer, &$attempts, &$requestStats, &$monitoringEvents, &$callback) {
+        $callback = function ($value) use ($handler, $cmd, $req, $decider, $delayer, &$attempts, &$requestStats, &$monitoringEvents, &$callback) {
             if ($this->mode === 'adaptive') {
                 $this->rateLimiter->updateSendingRate($this->isThrottlingError($value));
             }
             $this->updateHttpStats($value, $requestStats);
             if ($value instanceof MonitoringEventsInterface) {
-                $reversedEvents = \array_reverse($monitoringEvents);
-                $monitoringEvents = \array_merge($monitoringEvents, $value->getMonitoringEvents());
+                $reversedEvents = array_reverse($monitoringEvents);
+                $monitoringEvents = array_merge($monitoringEvents, $value->getMonitoringEvents());
                 foreach ($reversedEvents as $event) {
                     $value->prependMonitoringEvent($event);
                 }
             }
-            if ($value instanceof \Exception || $value instanceof \Throwable) {
+            if ($value instanceof Exception || $value instanceof \Throwable) {
                 if (!$decider($attempts, $cmd, $value)) {
                     return Promise\Create::rejectionFor($this->bindStatsToReturn($value, $requestStats));
                 }
@@ -138,34 +139,40 @@ class RetryMiddlewareV2
      */
     public function exponentialDelayWithJitter($attempts)
     {
-        $rand = \mt_rand() / \mt_getrandmax();
-        return \min(1000 * $rand * \pow(2, $attempts), $this->maxBackoff);
+        $max = mt_getrandmax();
+        try {
+            $rand = random_int(0, $max) / $max;
+        } catch (Exception $_) {
+            // fallback to prevent failing
+            $rand = mt_rand(0, $max) / $max;
+        }
+        return min(1000 * $rand * pow(2, $attempts), $this->maxBackoff);
     }
     private static function isRetryable($result, $retryCurlErrors, $options = [])
     {
         $errorCodes = self::$standardThrottlingErrors + self::$standardTransientErrors;
-        if (!empty($options['transient_error_codes']) && \is_array($options['transient_error_codes'])) {
+        if (!empty($options['transient_error_codes']) && is_array($options['transient_error_codes'])) {
             foreach ($options['transient_error_codes'] as $code) {
                 $errorCodes[$code] = \true;
             }
         }
-        if (!empty($options['throttling_error_codes']) && \is_array($options['throttling_error_codes'])) {
+        if (!empty($options['throttling_error_codes']) && is_array($options['throttling_error_codes'])) {
             foreach ($options['throttling_error_codes'] as $code) {
                 $errorCodes[$code] = \true;
             }
         }
         $statusCodes = self::$standardTransientStatusCodes;
-        if (!empty($options['status_codes']) && \is_array($options['status_codes'])) {
+        if (!empty($options['status_codes']) && is_array($options['status_codes'])) {
             foreach ($options['status_codes'] as $code) {
                 $statusCodes[$code] = \true;
             }
         }
-        if (!empty($options['curl_errors']) && \is_array($options['curl_errors'])) {
+        if (!empty($options['curl_errors']) && is_array($options['curl_errors'])) {
             foreach ($options['curl_errors'] as $code) {
                 $retryCurlErrors[$code] = \true;
             }
         }
-        if ($result instanceof \Exception || $result instanceof \Throwable) {
+        if ($result instanceof Exception || $result instanceof \Throwable) {
             $isError = \true;
         } else {
             $isError = \false;
@@ -182,20 +189,22 @@ class RetryMiddlewareV2
         if ($result->isConnectionError()) {
             return \true;
         }
-        if (!empty($errorCodes[$result->getAwsErrorCode()])) {
+        $awsCode = $result->getAwsErrorCode();
+        if (!is_null($awsCode) && isset($errorCodes[$awsCode])) {
             return \true;
         }
-        if (!empty($statusCodes[$result->getStatusCode()])) {
+        $status = $result->getStatusCode();
+        if (!is_null($status) && isset($statusCodes[$status])) {
             return \true;
         }
-        if (\count($retryCurlErrors) && ($previous = $result->getPrevious()) && $previous instanceof RequestException) {
-            if (\method_exists($previous, 'getHandlerContext')) {
+        if (count($retryCurlErrors) && ($previous = $result->getPrevious()) && $previous instanceof RequestException) {
+            if (method_exists($previous, 'getHandlerContext')) {
                 $context = $previous->getHandlerContext();
                 return !empty($context['errno']) && isset($retryCurlErrors[$context['errno']]);
             }
             $message = $previous->getMessage();
-            foreach (\array_keys($retryCurlErrors) as $curlError) {
-                if (\strpos($message, 'cURL error ' . $curlError . ':') === 0) {
+            foreach (array_keys($retryCurlErrors) as $curlError) {
+                if (strpos($message, 'cURL error ' . $curlError . ':') === 0) {
                     return \true;
                 }
             }
@@ -214,7 +223,7 @@ class RetryMiddlewareV2
         if ($result instanceof AwsException) {
             // Check pre-defined throttling errors
             $throttlingErrors = self::$standardThrottlingErrors;
-            if (!empty($this->options['throttling_error_codes']) && \is_array($this->options['throttling_error_codes'])) {
+            if (!empty($this->options['throttling_error_codes']) && is_array($this->options['throttling_error_codes'])) {
                 foreach ($this->options['throttling_error_codes'] as $code) {
                     $throttlingErrors[$code] = \true;
                 }

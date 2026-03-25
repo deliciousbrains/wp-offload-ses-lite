@@ -39,11 +39,11 @@ abstract class AbstractRule
     {
         foreach ($this->getConditions() as $condition) {
             $result = $standardLibrary->callFunction($condition, $inputParameters);
-            if (\is_null($result) || $result === \false) {
+            if (is_null($result) || $result === \false) {
                 return \false;
             }
         }
         return \true;
     }
-    public abstract function evaluate(array $inputParameters, RulesetStandardLibrary $standardLibrary);
+    abstract public function evaluate(array $inputParameters, RulesetStandardLibrary $standardLibrary);
 }

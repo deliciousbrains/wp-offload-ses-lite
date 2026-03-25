@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
 use DeliciousBrains\WP_Offload_SES\Utils;
 
@@ -121,7 +125,7 @@ class Activity_List_Table extends \WP_List_Table {
 	public function column_cb( $email ) {
 		$id = esc_attr( $email['id'] );
 		?>
-		<input id="cb-select-<?php echo $id; ?>" type="checkbox" name="email[]" value="<?php echo $id; ?>"/>
+		<input id="cb-select-<?php echo esc_attr( $id ); ?>" type="checkbox" name="email[]" value="<?php echo esc_attr( $id ); ?>"/>
 		<?php
 	}
 
@@ -167,7 +171,7 @@ class Activity_List_Table extends \WP_List_Table {
 		$email['recipient'] = Utils::maybe_unserialize( $email['recipient'] );
 
 		if ( is_array( $email['recipient'] ) ) {
-			return implode( ', ', $email['recipient'] );
+			return esc_html( implode( ', ', $email['recipient'] ) );
 		}
 
 		return esc_html( $email['recipient'] );
@@ -181,7 +185,14 @@ class Activity_List_Table extends \WP_List_Table {
 	public function column_status( $email ) {
 		global $wp_offload_ses;
 
-		return sprintf( '<span class="email-status-%s">%s</span>', $email['status'], $wp_offload_ses->get_email_status_i18n( $email['status'] ) );
+		return wp_kses(
+			sprintf(
+				'<span class="email-status-%s">%s</span>',
+				esc_attr( $email['status'] ),
+				esc_html( $wp_offload_ses->get_email_status_i18n( $email['status'] ) )
+			),
+			array( 'span' => array( 'class' => array() ) )
+		);
 	}
 
 	/**
@@ -227,12 +238,11 @@ class Activity_List_Table extends \WP_List_Table {
 	public function get_orderby() {
 		$orderby = 'date';
 
-		if ( isset( $_REQUEST['orderby'] ) ) {
-			$sortable = array_keys( $this->get_sortable_columns() );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only table sorting parameter, sanitized
+		$req_orderby = isset( $_REQUEST['orderby'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : '';
 
-			if ( in_array( $_REQUEST['orderby'], $sortable ) ) {
-				$orderby = $_REQUEST['orderby'];
-			}
+		if ( $req_orderby && in_array( $req_orderby, array_keys( $this->get_sortable_columns() ), true ) ) {
+			$orderby = $req_orderby;
 		}
 
 		return $orderby;
@@ -246,7 +256,8 @@ class Activity_List_Table extends \WP_List_Table {
 	public function get_order() {
 		$order = 'DESC';
 
-		if ( isset( $_REQUEST['order'] ) && 'asc' === $_REQUEST['order'] ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only table sorting parameter, sanitized
+		if ( isset( $_REQUEST['order'] ) && 'asc' === sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) ) {
 			$order = 'ASC';
 		}
 
@@ -259,11 +270,14 @@ class Activity_List_Table extends \WP_List_Table {
 	 * @return string
 	 */
 	public function get_where() {
-		$where     = array();
-		$date      = ! empty( $_REQUEST['date'] ) ? $_REQUEST['date'] : false;
-		$subject   = ! empty( $_REQUEST['subject'] ) ? $_REQUEST['subject'] : false;
-		$recipient = ! empty( $_REQUEST['recipient'] ) ? $_REQUEST['recipient'] : false;
-		$status    = ! empty( $_REQUEST['status'] ) ? $_REQUEST['status'] : false;
+		$where = array();
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only search/filter parameters, sanitized
+		$date      = ! empty( $_REQUEST['date'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['date'] ) ) : false;
+		$subject   = ! empty( $_REQUEST['subject'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['subject'] ) ) : false;
+		$recipient = ! empty( $_REQUEST['recipient'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['recipient'] ) ) : false;
+		$status    = ! empty( $_REQUEST['status'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['status'] ) ) : false;
+		// phpcs:enable
 
 		// Build the WHERE queries (we may be searching multiple things here).
 		if ( is_multisite() && ! Utils::is_network_admin() ) {
@@ -336,7 +350,7 @@ class Activity_List_Table extends \WP_List_Table {
 	 * Display the no items message
 	 */
 	public function no_items() {
-		_e( 'No emails found. Check back later!', 'wp-offload-ses' );
+		esc_html_e( 'No emails found. Check back later!', 'wp-offload-ses' );
 	}
 
 	/**
@@ -379,26 +393,26 @@ class Activity_List_Table extends \WP_List_Table {
 			return false;
 		}
 
-		$views['all'] = sprintf( __( 'All %s', 'wp-offload-ses' ), '<span class="count">(' . $total . ')</span>' );
+		$views['all'] = wp_kses( sprintf( __( 'All %s', 'wp-offload-ses' ), '<span class="count">(' . $total . ')</span>' ), array( 'span' => array( 'class' => array() ) ) );
 
 		foreach ( $results as $row ) {
 			$status = $row['email_status'];
 			$count  = '<span class="count">(' . $row['num_emails'] . ')</span>';
 
 			if ( 'sent' === $status ) {
-				$views['sent'] = sprintf( __( 'Sent %s', 'wp-offload-ses' ), $count );
+				$views['sent'] = wp_kses( sprintf( __( 'Sent %s', 'wp-offload-ses' ), $count ), array( 'span' => array( 'class' => array() ) ) );
 			}
 
 			if ( 'failed' === $status ) {
-				$views['failed'] = sprintf( __( 'Failed %s', 'wp-offload-ses' ), $count );
+				$views['failed'] = wp_kses( sprintf( __( 'Failed %s', 'wp-offload-ses' ), $count ), array( 'span' => array( 'class' => array() ) ) );
 			}
 
 			if ( 'queued' === $status ) {
-				$views['queued'] = sprintf( __( 'Queued %s', 'wp-offload-ses' ), $count );
+				$views['queued'] = wp_kses( sprintf( __( 'Queued %s', 'wp-offload-ses' ), $count ), array( 'span' => array( 'class' => array() ) ) );
 			}
 
 			if ( 'cancelled' === $status ) {
-				$views['cancelled'] = sprintf( __( 'Cancelled %s', 'wp-offload-ses' ), $count );
+				$views['cancelled'] = wp_kses( sprintf( __( 'Cancelled %s', 'wp-offload-ses' ), $count ), array( 'span' => array( 'class' => array() ) ) );
 			}
 		}
 
@@ -428,6 +442,7 @@ class Activity_List_Table extends \WP_List_Table {
 		 * @since 3.5.0
 		 *
 		 */
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WP core hook from WP_List_Table.
 		$views = apply_filters( "views_{$this->screen->id}", $views );
 		if ( empty( $views ) ) {
 			return;
@@ -436,8 +451,10 @@ class Activity_List_Table extends \WP_List_Table {
 
 		echo "<ul class='subsubsub'>\n";
 		foreach ( $views as $class => $view ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter parameter, sanitized
 			if ( isset( $_REQUEST['status'] ) ) {
-				$current = esc_attr( $_REQUEST['status'] );
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter parameter, sanitized
+				$current = esc_attr( sanitize_text_field( wp_unslash( $_REQUEST['status'] ) ) );
 			} else {
 				$current = 'all';
 			}
@@ -445,7 +462,7 @@ class Activity_List_Table extends \WP_List_Table {
 			$current         = ( $current === $class ) ? 'current' : '';
 			$views[ $class ] = "\t<li class='$class'><a href='#activity' class='$current' data-status='$class'>$view</a>";
 		}
-		echo implode( " |</li>\n", $views ) . "</li>\n";
+		echo wp_kses_post( implode( " |</li>\n", $views ) . "</li>\n" );
 		echo '</ul>';
 	}
 
@@ -471,8 +488,10 @@ class Activity_List_Table extends \WP_List_Table {
 				'total_items' => $total_items,
 				'per_page'    => $per_page,
 				'total_pages' => ceil($total_items / $per_page),
-				'orderby'     => ! empty($_REQUEST['orderby']) && '' != $_REQUEST['orderby'] ? $_REQUEST['orderby'] : 'subject',
-				'order'       => ! empty($_REQUEST['order']) && '' != $_REQUEST['order'] ? $_REQUEST['order'] : 'desc',
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only table sorting parameter, sanitized
+				'orderby'     => ! empty($_REQUEST['orderby']) && '' !== $_REQUEST['orderby'] ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : 'subject',
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only table sorting parameter, sanitized
+				'order'       => ! empty($_REQUEST['order']) && '' !== $_REQUEST['order'] ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'desc',
 			)
 		);
 	}
@@ -502,10 +521,10 @@ class Activity_List_Table extends \WP_List_Table {
 		$processed = 0;
 		$errors    = 0;
 
-		if ( isset( $_REQUEST['bulk_action'] ) && isset( $_REQUEST['bulk_selected'] ) && in_array( $_REQUEST['bulk_action'], $actions, true ) ) {
-			$action = $_REQUEST['bulk_action'];
+		if ( isset( $_REQUEST['bulk_action'] ) && isset( $_REQUEST['bulk_selected'] ) && in_array( sanitize_text_field( wp_unslash( $_REQUEST['bulk_action'] ) ), $actions, true ) ) {
+			$action = sanitize_text_field( wp_unslash( $_REQUEST['bulk_action'] ) );
 			$method = $action . '_email';
-			$emails = (array) $_REQUEST['bulk_selected'];
+			$emails = array_map( 'absint', (array) wp_unslash( $_REQUEST['bulk_selected'] ) );
 		} else {
 			return false;
 		}
@@ -550,7 +569,7 @@ class Activity_List_Table extends \WP_List_Table {
 	 */
 	public function display_rows() {
 		if ( ! defined('DOING_AJAX') || ! DOING_AJAX) {
-			echo '<tr class="no-items"><td class="colspanchange" colspan="' . $this->get_column_count() . '">';
+			echo '<tr class="no-items"><td class="colspanchange" colspan="' . esc_attr( $this->get_column_count() ) . '">';
 			echo '<span data-wposes-activity-spinner class="spinner"></span>';
 			echo '</td></tr>';
 		} elseif (empty($this->items)) {
@@ -583,11 +602,11 @@ class Activity_List_Table extends \WP_List_Table {
 			return;
 		}
 		?>
-		<div id="wposes-activity-actions" class="alignleft actions">
+		<div id="wposes-activity-actions" class="alignright actions">
 			<?php $this->email_months_dropdown(); ?>
-			<input id="wposes-subject-search" type="text" name="subject" placeholder="<?php _e( 'All Subjects', 'wp-offload-ses' ); ?>"/>
-			<input id="wposes-recipient-search" type="text" name="recipient" placeholder="<?php _e( 'All Recipients', 'wp-offload-ses' ); ?>"/>
-			<input type="submit" id="wposes-filter-btn" name="filter_action" class="button action" value="<?php _e( 'Filter', 'wp-offload-ses' ); ?>"/>
+			<input id="wposes-subject-search" type="text" name="subject" placeholder="<?php esc_attr_e( 'All Subjects', 'wp-offload-ses' ); ?>"/>
+			<input id="wposes-recipient-search" type="text" name="recipient" placeholder="<?php esc_attr_e( 'All Recipients', 'wp-offload-ses' ); ?>"/>
+			<input type="submit" id="wposes-filter-btn" name="filter_action" class="button action" value="<?php esc_attr_e( 'Filter', 'wp-offload-ses' ); ?>"/>
 		</div>
 		<?php
 	}
@@ -603,13 +622,14 @@ class Activity_List_Table extends \WP_List_Table {
 			FROM {$this->emails_table}
 			ORDER BY email_created DESC"
 		);
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter parameter, sanitized with type casting
 		$m      = isset( $_GET['m'] ) ? (int) $_GET['m'] : 0;
 		?>
 		<select name="m" id="wposes-filter-by-date">
-			<option <?php selected( $m, 0 ); ?> value="0"><?php _e( 'All dates', 'wp-offload-ses' ); ?></option>
+			<option <?php selected( $m, 0 ); ?> value="0"><?php esc_html_e( 'All dates', 'wp-offload-ses' ); ?></option>
 			<?php
 			foreach ( $months as $arc_row ) {
-				if ( 0 == $arc_row->year ) {
+				if ( 0 === $arc_row->year ) {
 					continue;
 				}
 
@@ -620,7 +640,7 @@ class Activity_List_Table extends \WP_List_Table {
 					"<option %s value='%s'>%s</option>\n",
 					selected( $m, $year . $month, false ),
 					esc_attr( $arc_row->year . $month ),
-					sprintf( __( '%1$s %2$d' ), $wp_locale->get_month( $month ), $year )
+					esc_html( sprintf( __( '%1$s %2$d' ), $wp_locale->get_month( $month ), $year ) )
 				);
 			}
 			?>
@@ -672,7 +692,7 @@ class Activity_List_Table extends \WP_List_Table {
 		$response['views']                = $views;
 
 		if ( isset( $total_items ) ) {
-			$response['total_items_i18n'] = sprintf( _n( '1 item', '%s items', $total_items ), number_format_i18n( $total_items ) );
+			$response['total_items_i18n'] = esc_html( sprintf( _n( '1 item', '%s items', $total_items ), number_format_i18n( $total_items ) ) );
 		}
 
 		if ( isset( $total_pages ) ) {

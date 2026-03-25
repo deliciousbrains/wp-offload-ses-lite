@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class Plugin_Base
  *
@@ -335,11 +339,14 @@ abstract class Plugin_Base {
 	 * @return string
 	 */
 	public static function wpe_url( $path = '', $args = array(), $hash = '' ) {
-		$args = wp_parse_args( $args, array(
-			'utm_medium'   => 'referral',
-			'utm_source'   => 'oses_plugin',
-			'utm_campaign' => 'bx_prod_referral',
-		) );
+		$args = wp_parse_args(
+			$args,
+			array(
+				'utm_medium'   => 'referral',
+				'utm_source'   => 'oses_plugin',
+				'utm_campaign' => 'bx_prod_referral',
+			)
+		);
 		$args = array_map( 'urlencode', $args );
 		$url  = trailingslashit( self::WPE_URL ) . ltrim( $path, '/' );
 		$url  = add_query_arg( $args, $url );
@@ -404,7 +411,10 @@ abstract class Plugin_Base {
 		$product_link = Utils::dbrains_link(
 			static::dbrains_url(
 				'/wp-offload-ses/',
-				array( 'utm_campaign' => 'plugin_footer', 'utm_content' => 'footer_colophon' )
+				array(
+					'utm_campaign' => 'plugin_footer',
+					'utm_content'  => 'footer_colophon',
+				)
 			),
 			$this->plugin_name
 		);
@@ -436,19 +446,25 @@ abstract class Plugin_Base {
 		$links[] = Utils::dbrains_link(
 			static::dbrains_url(
 				'/wp-offload-ses/docs/',
-				array( 'utm_campaign' => 'plugin_footer', 'utm_content' => 'footer_navigation' )
+				array(
+					'utm_campaign' => 'plugin_footer',
+					'utm_content'  => 'footer_navigation',
+				)
 			),
 			__( 'Documentation', 'wp-offload-ses' )
 		);
 
 		$links[] = '<a href="' . static::get_plugin_page_url(
-				array( 'hash' => 'support' )
-			) . '">' . __( 'Support', 'wp-offload-ses' ) . '</a>';
+			array( 'hash' => 'support' )
+		) . '">' . __( 'Support', 'wp-offload-ses' ) . '</a>';
 
 		$links[] = Utils::dbrains_link(
 			static::dbrains_url(
 				'/wp-offload-ses/feedback/',
-				array( 'utm_campaign' => 'plugin_footer', 'utm_content' => 'footer_navigation' )
+				array(
+					'utm_campaign' => 'plugin_footer',
+					'utm_content'  => 'footer_navigation',
+				)
 			),
 			__( 'Feedback', 'wp-offload-ses' )
 		);
@@ -456,7 +472,10 @@ abstract class Plugin_Base {
 		$links[] = Utils::dbrains_link(
 			static::dbrains_url(
 				'/wp-offload-ses/whats-new/',
-				array( 'utm_campaign' => 'plugin_footer', 'utm_content' => 'footer_navigation' )
+				array(
+					'utm_campaign' => 'plugin_footer',
+					'utm_content'  => 'footer_navigation',
+				)
 			),
 			$this->plugin_name . ' ' . $this->plugin_version,
 			'whats-new'

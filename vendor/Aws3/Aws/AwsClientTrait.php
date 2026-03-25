@@ -19,9 +19,9 @@ trait AwsClientTrait
     {
         $config = $this->getApi()->getPaginatorConfig($name);
         if (!$config['result_key']) {
-            throw new \UnexpectedValueException(\sprintf('There are no resources to iterate for the %s operation of %s', $name, $this->getApi()['serviceFullName']));
+            throw new \UnexpectedValueException(sprintf('There are no resources to iterate for the %s operation of %s', $name, $this->getApi()['serviceFullName']));
         }
-        $key = \is_array($config['result_key']) ? $config['result_key'][0] : $config['result_key'];
+        $key = is_array($config['result_key']) ? $config['result_key'][0] : $config['result_key'];
         if ($config['output_token'] && $config['input_token']) {
             return $this->getPaginator($name, $args)->search($key);
         }
@@ -49,12 +49,12 @@ trait AwsClientTrait
     }
     public function __call($name, array $args)
     {
-        if (\substr($name, -5) === 'Async') {
-            $name = \substr($name, 0, -5);
+        if (substr($name, -5) === 'Async') {
+            $name = substr($name, 0, -5);
             $isAsync = \true;
         }
-        if (!empty($this->aliases[\ucfirst($name)])) {
-            $name = $this->aliases[\ucfirst($name)];
+        if (!empty($this->aliases[ucfirst($name)])) {
+            $name = $this->aliases[ucfirst($name)];
         }
         $params = isset($args[0]) ? $args[0] : [];
         if (!empty($isAsync)) {
@@ -68,9 +68,9 @@ trait AwsClientTrait
      *
      * @return CommandInterface
      */
-    public abstract function getCommand($name, array $args = []);
+    abstract public function getCommand($name, array $args = []);
     /**
      * @return Service
      */
-    public abstract function getApi();
+    abstract public function getApi();
 }

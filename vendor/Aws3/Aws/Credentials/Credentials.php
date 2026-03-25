@@ -14,6 +14,7 @@ class Credentials extends AwsCredentialIdentity implements CredentialsInterface,
     private $token;
     private $expires;
     private $accountId;
+    private $source;
     /**
      * Constructs a new BasicAWSCredentials object, with the specified AWS
      * access key and AWS secret key
@@ -23,17 +24,18 @@ class Credentials extends AwsCredentialIdentity implements CredentialsInterface,
      * @param string $token   Security token to use
      * @param int    $expires UNIX timestamp for when credentials expire
      */
-    public function __construct($key, $secret, $token = null, $expires = null, $accountId = null)
+    public function __construct($key, $secret, $token = null, $expires = null, $accountId = null, $source = CredentialSources::STATIC)
     {
-        $this->key = \trim((string) $key);
-        $this->secret = \trim((string) $secret);
+        $this->key = trim((string) $key);
+        $this->secret = trim((string) $secret);
         $this->token = $token;
         $this->expires = $expires;
         $this->accountId = $accountId;
+        $this->source = $source ?? CredentialSources::STATIC;
     }
     public static function __set_state(array $state)
     {
-        return new self($state['key'], $state['secret'], $state['token'], $state['expires'], $state['accountId']);
+        return new self($state['key'], $state['secret'], $state['token'], $state['expires'], $state['accountId'], $state['source'] ?? null);
     }
     public function getAccessKeyId()
     {
@@ -53,23 +55,27 @@ class Credentials extends AwsCredentialIdentity implements CredentialsInterface,
     }
     public function isExpired()
     {
-        return $this->expires !== null && \time() >= $this->expires;
+        return $this->expires !== null && time() >= $this->expires;
     }
     public function getAccountId()
     {
         return $this->accountId;
     }
+    public function getSource()
+    {
+        return $this->source;
+    }
     public function toArray()
     {
-        return ['key' => $this->key, 'secret' => $this->secret, 'token' => $this->token, 'expires' => $this->expires, 'accountId' => $this->accountId];
+        return ['key' => $this->key, 'secret' => $this->secret, 'token' => $this->token, 'expires' => $this->expires, 'accountId' => $this->accountId, 'source' => $this->source];
     }
     public function serialize()
     {
-        return \json_encode($this->__serialize());
+        return json_encode($this->__serialize());
     }
     public function unserialize($serialized)
     {
-        $data = \json_decode($serialized, \true);
+        $data = json_decode($serialized, \true);
         $this->__unserialize($data);
     }
     public function __serialize()
@@ -82,7 +88,8 @@ class Credentials extends AwsCredentialIdentity implements CredentialsInterface,
         $this->secret = $data['secret'];
         $this->token = $data['token'];
         $this->expires = $data['expires'];
-        $this->accountId = $data['accountId'];
+        $this->accountId = $data['accountId'] ?? null;
+        $this->source = $data['source'] ?? null;
     }
     /**
      * Internal-only. Used when IMDS is unreachable
@@ -92,14 +99,14 @@ class Credentials extends AwsCredentialIdentity implements CredentialsInterface,
      */
     public function extendExpiration()
     {
-        $extension = \mt_rand(5, 10);
-        $this->expires = \time() + $extension * 60;
+        $extension = mt_rand(5, 10);
+        $this->expires = time() + $extension * 60;
         $message = <<<EOT
 Attempting credential expiration extension due to a credential service 
 availability issue. A refresh of these credentials will be attempted again 
 after {$extension} minutes.
 
 EOT;
-        \trigger_error($message, \E_USER_WARNING);
+        trigger_error($message, \E_USER_WARNING);
     }
 }

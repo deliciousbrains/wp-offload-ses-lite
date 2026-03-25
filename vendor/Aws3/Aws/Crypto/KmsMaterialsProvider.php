@@ -34,7 +34,7 @@ class KmsMaterialsProvider extends MaterialsProvider implements MaterialsProvide
         if (empty($envelope[MetadataEnvelope::MATERIALS_DESCRIPTION_HEADER])) {
             throw new \RuntimeException('Not able to detect the materials description.');
         }
-        $materialsDescription = \json_decode($envelope[MetadataEnvelope::MATERIALS_DESCRIPTION_HEADER], \true);
+        $materialsDescription = json_decode($envelope[MetadataEnvelope::MATERIALS_DESCRIPTION_HEADER], \true);
         if (empty($materialsDescription['kms_cmk_id']) && empty($materialsDescription['aws:x-amz-cek-alg'])) {
             throw new \RuntimeException('Not able to detect kms_cmk_id (legacy' . ' implementation) or aws:x-amz-cek-alg (current implementation)' . ' from kms materials description.');
         }
@@ -69,7 +69,7 @@ class KmsMaterialsProvider extends MaterialsProvider implements MaterialsProvide
     public function encryptCek($unencryptedCek, $materialDescription)
     {
         $encryptedDataKey = $this->kmsClient->encrypt(['Plaintext' => $unencryptedCek, 'KeyId' => $this->kmsKeyId, 'EncryptionContext' => $materialDescription]);
-        return \base64_encode($encryptedDataKey['CiphertextBlob']);
+        return base64_encode($encryptedDataKey['CiphertextBlob']);
     }
     /**
      * Takes an encrypted content encryption key (CEK) and material description

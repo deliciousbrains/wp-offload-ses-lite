@@ -14,4 +14,4 @@ namespace DeliciousBrains\WP_Offload_SES;
  * Authors:
  * - Free Software Foundation, Inc.  bug-glibc-locales@gnu.org
  */
-return \array_replace_recursive(require __DIR__ . '/en.php', ['formats' => ['L' => 'DD/MM/YY'], 'day_of_first_week_of_year' => 1]);
+return \array_replace_recursive(require __DIR__ . '/en.php', ['formats' => ['L' => 'DD/MM/YY']]);

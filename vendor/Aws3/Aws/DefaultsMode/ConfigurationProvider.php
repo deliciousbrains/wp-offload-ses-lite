@@ -73,7 +73,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
             $configProviders[] = self::ini();
         }
         $configProviders[] = self::fallback();
-        $memo = self::memoize(\call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
+        $memo = self::memoize(call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
         if (isset($config['defaultsMode']) && $config['defaultsMode'] instanceof CacheInterface) {
             return self::cache($memo, $config['defaultsMode'], self::$cacheKey);
         }
@@ -88,7 +88,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
     {
         return function () {
             // Use config from environment variables, if available
-            $mode = \getenv(self::ENV_MODE);
+            $mode = getenv(self::ENV_MODE);
             if (!empty($mode)) {
                 return Promise\Create::promiseFor(new Configuration($mode));
             }
@@ -121,9 +121,9 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
     public static function ini($profile = null, $filename = null)
     {
         $filename = $filename ?: self::getDefaultConfigFilename();
-        $profile = $profile ?: (\getenv(self::ENV_PROFILE) ?: 'default');
-        return function () use($profile, $filename) {
-            if (!\is_readable($filename)) {
+        $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
+        return function () use ($profile, $filename) {
+            if (!is_readable($filename)) {
                 return self::reject("Cannot read configuration from {$filename}");
             }
             $data = \DeliciousBrains\WP_Offload_SES\Aws3\Aws\parse_ini_file($filename, \true);
@@ -149,7 +149,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
      */
     public static function unwrap($config)
     {
-        if (\is_callable($config)) {
+        if (is_callable($config)) {
             $config = $config();
         }
         if ($config instanceof PromiseInterface) {
@@ -158,7 +158,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
         if ($config instanceof ConfigurationInterface) {
             return $config;
         }
-        if (\is_string($config)) {
+        if (is_string($config)) {
             return new Configuration($config);
         }
         throw new \InvalidArgumentException('Not a valid defaults mode configuration' . ' argument.');

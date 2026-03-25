@@ -13,19 +13,24 @@ trait MetadataParserTrait
     protected function extractHeader($name, Shape $shape, ResponseInterface $response, &$result)
     {
         $value = $response->getHeaderLine($shape['locationName'] ?: $name);
+        // Empty values should not be deserialized
+        if ($value === null || $value === '') {
+            return;
+        }
         switch ($shape->getType()) {
             case 'float':
             case 'double':
                 $value = (float) $value;
                 break;
             case 'long':
+            case 'integer':
                 $value = (int) $value;
                 break;
             case 'boolean':
-                $value = \filter_var($value, \FILTER_VALIDATE_BOOLEAN);
+                $value = filter_var($value, \FILTER_VALIDATE_BOOLEAN);
                 break;
             case 'blob':
-                $value = \base64_decode($value);
+                $value = base64_decode($value);
                 break;
             case 'timestamp':
                 try {
@@ -38,7 +43,7 @@ trait MetadataParserTrait
                 }
             case 'string':
                 if ($shape['jsonvalue']) {
-                    $value = $this->parseJson(\base64_decode($value), $response);
+                    $value = $this->parseJson(base64_decode($value), $response);
                 }
                 break;
         }
@@ -52,12 +57,12 @@ trait MetadataParserTrait
         // Check if the headers are prefixed by a location name
         $result[$name] = [];
         $prefix = $shape['locationName'];
-        $prefixLen = \strlen($prefix);
+        $prefixLen = strlen($prefix);
         foreach ($response->getHeaders() as $k => $values) {
             if (!$prefixLen) {
-                $result[$name][$k] = \implode(', ', $values);
-            } elseif (\stripos($k, $prefix) === 0) {
-                $result[$name][\substr($k, $prefixLen)] = \implode(', ', $values);
+                $result[$name][$k] = implode(', ', $values);
+            } elseif (stripos($k, $prefix) === 0) {
+                $result[$name][substr($k, $prefixLen)] = implode(', ', $values);
             }
         }
     }

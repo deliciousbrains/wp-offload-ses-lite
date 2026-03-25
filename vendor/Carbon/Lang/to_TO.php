@@ -15,6 +15,7 @@ namespace DeliciousBrains\WP_Offload_SES;
  * - International Components for Unicode    akhilesh.k@samsung.com
  */
 return \array_replace_recursive(require __DIR__ . '/en.php', [
+    'first_day_of_week' => 0,
     'formats' => ['L' => 'dddd DD MMM YYYY'],
     'months' => ['Sānuali', 'Fēpueli', 'Maʻasi', 'ʻEpeleli', 'Mē', 'Sune', 'Siulai', 'ʻAokosi', 'Sepitema', 'ʻOkatopa', 'Nōvema', 'Tīsema'],
     'months_short' => ['Sān', 'Fēp', 'Maʻa', 'ʻEpe', 'Mē', 'Sun', 'Siu', 'ʻAok', 'Sep', 'ʻOka', 'Nōv', 'Tīs'],

@@ -3,6 +3,8 @@
 namespace DeliciousBrains\WP_Offload_SES\Aws3\Aws\Auth;
 
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Auth\Exception\UnresolvedAuthSchemeException;
+use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Exception\CredentialsException;
+use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Exception\TokenException;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Identity\AwsCredentialIdentity;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Identity\BearerTokenIdentity;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Promise\PromiseInterface;
@@ -25,7 +27,7 @@ class AuthSchemeResolver implements AuthSchemeResolverInterface
     private $authSchemeMap;
     private $tokenProvider;
     private $credentialProvider;
-    public function __construct(callable $credentialProvider, callable $tokenProvider = null, array $authSchemeMap = [])
+    public function __construct(callable $credentialProvider, ?callable $tokenProvider = null, array $authSchemeMap = [])
     {
         $this->credentialProvider = $credentialProvider;
         $this->tokenProvider = $tokenProvider;
@@ -43,7 +45,7 @@ class AuthSchemeResolver implements AuthSchemeResolverInterface
      * @return string
      * @throws UnresolvedAuthSchemeException
      */
-    public function selectAuthScheme(array $authSchemes, array $args = []) : string
+    public function selectAuthScheme(array $authSchemes, array $args = []): string
     {
         $failureReasons = [];
         foreach ($authSchemes as $authScheme) {
@@ -57,7 +59,7 @@ class AuthSchemeResolver implements AuthSchemeResolverInterface
                 $failureReasons[] = $this->getIncompatibilityMessage($normalizedAuthScheme);
             }
         }
-        throw new UnresolvedAuthSchemeException('Could not resolve an authentication scheme: ' . \implode('; ', $failureReasons));
+        throw new UnresolvedAuthSchemeException('Could not resolve an authentication scheme: ' . implode('; ', $failureReasons));
     }
     /**
      * Determines compatibility based on either Identity or the availability
@@ -67,14 +69,14 @@ class AuthSchemeResolver implements AuthSchemeResolverInterface
      *
      * @return bool
      */
-    private function isCompatibleAuthScheme($authScheme) : bool
+    private function isCompatibleAuthScheme($authScheme): bool
     {
         switch ($authScheme) {
             case 'v4':
             case 'anonymous':
                 return $this->hasAwsCredentialIdentity();
             case 'v4a':
-                return \extension_loaded('awscrt') && $this->hasAwsCredentialIdentity();
+                return extension_loaded('awscrt') && $this->hasAwsCredentialIdentity();
             case 'bearer':
                 return $this->hasBearerTokenIdentity();
             default:
@@ -89,7 +91,7 @@ class AuthSchemeResolver implements AuthSchemeResolverInterface
      *
      * @return string
      */
-    private function getIncompatibilityMessage($authScheme) : string
+    private function getIncompatibilityMessage($authScheme): string
     {
         switch ($authScheme) {
             case 'v4':
@@ -107,25 +109,35 @@ class AuthSchemeResolver implements AuthSchemeResolverInterface
     /**
      * @return bool
      */
-    private function hasAwsCredentialIdentity() : bool
+    private function hasAwsCredentialIdentity(): bool
     {
         $fn = $this->credentialProvider;
         $result = $fn();
         if ($result instanceof PromiseInterface) {
-            return $result->wait() instanceof AwsCredentialIdentity;
+            try {
+                $resolved = $result->wait();
+                return $resolved instanceof AwsCredentialIdentity;
+            } catch (CredentialsException $e) {
+                return \false;
+            }
         }
         return $result instanceof AwsCredentialIdentity;
     }
     /**
      * @return bool
      */
-    private function hasBearerTokenIdentity() : bool
+    private function hasBearerTokenIdentity(): bool
     {
         if ($this->tokenProvider) {
             $fn = $this->tokenProvider;
             $result = $fn();
             if ($result instanceof PromiseInterface) {
-                return $result->wait() instanceof BearerTokenIdentity;
+                try {
+                    $resolved = $result->wait();
+                    return $resolved instanceof BearerTokenIdentity;
+                } catch (TokenException $e) {
+                    return \false;
+                }
             }
             return $result instanceof BearerTokenIdentity;
         }

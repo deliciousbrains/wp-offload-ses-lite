@@ -2,6 +2,7 @@
 
 namespace DeliciousBrains\WP_Offload_SES\Aws3\Aws\Credentials;
 
+use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Arn\Arn;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Exception\CredentialsException;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Exception\ConnectException;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Exception\GuzzleException;
@@ -44,8 +45,8 @@ class EcsCredentialProvider
      */
     public function __construct(array $config = [])
     {
-        $this->timeout = (float) isset($config['timeout']) ? $config['timeout'] : (\getenv(self::ENV_TIMEOUT) ?: self::DEFAULT_ENV_TIMEOUT);
-        $this->retries = (int) isset($config['retries']) ? $config['retries'] : ((int) \getenv(self::ENV_RETRIES) ?: self::DEFAULT_ENV_RETRIES);
+        $this->timeout = (float) isset($config['timeout']) ? $config['timeout'] : (getenv(self::ENV_TIMEOUT) ?: self::DEFAULT_ENV_TIMEOUT);
+        $this->retries = (int) isset($config['retries']) ? $config['retries'] : ((int) getenv(self::ENV_RETRIES) ?: self::DEFAULT_ENV_RETRIES);
         $this->client = $config['client'] ?? \DeliciousBrains\WP_Offload_SES\Aws3\Aws\default_http_handler();
     }
     /**
@@ -65,22 +66,30 @@ class EcsCredentialProvider
                 $headers = $this->getHeadersForAuthToken();
                 $credentials = null;
                 while ($credentials === null) {
-                    $credentials = (yield $client($request, ['timeout' => $this->timeout, 'proxy' => '', 'headers' => $headers])->then(function (ResponseInterface $response) {
+                    $credentials = yield $client($request, ['timeout' => $this->timeout, 'proxy' => '', 'headers' => $headers])->then(function (ResponseInterface $response) {
                         $result = $this->decodeResult((string) $response->getBody());
-                        return new Credentials($result['AccessKeyId'], $result['SecretAccessKey'], $result['Token'], \strtotime($result['Expiration']), $result['AccountId'] ?? null);
+                        if (!isset($result['AccountId']) && isset($result['RoleArn'])) {
+                            try {
+                                $parsedArn = new Arn($result['RoleArn']);
+                                $result['AccountId'] = $parsedArn->getAccountId();
+                            } catch (\Exception $e) {
+                                // AccountId will be null
+                            }
+                        }
+                        return new Credentials($result['AccessKeyId'], $result['SecretAccessKey'], $result['Token'], strtotime($result['Expiration']), $result['AccountId'] ?? null, CredentialSources::ECS);
                     })->otherwise(function ($reason) {
-                        $reason = \is_array($reason) ? $reason['exception'] : $reason;
+                        $reason = is_array($reason) ? $reason['exception'] : $reason;
                         $isRetryable = $reason instanceof ConnectException;
                         if ($isRetryable && $this->attempts < $this->retries) {
-                            \sleep((int) \pow(1.2, $this->attempts));
+                            sleep((int) pow(1.2, $this->attempts));
                         } else {
                             $msg = $reason->getMessage();
-                            throw new CredentialsException(\sprintf('Error retrieving credentials from container metadata after attempt %d/%d (%s)', $this->attempts, $this->retries, $msg));
+                            throw new CredentialsException(sprintf('Error retrieving credentials from container metadata after attempt %d/%d (%s)', $this->attempts, $this->retries, $msg));
                         }
-                    }));
+                    });
                     $this->attempts++;
                 }
-                (yield $credentials);
+                yield $credentials;
             });
         }
         throw new CredentialsException("Uri '{$uri}' contains an unsupported host.");
@@ -90,7 +99,7 @@ class EcsCredentialProvider
      *
      * @return int
      */
-    public function getAttempts() : int
+    public function getAttempts(): int
     {
         return $this->attempts;
     }
@@ -101,23 +110,23 @@ class EcsCredentialProvider
      */
     private function getEcsAuthToken()
     {
-        if (!empty($path = \getenv(self::ENV_AUTH_TOKEN_FILE))) {
-            $token = @\file_get_contents($path);
+        if (!empty($path = getenv(self::ENV_AUTH_TOKEN_FILE))) {
+            $token = @file_get_contents($path);
             if (\false === $token) {
-                \clearstatcache(\true, \dirname($path) . \DIRECTORY_SEPARATOR . @\readlink($path));
-                \clearstatcache(\true, \dirname($path) . \DIRECTORY_SEPARATOR . \dirname(@\readlink($path)));
-                \clearstatcache(\true, $path);
+                clearstatcache(\true, dirname($path) . \DIRECTORY_SEPARATOR . @readlink($path));
+                clearstatcache(\true, dirname($path) . \DIRECTORY_SEPARATOR . dirname(@readlink($path)));
+                clearstatcache(\true, $path);
             }
-            if (!\is_readable($path)) {
+            if (!is_readable($path)) {
                 throw new CredentialsException("Failed to read authorization token from '{$path}': no such file or directory.");
             }
-            $token = @\file_get_contents($path);
+            $token = @file_get_contents($path);
             if (empty($token)) {
                 throw new CredentialsException("Invalid authorization token read from `{$path}`. Token file is empty!");
             }
             return $token;
         }
-        return \getenv(self::ENV_AUTH_TOKEN);
+        return getenv(self::ENV_AUTH_TOKEN);
     }
     /**
      * Provides headers for credential metadata request.
@@ -150,12 +159,12 @@ class EcsCredentialProvider
      */
     private function getEcsUri()
     {
-        $credsUri = \getenv(self::ENV_URI);
+        $credsUri = getenv(self::ENV_URI);
         if ($credsUri === \false) {
             $credsUri = $_SERVER[self::ENV_URI] ?? '';
         }
         if (empty($credsUri)) {
-            $credFullUri = \getenv(self::ENV_FULL_URI);
+            $credFullUri = getenv(self::ENV_FULL_URI);
             if ($credFullUri === \false) {
                 $credFullUri = $_SERVER[self::ENV_FULL_URI] ?? '';
             }
@@ -167,7 +176,7 @@ class EcsCredentialProvider
     }
     private function decodeResult($response)
     {
-        $result = \json_decode($response, \true);
+        $result = json_decode($response, \true);
         if (!isset($result['AccessKeyId'])) {
             throw new CredentialsException('Unexpected container metadata credentials value');
         }
@@ -183,12 +192,12 @@ class EcsCredentialProvider
      */
     private function isCompatibleUri($uri)
     {
-        $parsed = \parse_url($uri);
+        $parsed = parse_url($uri);
         if ($parsed['scheme'] !== 'https') {
-            $host = \trim($parsed['host'], '[]');
-            $ecsHost = \parse_url(self::SERVER_URI)['host'];
+            $host = trim($parsed['host'], '[]');
+            $ecsHost = parse_url(self::SERVER_URI)['host'];
             $eksHost = self::EKS_SERVER_HOST_IPV4;
-            if ($host !== $ecsHost && $host !== $eksHost && $host !== self::EKS_SERVER_HOST_IPV6 && !CredentialsUtils::isLoopBackAddress(\gethostbyname($host))) {
+            if ($host !== $ecsHost && $host !== $eksHost && $host !== self::EKS_SERVER_HOST_IPV6 && !CredentialsUtils::isLoopBackAddress(gethostbyname($host))) {
                 return \false;
             }
         }

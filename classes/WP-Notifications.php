@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DeliciousBrains\WP_Offload_SES\WP_Offload_SES;
 
 /**
@@ -58,7 +62,7 @@ class WP_Notifications {
 	public function manually_set_content_type() {
 		add_filter(
 			'wp_mail_content_type',
-			function( $content_type ) {
+			function ( $content_type ) {
 				return 'text/html';
 			}
 		);
@@ -120,5 +124,4 @@ class WP_Notifications {
 
 		return $headers;
 	}
-
 }

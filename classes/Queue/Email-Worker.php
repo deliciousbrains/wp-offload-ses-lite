@@ -2,6 +2,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES\Queue;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DeliciousBrains\WP_Offload_SES\Command_Pool;
 use DeliciousBrains\WP_Offload_SES\Error;
 use DeliciousBrains\WP_Offload_SES\WP_Queue\Exceptions\WorkerAttemptsExceededException;

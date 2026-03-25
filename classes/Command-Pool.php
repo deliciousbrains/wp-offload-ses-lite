@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Command;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\CommandPool;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\ResultInterface;
@@ -172,15 +176,19 @@ class Command_Pool {
 				$wp_offload_ses->get_email_log()->update_email( $job->email_id, 'email_sent', current_time( 'mysql' ) );
 
 				if ( $email ) {
-					// Fires after an email has been sent.
-					do_action(
+					do_action_deprecated(
+						// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 						'wpses_mailsent',
-						$email['email_to'],
-						$email['email_subject'],
-						$email['email_message'],
-						$email['email_headers'],
-						$email['email_attachments']
-					); // Backwards compat.
+						array(
+							$email['email_to'],
+							$email['email_subject'],
+							$email['email_message'],
+							$email['email_headers'],
+							$email['email_attachments'],
+						),
+						'1.7.3',
+						'wposes_mail_sent'
+					);
 
 					do_action(
 						'wposes_mail_sent',

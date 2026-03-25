@@ -21,7 +21,7 @@ abstract class MaterialsProviderV2 implements MaterialsProviderInterfaceV2
      *
      * @return string
      */
-    public abstract function getWrapAlgorithmName();
+    abstract public function getWrapAlgorithmName();
     /**
      * Takes an encrypted content encryption key (CEK) and material description
      * for use decrypting the key according to the Provider's specifications.
@@ -34,7 +34,7 @@ abstract class MaterialsProviderV2 implements MaterialsProviderInterfaceV2
      *
      * @return string
      */
-    public abstract function decryptCek($encryptedCek, $materialDescription, $options);
+    abstract public function decryptCek($encryptedCek, $materialDescription, $options);
     /**
      * @param string $keySize Length of a cipher key in bits for generating a
      *                        random content encryption key (CEK).
@@ -43,7 +43,7 @@ abstract class MaterialsProviderV2 implements MaterialsProviderInterfaceV2
      *
      * @return array
      */
-    public abstract function generateCek($keySize, $context, $options);
+    abstract public function generateCek($keySize, $context, $options);
     /**
      * @param string $openSslName Cipher OpenSSL name to use for generating
      *                            an initialization vector.
@@ -52,6 +52,6 @@ abstract class MaterialsProviderV2 implements MaterialsProviderInterfaceV2
      */
     public function generateIv($openSslName)
     {
-        return \openssl_random_pseudo_bytes(\openssl_cipher_iv_length($openSslName));
+        return openssl_random_pseudo_bytes(openssl_cipher_iv_length($openSslName));
     }
 }

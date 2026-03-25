@@ -63,10 +63,10 @@ class RetryMiddleware
     public static function createDefaultDecider($maxRetries = 3, $extraConfig = [])
     {
         $retryCurlErrors = [];
-        if (\extension_loaded('curl')) {
+        if (extension_loaded('curl')) {
             $retryCurlErrors[\CURLE_RECV_ERROR] = \true;
         }
-        return function ($retries, CommandInterface $command, RequestInterface $request, ResultInterface $result = null, $error = null) use($maxRetries, $retryCurlErrors, $extraConfig) {
+        return function ($retries, CommandInterface $command, RequestInterface $request, ?ResultInterface $result = null, $error = null) use ($maxRetries, $retryCurlErrors, $extraConfig) {
             // Allow command-level options to override this value
             $maxRetries = null !== $command['@retries'] ? $command['@retries'] : $maxRetries;
             $isRetryable = self::isRetryable($result, $error, $retryCurlErrors, $extraConfig);
@@ -82,18 +82,18 @@ class RetryMiddleware
     private static function isRetryable($result, $error, $retryCurlErrors, $extraConfig = [])
     {
         $errorCodes = self::$retryCodes;
-        if (!empty($extraConfig['error_codes']) && \is_array($extraConfig['error_codes'])) {
+        if (!empty($extraConfig['error_codes']) && is_array($extraConfig['error_codes'])) {
             foreach ($extraConfig['error_codes'] as $code) {
                 $errorCodes[$code] = \true;
             }
         }
         $statusCodes = self::$retryStatusCodes;
-        if (!empty($extraConfig['status_codes']) && \is_array($extraConfig['status_codes'])) {
+        if (!empty($extraConfig['status_codes']) && is_array($extraConfig['status_codes'])) {
             foreach ($extraConfig['status_codes'] as $code) {
                 $statusCodes[$code] = \true;
             }
         }
-        if (!empty($extraConfig['curl_errors']) && \is_array($extraConfig['curl_errors'])) {
+        if (!empty($extraConfig['curl_errors']) && is_array($extraConfig['curl_errors'])) {
             foreach ($extraConfig['curl_errors'] as $code) {
                 $retryCurlErrors[$code] = \true;
             }
@@ -110,20 +110,22 @@ class RetryMiddleware
         if ($error->isConnectionError()) {
             return \true;
         }
-        if (isset($errorCodes[$error->getAwsErrorCode()])) {
+        $awsCode = $error->getAwsErrorCode();
+        if (!is_null($awsCode) && isset($errorCodes[$awsCode])) {
             return \true;
         }
-        if (isset($statusCodes[$error->getStatusCode()])) {
+        $status = $error->getStatusCode();
+        if (!is_null($status) && isset($statusCodes[$status])) {
             return \true;
         }
-        if (\count($retryCurlErrors) && ($previous = $error->getPrevious()) && $previous instanceof RequestException) {
-            if (\method_exists($previous, 'getHandlerContext')) {
+        if (count($retryCurlErrors) && ($previous = $error->getPrevious()) && $previous instanceof RequestException) {
+            if (method_exists($previous, 'getHandlerContext')) {
                 $context = $previous->getHandlerContext();
                 return !empty($context['errno']) && isset($retryCurlErrors[$context['errno']]);
             }
             $message = $previous->getMessage();
-            foreach (\array_keys($retryCurlErrors) as $curlError) {
-                if (\strpos($message, 'cURL error ' . $curlError . ':') === 0) {
+            foreach (array_keys($retryCurlErrors) as $curlError) {
+                if (strpos($message, 'cURL error ' . $curlError . ':') === 0) {
                     return \true;
                 }
             }
@@ -143,7 +145,7 @@ class RetryMiddleware
      */
     public static function exponentialDelay($retries)
     {
-        return \mt_rand(0, (int) \min(20000, (int) \pow(2, $retries) * 100));
+        return mt_rand(0, (int) min(20000, (int) pow(2, $retries) * 100));
     }
     /**
      * @param CommandInterface $command
@@ -151,7 +153,7 @@ class RetryMiddleware
      *
      * @return PromiseInterface
      */
-    public function __invoke(CommandInterface $command, RequestInterface $request = null)
+    public function __invoke(CommandInterface $command, ?RequestInterface $request = null)
     {
         $retries = 0;
         $requestStats = [];
@@ -160,11 +162,11 @@ class RetryMiddleware
         $decider = $this->decider;
         $delay = $this->delay;
         $request = $this->addRetryHeader($request, 0, 0);
-        $g = function ($value) use($handler, $decider, $delay, $command, $request, &$retries, &$requestStats, &$monitoringEvents, &$g) {
+        $g = function ($value) use ($handler, $decider, $delay, $command, $request, &$retries, &$requestStats, &$monitoringEvents, &$g) {
             $this->updateHttpStats($value, $requestStats);
             if ($value instanceof MonitoringEventsInterface) {
-                $reversedEvents = \array_reverse($monitoringEvents);
-                $monitoringEvents = \array_merge($monitoringEvents, $value->getMonitoringEvents());
+                $reversedEvents = array_reverse($monitoringEvents);
+                $monitoringEvents = array_merge($monitoringEvents, $value->getMonitoringEvents());
                 foreach ($reversedEvents as $event) {
                     $value->prependMonitoringEvent($event);
                 }

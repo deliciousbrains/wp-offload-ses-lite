@@ -19,7 +19,7 @@ class JsonRpcParser extends AbstractParser
      * @param Service    $api    Service description
      * @param JsonParser $parser JSON body builder
      */
-    public function __construct(Service $api, JsonParser $parser = null)
+    public function __construct(Service $api, ?JsonParser $parser = null)
     {
         parent::__construct($api);
         $this->parser = $parser ?: new JsonParser();
@@ -50,7 +50,7 @@ class JsonRpcParser extends AbstractParser
             }
         }
         $result = $this->parseMemberFromStream($response->getBody(), $operation->getOutput(), $response);
-        return new Result(\is_null($result) ? [] : $result);
+        return new Result(is_null($result) ? [] : $result);
     }
     public function parseMemberFromStream(StreamInterface $stream, StructureShape $member, $response)
     {

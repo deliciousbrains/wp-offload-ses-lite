@@ -9,10 +9,22 @@ use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Psr7\Stream;
  */
 abstract class AbstractCryptoClientV2
 {
+    const KEY_COMMITMENT_POLICIES = ['FORBID_ENCRYPT_ALLOW_DECRYPT'];
     public static $supportedCiphers = ['gcm'];
     public static $supportedKeyWraps = [KmsMaterialsProviderV2::WRAP_ALGORITHM_NAME];
     public static $supportedSecurityProfiles = ['V2', 'V2_AND_LEGACY'];
     public static $legacySecurityProfiles = ['V2_AND_LEGACY'];
+    /**
+     * Returns if the passed policy name is supported for encryption by the SDK.
+     *
+     * @param string $policy The name of a key commitment policy to verify is registered.
+     *
+     * @return bool If the key commitment policy passed is in our supported list.
+     */
+    public static function isSupportedKeyCommitmentPolicy(string $policy): bool
+    {
+        return in_array($policy, self::KEY_COMMITMENT_POLICIES, strict: \true);
+    }
     /**
      * Returns if the passed cipher name is supported for encryption by the SDK.
      *
@@ -22,7 +34,7 @@ abstract class AbstractCryptoClientV2
      */
     public static function isSupportedCipher($cipherName)
     {
-        return \in_array($cipherName, self::$supportedCiphers, \true);
+        return in_array($cipherName, self::$supportedCiphers, \true);
     }
     /**
      * Returns an identifier recognizable by `openssl_*` functions, such as
@@ -35,7 +47,7 @@ abstract class AbstractCryptoClientV2
      *
      * @return string
      */
-    protected abstract function getCipherOpenSslName($cipherName, $keySize);
+    abstract protected function getCipherOpenSslName($cipherName, $keySize);
     /**
      * Constructs a CipherMethod for the given name, initialized with the other
      * data passed for use in encrypting or decrypting.
@@ -49,7 +61,7 @@ abstract class AbstractCryptoClientV2
      *
      * @internal
      */
-    protected abstract function buildCipherMethod($cipherName, $iv, $keySize);
+    abstract protected function buildCipherMethod($cipherName, $iv, $keySize);
     /**
      * Performs a reverse lookup to get the openssl_* cipher name from the
      * AESName passed in from the MetadataEnvelope.
@@ -60,7 +72,7 @@ abstract class AbstractCryptoClientV2
      *
      * @internal
      */
-    protected abstract function getCipherFromAesName($aesName);
+    abstract protected function getCipherFromAesName($aesName);
     /**
      * Dependency to provide an interface for building an encryption stream for
      * data given cipher details, metadata, and materials to do so.
@@ -77,7 +89,7 @@ abstract class AbstractCryptoClientV2
      *
      * @internal
      */
-    public abstract function encrypt(Stream $plaintext, array $options, MaterialsProviderV2 $provider, MetadataEnvelope $envelope);
+    abstract public function encrypt(Stream $plaintext, array $options, MaterialsProviderV2 $provider, MetadataEnvelope $envelope);
     /**
      * Dependency to provide an interface for building a decryption stream for
      * cipher text given metadata and materials to do so.
@@ -94,5 +106,5 @@ abstract class AbstractCryptoClientV2
      *
      * @internal
      */
-    public abstract function decrypt($cipherText, MaterialsProviderInterfaceV2 $provider, MetadataEnvelope $envelope, array $options = []);
+    abstract public function decrypt($cipherText, MaterialsProviderInterfaceV2 $provider, MetadataEnvelope $envelope, array $options = []);
 }

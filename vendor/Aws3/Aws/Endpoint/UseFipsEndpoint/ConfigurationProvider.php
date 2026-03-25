@@ -70,7 +70,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
             $configProviders[] = self::ini();
         }
         $configProviders[] = self::fallback($config['region']);
-        $memo = self::memoize(\call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
+        $memo = self::memoize(call_user_func_array([ConfigurationProvider::class, 'chain'], $configProviders));
         if (isset($config['use_fips_endpoint']) && $config['use_fips_endpoint'] instanceof CacheInterface) {
             return self::cache($memo, $config['use_fips_endpoint'], self::$cacheKey);
         }
@@ -85,7 +85,7 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
     {
         return function () {
             // Use config from environment variables, if available
-            $useFipsEndpoint = \getenv(self::ENV_USE_FIPS_ENDPOINT);
+            $useFipsEndpoint = getenv(self::ENV_USE_FIPS_ENDPOINT);
             if (!empty($useFipsEndpoint)) {
                 return Promise\Create::promiseFor(new Configuration($useFipsEndpoint));
             }
@@ -107,9 +107,9 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
     public static function ini($profile = null, $filename = null)
     {
         $filename = $filename ?: self::getDefaultConfigFilename();
-        $profile = $profile ?: (\getenv(self::ENV_PROFILE) ?: 'default');
-        return function () use($profile, $filename) {
-            if (!@\is_readable($filename)) {
+        $profile = $profile ?: (getenv(self::ENV_PROFILE) ?: 'default');
+        return function () use ($profile, $filename) {
+            if (!@is_readable($filename)) {
                 return self::reject("Cannot read configuration from {$filename}");
             }
             // Use INI_SCANNER_NORMAL instead of INI_SCANNER_TYPED for PHP 5.5 compatibility
@@ -137,8 +137,8 @@ class ConfigurationProvider extends AbstractConfigurationProvider implements Con
      */
     public static function fallback($region)
     {
-        return function () use($region) {
-            $isFipsPseudoRegion = \strpos($region, 'fips-') !== \false || \strpos($region, '-fips') !== \false;
+        return function () use ($region) {
+            $isFipsPseudoRegion = strpos($region, 'fips-') !== \false || strpos($region, '-fips') !== \false;
             if ($isFipsPseudoRegion) {
                 $configuration = new Configuration(\true);
             } else {

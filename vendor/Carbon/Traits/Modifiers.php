@@ -1,5 +1,6 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Carbon package.
  *
@@ -11,6 +12,7 @@
 namespace DeliciousBrains\WP_Offload_SES\Carbon\Traits;
 
 use DeliciousBrains\WP_Offload_SES\Carbon\CarbonInterface;
+use DeliciousBrains\WP_Offload_SES\Carbon\Exceptions\InvalidFormatException;
 use ReturnTypeWillChange;
 /**
  * Trait Modifiers.
@@ -69,7 +71,7 @@ trait Modifiers
      *
      * @param string|int|null $modifier
      *
-     * @return static|false
+     * @return static
      */
     public function next($modifier = null)
     {
@@ -140,7 +142,7 @@ trait Modifiers
      *
      * @param string|int|null $modifier
      *
-     * @return static|false
+     * @return static
      */
     public function previous($modifier = null)
     {
@@ -304,7 +306,7 @@ trait Modifiers
      */
     public function average($date = null)
     {
-        return $this->addRealMicroseconds((int) ($this->diffInRealMicroseconds($this->resolveCarbon($date), \false) / 2));
+        return $this->addRealMicroseconds((int) ($this->diffInMicroseconds($this->resolveCarbon($date), \false) / 2));
     }
     /**
      * Get the closest date from the instance (second-precision).
@@ -316,7 +318,7 @@ trait Modifiers
      */
     public function closest($date1, $date2)
     {
-        return $this->diffInRealMicroseconds($date1) < $this->diffInRealMicroseconds($date2) ? $date1 : $date2;
+        return $this->diffInMicroseconds($date1, \true) < $this->diffInMicroseconds($date2, \true) ? $date1 : $date2;
     }
     /**
      * Get the farthest date from the instance (second-precision).
@@ -328,7 +330,7 @@ trait Modifiers
      */
     public function farthest($date1, $date2)
     {
-        return $this->diffInRealMicroseconds($date1) > $this->diffInRealMicroseconds($date2) ? $date1 : $date2;
+        return $this->diffInMicroseconds($date1, \true) > $this->diffInMicroseconds($date2, \true) ? $date1 : $date2;
     }
     /**
      * Get the minimum instance between a given instance (default now) and the current instance.
@@ -385,12 +387,12 @@ trait Modifiers
      *
      * @see https://php.net/manual/en/datetime.modify.php
      *
-     * @return static|false
+     * @return static
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function modify($modify)
     {
-        return parent::modify((string) $modify);
+        return parent::modify((string) $modify) ?: throw new InvalidFormatException('Could not modify with: ' . \var_export($modify, \true));
     }
     /**
      * Similar to native modify() method of DateTime but can handle more grammars.
@@ -404,7 +406,7 @@ trait Modifiers
      *
      * @param string $modifier
      *
-     * @return static|false
+     * @return static
      */
     public function change($modifier)
     {

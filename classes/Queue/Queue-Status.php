@@ -2,6 +2,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES\Queue;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use DeliciousBrains\WP_Offload_SES\Email;
 use DeliciousBrains\WP_Offload_SES\Queue\Jobs\Email_Job;
 use DeliciousBrains\WP_Offload_SES\Utils;

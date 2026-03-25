@@ -27,7 +27,7 @@ class EndpointDiscoveryMiddleware
     private $service;
     public static function wrap($client, $args, $config)
     {
-        return function (callable $handler) use($client, $args, $config) {
+        return function (callable $handler) use ($client, $args, $config) {
             return new static($handler, $client, $args, $config);
         };
     }
@@ -80,7 +80,7 @@ class EndpointDiscoveryMiddleware
                     }
                 }
                 $request = $this->modifyRequest($request, $endpoint);
-                $g = function ($value) use($cacheKey, $cmd, $identifiers, $isRequired, $originalUri, $request, &$endpoint, &$g) {
+                $g = function ($value) use ($cacheKey, $cmd, $identifiers, $isRequired, $originalUri, $request, &$endpoint, &$g) {
                     if ($value instanceof AwsException && ($value->getAwsErrorCode() == 'InvalidEndpointException' || $value->getStatusCode() == 421)) {
                         return $this->handleInvalidEndpoint($cacheKey, $cmd, $identifiers, $isRequired, $originalUri, $request, $value, $endpoint, $g);
                     }
@@ -94,12 +94,12 @@ class EndpointDiscoveryMiddleware
     private function discoverEndpoint($cacheKey, CommandInterface $cmd, array $identifiers)
     {
         $discCmd = $this->getDiscoveryCommand($cmd, $identifiers);
-        $this->discoveryTimes[$cacheKey] = \time();
+        $this->discoveryTimes[$cacheKey] = time();
         $result = $this->client->execute($discCmd);
         if (isset($result['Endpoints'])) {
             $endpointData = [];
             foreach ($result['Endpoints'] as $datum) {
-                $endpointData[$datum['Address']] = \time() + $datum['CachePeriodInMinutes'] * 60;
+                $endpointData[$datum['Address']] = time() + $datum['CachePeriodInMinutes'] * 60;
             }
             $endpointList = new EndpointList($endpointData);
             self::$cache->set($cacheKey, $endpointList);
@@ -178,7 +178,7 @@ class EndpointDiscoveryMiddleware
         if (empty($newEndpoint)) {
             // If no more cached endpoints, make discovery call
             // if none made within cooldown for given key
-            if (\time() - $this->discoveryTimes[$cacheKey] < self::$discoveryCooldown) {
+            if (isset($this->discoveryTimes[$cacheKey]) && time() - $this->discoveryTimes[$cacheKey] < self::$discoveryCooldown) {
                 // If no more cached endpoints and it's required,
                 // fail with original exception
                 if ($isRequired) {
@@ -198,7 +198,7 @@ class EndpointDiscoveryMiddleware
         $parsed = $this->parseEndpoint($endpoint);
         if (!empty($request->getHeader('User-Agent'))) {
             $userAgent = $request->getHeader('User-Agent')[0];
-            if (\strpos($userAgent, 'endpoint-discovery') === \false) {
+            if (strpos($userAgent, 'endpoint-discovery') === \false) {
                 $userAgent = $userAgent . ' endpoint-discovery';
             }
         } else {
@@ -215,17 +215,17 @@ class EndpointDiscoveryMiddleware
      */
     private function parseEndpoint($endpoint)
     {
-        $parsed = \parse_url($endpoint);
+        $parsed = parse_url($endpoint);
         // parse_url() will correctly parse full URIs with schemes
         if (isset($parsed['host'])) {
             return $parsed;
         }
         // parse_url() will put host & path in 'path' if scheme is not provided
         if (isset($parsed['path'])) {
-            $split = \explode('/', $parsed['path'], 2);
+            $split = explode('/', $parsed['path'], 2);
             $parsed['host'] = $split[0];
             if (isset($split[1])) {
-                if (\substr($split[1], 0, 1) !== '/') {
+                if (substr($split[1], 0, 1) !== '/') {
                     $split[1] = '/' . $split[1];
                 }
                 $parsed['path'] = $split[1];

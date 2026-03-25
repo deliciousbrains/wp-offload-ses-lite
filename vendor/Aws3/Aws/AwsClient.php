@@ -13,6 +13,7 @@ use DeliciousBrains\WP_Offload_SES\Aws3\Aws\EndpointV2\EndpointV2Middleware;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Exception\AwsException;
 use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Signature\SignatureProvider;
 use DeliciousBrains\WP_Offload_SES\Aws3\GuzzleHttp\Psr7\Uri;
+use DeliciousBrains\WP_Offload_SES\Aws3\Psr\Http\Message\RequestInterface;
 /**
  * Default AWS client implementation
  */
@@ -253,13 +254,15 @@ class AwsClient implements AwsClientInterface
         if ($this->isUseEndpointV2()) {
             $this->addEndpointV2Middleware();
         }
-        $this->addAuthSelectionMiddleware();
-        if (!\is_null($this->api->getMetadata('awsQueryCompatible'))) {
+        $this->addAuthSelectionMiddleware($config['config']);
+        if (!is_null($this->api->getMetadata('awsQueryCompatible'))) {
             $this->addQueryCompatibleInputMiddleware($this->api);
+            $this->addQueryModeHeader();
         }
         if (isset($args['with_resolved'])) {
             $args['with_resolved']($config);
         }
+        $this->addUserAgentMiddleware($config);
     }
     public function getHandlerList()
     {
@@ -272,6 +275,11 @@ class AwsClient implements AwsClientInterface
     public function getCredentials()
     {
         $fn = $this->credentialProvider;
+        return $fn();
+    }
+    public function getToken()
+    {
+        $fn = $this->tokenProvider;
         return $fn();
     }
     public function getEndpoint()
@@ -290,7 +298,7 @@ class AwsClient implements AwsClientInterface
     {
         // Fail fast if the command cannot be found in the description.
         if (!isset($this->getApi()['operations'][$name])) {
-            $name = \ucfirst($name);
+            $name = ucfirst($name);
             if (!isset($this->getApi()['operations'][$name])) {
                 throw new \InvalidArgumentException("Operation not found: {$name}");
             }
@@ -335,7 +343,7 @@ class AwsClient implements AwsClientInterface
      *
      * @return callable
      */
-    public final function getSignatureProvider()
+    final public function getSignatureProvider()
     {
         return $this->signatureProvider;
     }
@@ -347,12 +355,12 @@ class AwsClient implements AwsClientInterface
      */
     private function parseClass()
     {
-        $klass = \get_class($this);
+        $klass = get_class($this);
         if ($klass === __CLASS__) {
             return ['', AwsException::class];
         }
-        $service = \substr($klass, \strrpos($klass, '\\') + 1, -6);
-        return [\strtolower($service), "DeliciousBrains\\WP_Offload_SES\\Aws3\\Aws\\{$service}\\Exception\\{$service}Exception"];
+        $service = substr($klass, strrpos($klass, '\\') + 1, -6);
+        return [strtolower($service), "DeliciousBrains\\WP_Offload_SES\\Aws3\\Aws\\{$service}\\Exception\\{$service}Exception"];
     }
     private function addEndpointParameterMiddleware($args)
     {
@@ -381,18 +389,18 @@ class AwsClient implements AwsClientInterface
         } else {
             $configuredSignatureVersion = \false;
         }
-        $resolver = static function (CommandInterface $c) use($api, $provider, $name, $region, $signatureVersion, $configuredSignatureVersion, $signingRegionSet) {
+        $resolver = static function (CommandInterface $command) use ($api, $provider, $name, $region, $signatureVersion, $configuredSignatureVersion, $signingRegionSet) {
             if (!$configuredSignatureVersion) {
-                if (!empty($c['@context']['signing_region'])) {
-                    $region = $c['@context']['signing_region'];
+                if (!empty($command['@context']['signing_region'])) {
+                    $region = $command['@context']['signing_region'];
                 }
-                if (!empty($c['@context']['signing_service'])) {
-                    $name = $c['@context']['signing_service'];
+                if (!empty($command['@context']['signing_service'])) {
+                    $name = $command['@context']['signing_service'];
                 }
-                if (!empty($c['@context']['signature_version'])) {
-                    $signatureVersion = $c['@context']['signature_version'];
+                if (!empty($command['@context']['signature_version'])) {
+                    $signatureVersion = $command['@context']['signature_version'];
                 }
-                $authType = $api->getOperation($c->getName())['authtype'];
+                $authType = $api->getOperation($command->getName())['authtype'];
                 switch ($authType) {
                     case 'none':
                         $signatureVersion = 'anonymous';
@@ -406,9 +414,11 @@ class AwsClient implements AwsClientInterface
                 }
             }
             if ($signatureVersion === 'v4a') {
-                $commandSigningRegionSet = !empty($c['@context']['signing_region_set']) ? \implode(', ', $c['@context']['signing_region_set']) : null;
+                $commandSigningRegionSet = !empty($command['@context']['signing_region_set']) ? implode(', ', $command['@context']['signing_region_set']) : null;
                 $region = $signingRegionSet ?? $commandSigningRegionSet ?? $region;
             }
+            // Capture signature metric
+            $command->getMetricsBuilder()->identifyMetricByValueAndAppend('signature', $signatureVersion);
             return SignatureProvider::resolve($provider, $signatureVersion, $name, $region);
         };
         $this->handlerList->appendSign(Middleware::signer($this->credentialProvider, $resolver, $this->tokenProvider, $this->getConfig()), 'signer');
@@ -425,6 +435,13 @@ class AwsClient implements AwsClientInterface
         $list = $this->getHandlerList();
         $list->appendValidate(QueryCompatibleInputMiddleware::wrap($api), 'query-compatible-input');
     }
+    private function addQueryModeHeader(): void
+    {
+        $list = $this->getHandlerList();
+        $list->appendBuild(Middleware::mapRequest(function (RequestInterface $r) {
+            return $r->withHeader('x-amzn-query-mode', "true");
+        }), 'x-amzn-query-mode-header');
+    }
     private function addInvocationId()
     {
         // Add invocation id to each request
@@ -433,14 +450,18 @@ class AwsClient implements AwsClientInterface
     private function loadAliases($file = null)
     {
         if (!isset($this->aliases)) {
-            if (\is_null($file)) {
+            if (is_null($file)) {
                 $file = __DIR__ . '/data/aliases.json';
             }
             $aliases = \DeliciousBrains\WP_Offload_SES\Aws3\Aws\load_compiled_json($file);
             $serviceId = $this->api->getServiceId();
             $version = $this->getApi()->getApiVersion();
-            if (!empty($aliases['operations'][$serviceId][$version])) {
-                $this->aliases = \array_flip($aliases['operations'][$serviceId][$version]);
+            $serviceAliases = null;
+            if (!is_null($serviceId) && isset($aliases['operations'][$serviceId])) {
+                $serviceAliases = $aliases['operations'][$serviceId];
+            }
+            if ($serviceAliases && isset($serviceAliases[$version])) {
+                $this->aliases = array_flip($serviceAliases[$version]);
             }
         }
     }
@@ -455,16 +476,30 @@ class AwsClient implements AwsClientInterface
         // originating in supported Lambda runtimes
         $this->handlerList->appendBuild(Middleware::recursionDetection(), 'recursion-detection');
     }
-    private function addAuthSelectionMiddleware()
+    private function addAuthSelectionMiddleware(array $args)
     {
         $list = $this->getHandlerList();
-        $list->prependBuild(AuthSelectionMiddleware::wrap($this->authSchemeResolver, $this->getApi()), 'auth-selection');
+        $list->prependBuild(AuthSelectionMiddleware::wrap($this->authSchemeResolver, $this->getApi(), $args['auth_scheme_preference'] ?? null), 'auth-selection');
     }
     private function addEndpointV2Middleware()
     {
         $list = $this->getHandlerList();
         $endpointArgs = $this->getEndpointProviderArgs();
         $list->prependBuild(EndpointV2Middleware::wrap($this->endpointProvider, $this->getApi(), $endpointArgs, $this->credentialProvider), 'endpoint-resolution');
+    }
+    /**
+     * Appends the user agent middleware.
+     * This middleware MUST be appended after the
+     * signature middleware `addSignatureMiddleware`,
+     * so that metrics around signatures are properly
+     * captured.
+     *
+     * @param $args
+     * @return void
+     */
+    private function addUserAgentMiddleware($args)
+    {
+        $this->getHandlerList()->appendSign(UserAgentMiddleware::wrap($args), 'user-agent');
     }
     /**
      * Retrieves client context param definition from service model,
@@ -535,11 +570,11 @@ class AwsClient implements AwsClientInterface
     {
         $normalizedBuiltIns = [];
         foreach ($this->clientBuiltIns as $name => $value) {
-            $normalizedName = \explode('::', $name);
-            $normalizedName = $normalizedName[\count($normalizedName) - 1];
+            $normalizedName = explode('::', $name);
+            $normalizedName = $normalizedName[count($normalizedName) - 1];
             $normalizedBuiltIns[$normalizedName] = $value;
         }
-        return \array_merge($normalizedBuiltIns, $this->getClientContextParams());
+        return array_merge($normalizedBuiltIns, $this->getClientContextParams());
     }
     protected function isUseEndpointV2()
     {
@@ -547,10 +582,11 @@ class AwsClient implements AwsClientInterface
     }
     public static function emitDeprecationWarning()
     {
+        trigger_error("This method is deprecated. It will be removed in an upcoming release.", \E_USER_DEPRECATED);
         $phpVersion = \PHP_VERSION_ID;
         if ($phpVersion < 70205) {
-            $phpVersionString = \phpversion();
-            @\trigger_error("This installation of the SDK is using PHP version" . " {$phpVersionString}, which will be deprecated on August" . " 15th, 2023.  Please upgrade your PHP version to a minimum of" . " 7.2.5 before then to continue receiving updates to the AWS" . " SDK for PHP.  To disable this warning, set" . " suppress_php_deprecation_warning to true on the client constructor" . " or set the environment variable AWS_SUPPRESS_PHP_DEPRECATION_WARNING" . " to true.", \E_USER_DEPRECATED);
+            $phpVersionString = phpversion();
+            @trigger_error("This installation of the SDK is using PHP version" . " {$phpVersionString}, which will be deprecated on August" . " 15th, 2023.  Please upgrade your PHP version to a minimum of" . " 7.2.5 before then to continue receiving updates to the AWS" . " SDK for PHP.  To disable this warning, set" . " suppress_php_deprecation_warning to true on the client constructor" . " or set the environment variable AWS_SUPPRESS_PHP_DEPRECATION_WARNING" . " to true.", \E_USER_DEPRECATED);
         }
     }
     /**
@@ -578,7 +614,7 @@ class AwsClient implements AwsClientInterface
                 unset($api['operations'][$op], $docs['operations'][$op]);
             }
         }
-        \ksort($api['operations']);
+        ksort($api['operations']);
         return [new Service($api, ApiProvider::defaultProvider()), new DocModel($docs)];
     }
     /**

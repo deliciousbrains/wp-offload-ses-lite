@@ -51,13 +51,14 @@ class XmlParser
     }
     private function memberKey(Shape $shape, $name)
     {
-        if (null !== $shape['locationName']) {
-            return $shape['locationName'];
+        // Check if locationName came from shape definition
+        if ($shape instanceof StructureShape && isset($shape['locationName'])) {
+            $originalDef = $shape->getOriginalDefinition($shape->getName());
+            if ($originalDef && isset($originalDef['locationName']) && $originalDef['locationName'] === $shape['locationName']) {
+                return $name;
+            }
         }
-        if ($shape instanceof ListShape && $shape['flattened']) {
-            return $shape->getMember()['locationName'] ?: $name;
-        }
-        return $name;
+        return $shape['locationName'] ?? $name;
     }
     private function parse_list(ListShape $shape, \SimpleXMLElement $value)
     {
@@ -90,11 +91,15 @@ class XmlParser
     }
     private function parse_blob(Shape $shape, $value)
     {
-        return \base64_decode((string) $value);
+        return base64_decode((string) $value);
     }
     private function parse_float(Shape $shape, $value)
     {
-        return (float) (string) $value;
+        $value = (string) $value;
+        return match ($value) {
+            'NaN', 'Infinity', '-Infinity' => $value,
+            default => (float) $value,
+        };
     }
     private function parse_integer(Shape $shape, $value)
     {
@@ -106,19 +111,19 @@ class XmlParser
     }
     private function parse_timestamp(Shape $shape, $value)
     {
-        if (\is_string($value) || \is_int($value) || \is_object($value) && \method_exists($value, '__toString')) {
+        if (is_string($value) || is_int($value) || is_object($value) && method_exists($value, '__toString')) {
             return DateTimeResult::fromTimestamp((string) $value, !empty($shape['timestampFormat']) ? $shape['timestampFormat'] : null);
         }
         throw new ParserException('Invalid timestamp value passed to XmlParser::parse_timestamp');
     }
     private function parse_xml_attribute(Shape $shape, Shape $memberShape, $value)
     {
-        $namespace = $shape['xmlNamespace']['uri'] ? $shape['xmlNamespace']['uri'] : '';
-        $prefix = $shape['xmlNamespace']['prefix'] ? $shape['xmlNamespace']['prefix'] : '';
+        $namespace = $shape['xmlNamespace']['uri'] ?? '';
+        $prefix = $shape['xmlNamespace']['prefix'] ?? '';
         if (!empty($prefix)) {
             $prefix .= ':';
         }
-        $key = \str_replace($prefix, '', $memberShape['locationName']);
+        $key = str_replace($prefix, '', $memberShape['locationName']);
         $attributes = $value->attributes($namespace);
         return isset($attributes[$key]) ? (string) $attributes[$key] : null;
     }

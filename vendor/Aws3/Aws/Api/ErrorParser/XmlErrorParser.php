@@ -15,12 +15,12 @@ class XmlErrorParser extends AbstractErrorParser
 {
     use PayloadParserTrait;
     protected $parser;
-    public function __construct(Service $api = null, XmlParser $parser = null)
+    public function __construct(?Service $api = null, ?XmlParser $parser = null)
     {
         parent::__construct($api);
         $this->parser = $parser ?: new XmlParser();
     }
-    public function __invoke(ResponseInterface $response, CommandInterface $command = null)
+    public function __invoke(ResponseInterface $response, ?CommandInterface $command = null)
     {
         $code = (string) $response->getStatusCode();
         $data = ['type' => $code[0] == '4' ? 'client' : 'server', 'request_id' => null, 'code' => null, 'message' => null, 'parsed' => null];
@@ -75,7 +75,7 @@ class XmlErrorParser extends AbstractErrorParser
         $xmlBody = $this->parseXml($response->getBody(), $response);
         $prefix = $this->registerNamespacePrefix($xmlBody);
         $errorBody = $xmlBody->xpath("//{$prefix}Error");
-        if (\is_array($errorBody) && !empty($errorBody[0])) {
+        if (is_array($errorBody) && !empty($errorBody[0])) {
             return $this->parser->parse($member, $errorBody[0]);
         }
     }

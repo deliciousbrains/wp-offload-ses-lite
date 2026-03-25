@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class Settings
  *
@@ -121,7 +125,7 @@ class Settings {
 			}
 
 			foreach ( $unserialized as $key => $value ) {
-				if ( ! in_array( $key, $this->get_settings_whitelist() ) ) {
+				if ( ! in_array( $key, $this->get_settings_whitelist(), true ) ) {
 					continue;
 				}
 
@@ -373,7 +377,7 @@ class Settings {
 	 */
 	public function sanitize_setting( string $key, $value ): string {
 		$skip_sanitize = $this->get_skip_sanitize_settings();
-		if ( in_array( $key, $skip_sanitize ) ) {
+		if ( in_array( $key, $skip_sanitize, true ) ) {
 			$value = wp_strip_all_tags( $value );
 		} else {
 			$value = sanitize_text_field( $value );

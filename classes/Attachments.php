@@ -8,6 +8,10 @@
 
 namespace DeliciousBrains\WP_Offload_SES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class Attachments
  *
@@ -308,10 +312,11 @@ class Attachments {
 			}
 
 			if ( file_exists( $file ) ) {
-				$deleted = @unlink( $file );
+				$deleted = wp_delete_file( $file );
 			}
 
 			if ( $deleted ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- No WordPress alternative for removing empty directories.
 				@rmdir( dirname( $file ) );
 				$query = $this->database->prepare( "DELETE FROM {$this->attachments_table} WHERE id = %d", $attachment['id'] );
 				$this->database->query( $query );

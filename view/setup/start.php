@@ -1,31 +1,37 @@
+<?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+?>
 <div id="tab-start" data-prefix="wposes" class="wposes-tab wposes-content">
 	<div>
 		<div style="float: left; margin: 0 1em 1em 0">
-			<img class="wposes-logo" src="<?php echo $this->plugins_url( 'assets/img/ses-logo.jpg' ) ?>" />
+			<img class="wposes-logo" src="<?php echo esc_url( $this->plugins_url( 'assets/img/ses-logo.jpg' ) ); ?>" />
 		</div>
-		<h2><?php _e( 'Thanks for installing WP Offload SES! 🎉', 'wp-offload-ses' ); ?></h2>
-		<p><?php _e( 'This setup wizard will guide you through the initial setup of the plugin. Once complete, your site will start sending emails through Amazon SES.', 'wp-offload-ses' ); ?></p>
-		<p><?php printf( __( 'If you\'d rather configure everything manually, you can <a href="%s">skip setup</a> and enter the settings for the plugin.', 'wp-offload-ses' ), $this->get_plugin_page_url( array( 'skip-setup' => true, 'hash' => 'settings' ), 'self' ) ); ?></p>
+		<h2><?php esc_html_e( 'Thanks for installing WP Offload SES! 🎉', 'wp-offload-ses' ); ?></h2>
+		<p><?php esc_html_e( 'This setup wizard will guide you through the initial setup of the plugin. Once complete, your site will start sending emails through Amazon SES.', 'wp-offload-ses' ); ?></p>
+		<p><?php echo wp_kses( sprintf( __( 'If you\'d rather configure everything manually, you can <a href="%s">skip setup</a> and enter the settings for the plugin.', 'wp-offload-ses' ), $this->get_plugin_page_url( array( 'skip-setup' => true, 'hash' => 'settings' ), 'self' ) ), array( 'a' => array( 'href' => array() ) ) ); ?></p>
 		<div class="clearfix"></div>
 	</div>
 
-	<h2><?php _e( 'Amazon SES Setup', 'wp-offload-ses' ); ?></h2>
+	<h2><?php esc_html_e( 'Amazon SES Setup', 'wp-offload-ses' ); ?></h2>
 	<p>
-		<?php _e( 'The following steps will walk you through the process of setting up the WP Offload SES plugin. Each step is clearly outlined with screenshots to guide you through these processes:', 'wp-offload-ses' ); ?>
+		<?php esc_html_e( 'The following steps will walk you through the process of setting up the WP Offload SES plugin. Each step is clearly outlined with screenshots to guide you through these processes:', 'wp-offload-ses' ); ?>
 	</p>
 	<ul>
-		<li><?php _e( 'Getting your AWS Access Keys and using them with this plugin', 'wp-offload-ses' ); ?></li>
-		<li><?php _e( 'Moving your Amazon SES account out of sandbox mode', 'wp-offload-ses' ); ?></li>
-		<li><?php _e( 'Validating a sender or domain to use Amazon SES', 'wp-offload-ses' ); ?></li>
-		<li><?php _e( 'Configuring the plugin to send emails over Amazon SES', 'wp-offload-ses' ); ?></li>
+		<li><?php esc_html_e( 'Getting your AWS Access Keys and using them with this plugin', 'wp-offload-ses' ); ?></li>
+		<li><?php esc_html_e( 'Moving your Amazon SES account out of sandbox mode', 'wp-offload-ses' ); ?></li>
+		<li><?php esc_html_e( 'Validating a sender or domain to use Amazon SES', 'wp-offload-ses' ); ?></li>
+		<li><?php esc_html_e( 'Configuring the plugin to send emails over Amazon SES', 'wp-offload-ses' ); ?></li>
 	</ul>
 	<p>
-		<?php _e( 'The whole process usually takes 15-30 minutes, depending on your pace and external factors like DNS propagation and Amazons\' account verification.', 'wp-offload-ses' ); ?>
+		<?php esc_html_e( 'The whole process usually takes 15-30 minutes, depending on your pace and external factors like DNS propagation and Amazons\' account verification.', 'wp-offload-ses' ); ?>
 	</p>
 
 	<div class="notice notice-info inline wposes-click-to-copy-show" style="display: none;">
 		<p>
-			<?php _e( 'Text that looks like <code data-wposes-copy>this</code> can be clicked to copy it to your clipboard for easy pasting. <code data-wposes-copy>Try me!</code>', 'wp-offload-ses' ); ?>
+			<?php echo wp_kses( __( 'Text that looks like <code data-wposes-copy>this</code> can be clicked to copy it to your clipboard for easy pasting. <code data-wposes-copy>Try me!</code>', 'wp-offload-ses' ), array( 'code' => array( 'data-wposes-copy' => array() ) ) ); ?>
 		</p>
 	</div>
 	<p>
@@ -36,7 +42,7 @@
 				$msg = __( 'When you\'re ready to begin, enter your license key and click <strong>Get Started</strong> below.', 'wp-offload-ses' );
 			}
 
-			echo $msg;
+			echo wp_kses( $msg, array( 'strong' => array() ) );
 		?>
 	</p>
 

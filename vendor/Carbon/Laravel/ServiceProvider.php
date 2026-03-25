@@ -1,5 +1,6 @@
 <?php
 
+declare (strict_types=1);
 /**
  * This file is part of the Carbon package.
  *
@@ -26,6 +27,8 @@ class ServiceProvider extends \DeliciousBrains\WP_Offload_SES\Illuminate\Support
     protected $appGetter = null;
     /** @var callable|null */
     protected $localeGetter = null;
+    /** @var callable|null */
+    protected $fallbackLocaleGetter = null;
     public function setAppGetter(?callable $appGetter) : void
     {
         $this->appGetter = $appGetter;
@@ -34,9 +37,14 @@ class ServiceProvider extends \DeliciousBrains\WP_Offload_SES\Illuminate\Support
     {
         $this->localeGetter = $localeGetter;
     }
+    public function setFallbackLocaleGetter(?callable $fallbackLocaleGetter) : void
+    {
+        $this->fallbackLocaleGetter = $fallbackLocaleGetter;
+    }
     public function boot()
     {
         $this->updateLocale();
+        $this->updateFallbackLocale();
         if (!$this->app->bound('events')) {
             return;
         }
@@ -65,7 +73,30 @@ class ServiceProvider extends \DeliciousBrains\WP_Offload_SES\Illuminate\Support
             try {
                 $root = Date::getFacadeRoot();
                 $root->setLocale($locale);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
+                // Non Carbon class in use in Date facade
+            }
+        }
+    }
+    public function updateFallbackLocale()
+    {
+        $locale = $this->getFallbackLocale();
+        if ($locale === null) {
+            return;
+        }
+        Carbon::setFallbackLocale($locale);
+        CarbonImmutable::setFallbackLocale($locale);
+        CarbonPeriod::setFallbackLocale($locale);
+        CarbonInterval::setFallbackLocale($locale);
+        if (\class_exists(IlluminateCarbon::class) && \method_exists(IlluminateCarbon::class, 'setFallbackLocale')) {
+            IlluminateCarbon::setFallbackLocale($locale);
+        }
+        if (\class_exists(Date::class)) {
+            try {
+                $root = Date::getFacadeRoot();
+                $root->setFallbackLocale($locale);
+            } catch (Throwable) {
+                // @codeCoverageIgnore
                 // Non Carbon class in use in Date facade
             }
         }
@@ -82,6 +113,14 @@ class ServiceProvider extends \DeliciousBrains\WP_Offload_SES\Illuminate\Support
         $app = $this->getApp();
         $app = $app && \method_exists($app, 'getLocale') ? $app : $this->getGlobalApp('translator');
         return $app ? $app->getLocale() : null;
+    }
+    protected function getFallbackLocale()
+    {
+        if ($this->fallbackLocaleGetter) {
+            return ($this->fallbackLocaleGetter)();
+        }
+        $app = $this->getApp();
+        return $app && \method_exists($app, 'getFallbackLocale') ? $app->getFallbackLocale() : $this->getGlobalApp('translator')?->getFallback();
     }
     protected function getApp()
     {

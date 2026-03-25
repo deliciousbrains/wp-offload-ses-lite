@@ -1,11 +1,16 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 use DeliciousBrains\WP_Offload_SES\Utils;
 ?>
 <td colspan="2" style="padding: 10px 0">
 	<table width="100%" style="border: 1px solid #ccd0d4; border-collapse: collapse;">
 		<tr style="background-color: #f9f9f9;">
-			<th align="left" style="padding: 8px 10px;"><?php _e( 'Email', 'wp-offload-ses' ); ?></th>
-			<th align="right" style="padding: 8px 10px;"><?php echo $this->is_pro() ? __( 'Actions', 'wp-offload-ses' ) : ''; ?></th>
+			<th align="left" style="padding: 8px 10px;"><?php esc_html_e( 'Email', 'wp-offload-ses' ); ?></th>
+			<th align="right" style="padding: 8px 10px;"><?php echo esc_html( $this->is_pro() ? __( 'Actions', 'wp-offload-ses' ) : '' ); ?></th>
 		</tr>
 		<?php
 		foreach ( $failed_emails as $key => $email ) {
@@ -14,7 +19,7 @@ use DeliciousBrains\WP_Offload_SES\Utils;
 				$style = 'background-color: #f9f9f9;';
 			}
 			?>
-			<tr style="<?php echo $style; ?>">
+			<tr style="<?php echo esc_attr( $style ); ?>">
 				<td style="padding: 8px 10px;">
 					<?php
 					$link_style = 'text-decoration: none;';
@@ -29,11 +34,11 @@ use DeliciousBrains\WP_Offload_SES\Utils;
 						$link_style .= 'cursor: default;';
 					}
 					?>
-					<a href="<?php echo $view_link; ?>" style="<?php echo $link_style; ?>">
+					<a href="<?php echo esc_url( $view_link ); ?>" style="<?php echo esc_attr( $link_style ); ?>">
 						<span style="font-size:11px; color: gray;">
 						<?php
 						$formatted = Utils::get_date_and_time( $email['date'] );
-						echo is_array( $formatted ) ? implode( ' ', $formatted ) : '';
+						echo esc_html( is_array( $formatted ) ? implode( ' ', $formatted ) : '' );
 						?>
 						</span>
 						<br />
@@ -57,7 +62,7 @@ use DeliciousBrains\WP_Offload_SES\Utils;
 						</span>
 					</a>
 				</td>
-				<td style="padding: 8px 10px;" align="right" style="text-align: right;"><?php echo isset( $email['actions'] ) ? $email['actions'] : ''; ?></td>
+				<td style="padding: 8px 10px;" align="right" style="text-align: right;"><?php echo wp_kses_post( isset( $email['actions'] ) ? $email['actions'] : '' ); ?></td>
 			</tr>
 			<?php
 		}

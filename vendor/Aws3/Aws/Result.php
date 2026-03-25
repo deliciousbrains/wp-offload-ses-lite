@@ -28,7 +28,7 @@ class Result implements ResultInterface, MonitoringEventsInterface
     }
     public function __toString()
     {
-        $jsonData = \json_encode($this->toArray(), \JSON_PRETTY_PRINT);
+        $jsonData = json_encode($this->toArray(), \JSON_PRETTY_PRINT);
         return <<<EOT
 Model Data
 ----------
@@ -46,6 +46,6 @@ EOT;
      */
     public function getPath($path)
     {
-        return $this->search(\str_replace('/', '.', $path));
+        return $this->search(str_replace('/', '.', $path));
     }
 }

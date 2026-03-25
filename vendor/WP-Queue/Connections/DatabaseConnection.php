@@ -65,7 +65,7 @@ class DatabaseConnection implements ConnectionInterface
     public function pop()
     {
         $this->release_reserved();
-        $sql = $this->database->prepare("\n\t\t\tSELECT * FROM {$this->jobs_table}\n\t\t\tWHERE reserved_at IS NULL\n\t\t\tAND available_at <= %s\n\t\t\tORDER BY available_at, id\n\t\t\tLIMIT 1\n\t\t", $this->datetime());
+        $sql = $this->database->prepare("\n\t\t\tSELECT * FROM {$this->jobs_table}\n\t\t\tWHERE reserved_at IS NULL\n\t\t\tAND available_at <= %s\n\t\t\tORDER BY available_at, id\n\t\t\tLIMIT 1\n\t\t\t", $this->datetime());
         $raw_job = $this->database->get_row($sql);
         if (\is_null($raw_job)) {
             return \false;
@@ -168,7 +168,7 @@ class DatabaseConnection implements ConnectionInterface
     protected function release_reserved()
     {
         $expired = $this->datetime(-300);
-        $sql = $this->database->prepare("\n\t\t\t\tUPDATE {$this->jobs_table}\n\t\t\t\tSET attempts = attempts + 1, reserved_at = NULL\n\t\t\t\tWHERE reserved_at <= %s", $expired);
+        $sql = $this->database->prepare("\n\t\t\tUPDATE {$this->jobs_table}\n\t\t\tSET attempts = attempts + 1, reserved_at = NULL\n\t\t\tWHERE reserved_at <= %s\n\t\t\t", $expired);
         $this->database->query($sql);
     }
     /**

@@ -11,20 +11,20 @@ use DeliciousBrains\WP_Offload_SES\Aws3\Aws\Exception\UnresolvedEndpointExceptio
  */
 class RulesetStandardLibrary
 {
-    const IPV4_RE = '/^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$/';
+    const IPV4_RE = '/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/';
     const IPV6_RE = '/([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|
                     . ([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]
                     . {1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:)
                     . {1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|
                     . [0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:
                     . (:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|
-                    . 1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]
-                    . {1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]
+                    . 1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]
+                    . {1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]
                     . |1{0,1}[0-9]){0,1}[0-9])/';
-    const TEMPLATE_ESCAPE_RE = '/{\\{\\s*(.*?)\\s*\\}\\}/';
-    const TEMPLATE_SEARCH_RE = '/\\{[a-zA-Z#]+\\}/';
-    const TEMPLATE_PARSE_RE = '#\\{((?>[^\\{\\}]+)|(?R))*\\}#x';
-    const HOST_LABEL_RE = '/^(?!-)[a-zA-Z\\d-]{1,63}(?<!-)$/';
+    const TEMPLATE_ESCAPE_RE = '/{\{\s*(.*?)\s*\}\}/';
+    const TEMPLATE_SEARCH_RE = '/\{[a-zA-Z#]+\}/';
+    const TEMPLATE_PARSE_RE = '#\{((?>[^\{\}]+)|(?R))*\}#x';
+    const HOST_LABEL_RE = '/^(?!-)[a-zA-Z\d-]{1,63}(?<!-)$/';
     private $partitions;
     public function __construct($partitions)
     {
@@ -55,15 +55,21 @@ class RulesetStandardLibrary
      */
     public function getAttr($from, $path)
     {
-        $parts = \explode('.', $path);
+        // Handles the case where "[<int|string]" is provided as the top-level path
+        if (preg_match('/^\[(\w+)\]$/', $path, $matches)) {
+            $index = is_numeric($matches[1]) ? (int) $matches[1] : $matches[1];
+            return $from[$index] ?? null;
+        }
+        $parts = explode('.', $path);
         foreach ($parts as $part) {
-            $sliceIdx = \strpos($part, '[');
+            $sliceIdx = strpos($part, '[');
             if ($sliceIdx !== \false) {
-                if (\substr($part, -1) !== ']') {
+                if (substr($part, -1) !== ']') {
                     return null;
                 }
-                $slice = \intval(\substr($part, $sliceIdx + 1, \strlen($part) - 1));
-                $from = isset($from[\substr($part, 0, $sliceIdx)][$slice]) ? $from[\substr($part, 0, $sliceIdx)][$slice] : null;
+                $slice = (int) substr($part, $sliceIdx + 1, strlen($part) - 1);
+                $fromIndex = substr($part, 0, $sliceIdx);
+                $from = $from[$fromIndex][$slice] ?? null;
             } else {
                 $from = $from[$part];
             }
@@ -78,21 +84,21 @@ class RulesetStandardLibrary
      */
     public function substring($input, $start, $stop, $reverse)
     {
-        if (!\is_string($input)) {
+        if (!is_string($input)) {
             throw new UnresolvedEndpointException('Input passed to `substring` must be `string`.');
         }
-        if (\preg_match('/[^\\x00-\\x7F]/', $input)) {
+        if (preg_match('/[^\x00-\x7F]/', $input)) {
             return null;
         }
-        if ($start >= $stop or \strlen($input) < $stop) {
+        if ($start >= $stop or strlen($input) < $stop) {
             return null;
         }
         if (!$reverse) {
-            return \substr($input, $start, $stop - $start);
+            return substr($input, $start, $stop - $start);
         } else {
-            $offset = \strlen($input) - $stop;
+            $offset = strlen($input) - $stop;
             $length = $stop - $start;
-            return \substr($input, $offset, $length);
+            return substr($input, $offset, $length);
         }
     }
     /**
@@ -102,7 +108,7 @@ class RulesetStandardLibrary
      */
     public function stringEquals($string1, $string2)
     {
-        if (!\is_string($string1) || !\is_string($string2)) {
+        if (!is_string($string1) || !is_string($string2)) {
             throw new UnresolvedEndpointException('Values passed to StringEquals must be `string`.');
         }
         return $string1 === $string2;
@@ -114,7 +120,7 @@ class RulesetStandardLibrary
      */
     public function booleanEquals($boolean1, $boolean2)
     {
-        return \filter_var($boolean1, \FILTER_VALIDATE_BOOLEAN) === \filter_var($boolean2, \FILTER_VALIDATE_BOOLEAN);
+        return filter_var($boolean1, \FILTER_VALIDATE_BOOLEAN) === filter_var($boolean2, \FILTER_VALIDATE_BOOLEAN);
     }
     /**
      * Percent-encodes an input string.
@@ -123,10 +129,10 @@ class RulesetStandardLibrary
      */
     public function uriEncode($input)
     {
-        if (\is_null($input)) {
+        if (is_null($input)) {
             return null;
         }
-        return \str_replace('%7E', '~', \rawurlencode($input));
+        return str_replace('%7E', '~', rawurlencode($input));
     }
     /**
      * Parses URL string into components.
@@ -135,10 +141,10 @@ class RulesetStandardLibrary
      */
     public function parseUrl($url)
     {
-        if (\is_null($url)) {
+        if (is_null($url)) {
             return null;
         }
-        $parsed = \parse_url($url);
+        $parsed = parse_url($url);
         if ($parsed === \false || !empty($parsed['query'])) {
             return null;
         } elseif (!isset($parsed['scheme'])) {
@@ -154,7 +160,7 @@ class RulesetStandardLibrary
             $urlInfo['authority'] = $urlInfo['authority'] . ":" . $parsed['port'];
         }
         $urlInfo['path'] = isset($parsed['path']) ? $parsed['path'] : '';
-        $urlInfo['normalizedPath'] = !empty($parsed['path']) ? \rtrim($urlInfo['path'] ?: '', '/' . "/") . '/' : '/';
+        $urlInfo['normalizedPath'] = !empty($parsed['path']) ? rtrim($urlInfo['path'] ?: '', '/' . "/") . '/' : '/';
         $urlInfo['isIp'] = !isset($parsed['host']) ? 'false' : $this->isValidIp($parsed['host']);
         return $urlInfo;
     }
@@ -167,11 +173,11 @@ class RulesetStandardLibrary
      */
     public function isValidHostLabel($hostLabel, $allowSubDomains)
     {
-        if (!isset($hostLabel) || !$allowSubDomains && \strpos($hostLabel, '.') != \false) {
+        if (!isset($hostLabel) || !$allowSubDomains && strpos($hostLabel, '.') != \false) {
             return \false;
         }
         if ($allowSubDomains) {
-            foreach (\explode('.', $hostLabel) as $subdomain) {
+            foreach (explode('.', $hostLabel) as $subdomain) {
                 if (!$this->validateHostLabel($subdomain)) {
                     return \false;
                 }
@@ -188,12 +194,12 @@ class RulesetStandardLibrary
      */
     public function parseArn($arnString)
     {
-        if (\is_null($arnString) || \substr($arnString, 0, 3) !== "arn") {
+        if (is_null($arnString) || substr($arnString, 0, 3) !== "arn") {
             return null;
         }
         $arn = [];
-        $parts = \explode(':', $arnString, 6);
-        if (\sizeof($parts) < 6) {
+        $parts = explode(':', $arnString, 6);
+        if (sizeof($parts) < 6) {
             return null;
         }
         $arn['partition'] = isset($parts[1]) ? $parts[1] : null;
@@ -205,7 +211,7 @@ class RulesetStandardLibrary
             return null;
         }
         $resource = $arn['resourceId'];
-        $arn['resourceId'] = \preg_split("/[:\\/]/", $resource);
+        $arn['resourceId'] = preg_split("/[:\\/]/", $resource);
         return $arn;
     }
     /**
@@ -215,12 +221,12 @@ class RulesetStandardLibrary
      */
     public function partition($region)
     {
-        if (!\is_string($region)) {
+        if (!is_string($region)) {
             throw new UnresolvedEndpointException('Value passed to `partition` must be `string`.');
         }
         $partitions = $this->partitions;
         foreach ($partitions['partitions'] as $partition) {
-            if (\array_key_exists($region, $partition['regions']) || \preg_match("/{$partition['regionRegex']}/", $region)) {
+            if (array_key_exists($region, $partition['regions']) || preg_match("/{$partition['regionRegex']}/", $region)) {
                 return $partition['outputs'];
             }
         }
@@ -235,16 +241,16 @@ class RulesetStandardLibrary
      */
     public function isVirtualHostableS3Bucket($bucketName, $allowSubdomains)
     {
-        if (\is_null($bucketName) || (\strlen($bucketName) < 3 || \strlen($bucketName) > 63) || \preg_match(self::IPV4_RE, $bucketName) || \strtolower($bucketName) !== $bucketName) {
+        if (is_null($bucketName) || (strlen($bucketName) < 3 || strlen($bucketName) > 63) || preg_match(self::IPV4_RE, $bucketName) || strtolower($bucketName) !== $bucketName) {
             return \false;
         }
         if ($allowSubdomains) {
-            $labels = \explode('.', $bucketName);
+            $labels = explode('.', $bucketName);
             $results = [];
             foreach ($labels as $label) {
                 $results[] = $this->isVirtualHostableS3Bucket($label, \false);
             }
-            return !\in_array(\false, $results);
+            return !in_array(\false, $results);
         }
         return $this->isValidHostLabel($bucketName, \false);
     }
@@ -254,11 +260,11 @@ class RulesetStandardLibrary
         foreach ($funcCondition['argv'] as $arg) {
             $funcArgs[] = $this->resolveValue($arg, $inputParameters);
         }
-        $funcName = \str_replace('aws.', '', $funcCondition['fn']);
+        $funcName = str_replace('aws.', '', $funcCondition['fn']);
         if ($funcName === 'isSet') {
             $funcName = 'is_set';
         }
-        $result = \call_user_func_array([RulesetStandardLibrary::class, $funcName], $funcArgs);
+        $result = call_user_func_array([RulesetStandardLibrary::class, $funcName], $funcArgs);
         if (isset($funcCondition['assign'])) {
             $assign = $funcCondition['assign'];
             if (isset($inputParameters[$assign])) {
@@ -283,25 +289,25 @@ class RulesetStandardLibrary
     }
     public function isFunc($arg)
     {
-        return \is_array($arg) && isset($arg['fn']);
+        return is_array($arg) && isset($arg['fn']);
     }
     public function isRef($arg)
     {
-        return \is_array($arg) && isset($arg['ref']);
+        return is_array($arg) && isset($arg['ref']);
     }
     public function isTemplate($arg)
     {
-        return \is_string($arg) && !empty(\preg_match(self::TEMPLATE_SEARCH_RE, $arg));
+        return is_string($arg) && !empty(preg_match(self::TEMPLATE_SEARCH_RE, $arg));
     }
     public function resolveTemplateString($value, $inputParameters)
     {
-        return \preg_replace_callback(self::TEMPLATE_PARSE_RE, function ($match) use($inputParameters) {
-            if (\preg_match(self::TEMPLATE_ESCAPE_RE, $match[0])) {
+        return preg_replace_callback(self::TEMPLATE_PARSE_RE, function ($match) use ($inputParameters) {
+            if (preg_match(self::TEMPLATE_ESCAPE_RE, $match[0])) {
                 return $match[1];
             }
             $notFoundMessage = 'Resolved value was null.  Please check rules and ' . 'input parameters and try again.';
-            $parts = \explode("#", $match[1]);
-            if (\count($parts) > 1) {
+            $parts = explode("#", $match[1]);
+            if (count($parts) > 1) {
                 $resolvedValue = $inputParameters;
                 foreach ($parts as $part) {
                     if (!isset($resolvedValue[$part])) {
@@ -320,17 +326,17 @@ class RulesetStandardLibrary
     }
     private function validateHostLabel($hostLabel)
     {
-        if (empty($hostLabel) || \strlen($hostLabel) > 63) {
+        if (empty($hostLabel) || strlen($hostLabel) > 63) {
             return \false;
         }
-        if (\preg_match(self::HOST_LABEL_RE, $hostLabel)) {
+        if (preg_match(self::HOST_LABEL_RE, $hostLabel)) {
             return \true;
         }
         return \false;
     }
     private function isValidIp($hostName)
     {
-        $isWrapped = \strpos($hostName, '[') === 0 && \strrpos($hostName, ']') === \strlen($hostName) - 1;
-        return \preg_match(self::IPV4_RE, $hostName) || $isWrapped && \preg_match(self::IPV6_RE, $hostName) ? 'true' : 'false';
+        $isWrapped = strpos($hostName, '[') === 0 && strrpos($hostName, ']') === strlen($hostName) - 1;
+        return preg_match(self::IPV4_RE, $hostName) || $isWrapped && preg_match(self::IPV6_RE, $hostName) ? 'true' : 'false';
     }
 }

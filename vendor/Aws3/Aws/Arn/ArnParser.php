@@ -23,7 +23,7 @@ class ArnParser
      */
     public static function isArn($string)
     {
-        return $string !== null && \strpos($string, 'arn:') === 0;
+        return $string !== null && strpos($string, 'arn:') === 0;
     }
     /**
      * Parses a string and returns an instance of ArnInterface. Returns a
@@ -61,6 +61,6 @@ class ArnParser
     }
     private static function explodeResourceComponent($resource)
     {
-        return \preg_split("/[\\/:]/", $resource);
+        return preg_split("/[\\/:]/", $resource);
     }
 }
