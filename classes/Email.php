@@ -99,6 +99,18 @@ class Email {
 			$PHPMailer = new \PHPMailer( true );
 		}
 
+		 /**
+		 * Filters the PHPMailer instance used by WP Offload SES.
+		 *
+		 * Allows other code to provide a custom PHPMailer implementation.
+		 *
+		 * The callback MUST return an object compatible with
+		 * \PHPMailer\PHPMailer\PHPMailer.
+		 *
+		 * @param \PHPMailer\PHPMailer\PHPMailer|\PHPMailer $PHPMailer
+		 */
+		$PHPMailer = apply_filters( 'wposes_phpmailer_instance', $PHPMailer );
+
 		return $PHPMailer;
 	}
 
