@@ -207,3 +207,4 @@ final class PseudoLocalizationTranslator implements TranslatorInterface
         return \false === ($encoding = \mb_detect_encoding($s, null, \true)) ? \strlen($s) : \mb_strlen($s, $encoding);
     }
 }
+// @php-cs-fixer-ignore random_api_migration As logic is coupled with mt_srand() in tests

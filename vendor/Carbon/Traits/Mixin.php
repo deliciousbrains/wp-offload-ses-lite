@@ -19,6 +19,7 @@ use Generator;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+use ReflectionNamedType;
 use Throwable;
 /**
  * Trait Mixin.
@@ -69,7 +70,7 @@ trait Mixin
     {
         $methods = (new ReflectionClass($mixin))->getMethods(ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED);
         foreach ($methods as $method) {
-            if ($method->isConstructor() || $method->isDestructor()) {
+            if (self::cannotBeAMixinMethod($method)) {
                 continue;
             }
             $macro = $method->invoke($mixin);
@@ -77,6 +78,31 @@ trait Mixin
                 static::macro($method->name, $macro);
             }
         }
+    }
+    private static function cannotBeAMixinMethod(ReflectionMethod $method) : bool
+    {
+        if ($method->isConstructor() || $method->isDestructor()) {
+            return \true;
+        }
+        $returnType = $method->getReturnType();
+        if ($returnType instanceof ReflectionNamedType) {
+            $returnedTypeName = $returnType->getName();
+            if ($returnType->isBuiltin()) {
+                return !\in_array($returnedTypeName, [
+                    'callable',
+                    'object',
+                    // could have __invoke
+                    'array',
+                    // could be [MyClass::class, 'myMethod']
+                    'mixed',
+                ], \true);
+            }
+            // If it returns a non-invokable object, it cannot be a mixin method
+            if (\class_exists($returnedTypeName)) {
+                return !\is_a($returnedTypeName, Closure::class, \true) && !\is_callable([$returnedTypeName, '__invoke']);
+            }
+        }
+        return \false;
     }
     private static function loadMixinTrait(string $trait) : void
     {

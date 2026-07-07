@@ -5,7 +5,7 @@
 **Requires at least:** 5.9 \
 **Tested up to:** 7.0 \
 **Requires PHP:** 8.1 \
-**Stable tag:** 1.8.0 \
+**Stable tag:** 1.8.1 \
 **License:** GPLv2
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
@@ -177,26 +177,13 @@ Yes, WP Offload SES should be compatible with any plugin that uses the standard 
 
 Please double check the credentials match up with the credentials you received when creating your IAM user, and that your IAM user has the `AmazonSESFullAccess` permission.
 
-## Screenshots
-
-### 1. Setup wizard
-
-[missing image]
-
-### 2. Main settings page
-
-[missing image]
-
-### 3. Verified senders
-
-[missing image]
-
-### 4. Activity tab
-
-[missing image]
-
-
 ## Changelog
+
+### 1.8.1 - 2026-07-07
+
+* Improvement: PHP and JS dependencies have been updated
+* Bug fix: The On/Off entries in Diagnostic Info now work as expected
+* Bug fix: An unlimited PHP memory limit no longer prevents queued emails from being sent
 
 ### 1.8.0 - 2026-03-25
 

@@ -354,6 +354,7 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
         }
         $spec = $years;
         $isStringSpec = \is_string($spec) && !\preg_match('/^[\\d.]/', $spec);
+        $inverted = \false;
         if (!$isStringSpec || (float) $years) {
             $spec = static::PERIOD_PREFIX;
             $spec .= $years > 0 ? $years . static::PERIOD_YEARS : '';
@@ -373,8 +374,15 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
                 $spec .= '0' . static::PERIOD_YEARS;
             }
         }
+        if ($isStringSpec && \str_starts_with($spec, '-')) {
+            $inverted = \true;
+            $spec = \substr($spec, 1);
+        }
         try {
             parent::__construct($spec);
+            if ($inverted) {
+                $this->invert = 1;
+            }
         } catch (Throwable $exception) {
             try {
                 parent::__construct('PT0S');
@@ -431,8 +439,9 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
             $this->f = $microseconds / CarbonInterface::MICROSECONDS_PER_SECOND;
         }
         foreach (['years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds'] as $unit) {
-            if (${$unit} < 0) {
-                $this->set($unit, ${$unit});
+            $value = ${$unit};
+            if ((\is_int($value) || \is_float($value) || \is_string($value) && \preg_match('/^[\\d.-]+$/', $value)) && $value < 0) {
+                $this->set($unit, $value);
             }
         }
     }
@@ -600,6 +609,32 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
             throw new ParseErrorException('end of string', $interval);
         }
         return $instance;
+    }
+    public static function monthWithAnchorDay(int $day) : static
+    {
+        return new static(function (CarbonInterface $date, bool $negated) use($day) {
+            $next = $date->day(1)->addMonths($negated ? -1 : 1);
+            return $next->day(\min($day, $next->daysInMonth));
+        });
+    }
+    public static function monthNoOverflow() : static
+    {
+        return new static(static function (CarbonInterface $date, bool $negated) {
+            return $negated ? $date->subMonthNoOverflow() : $date->addMonthNoOverflow();
+        });
+    }
+    public static function yearWithAnchorDay(int $day) : static
+    {
+        return new static(function (CarbonInterface $date, bool $negated) use($day) {
+            $next = $date->day(1)->addYears($negated ? -1 : 1);
+            return $next->day(\min($day, $next->daysInMonth));
+        });
+    }
+    public static function yearNoOverflow() : static
+    {
+        return new static(static function (CarbonInterface $date, bool $negated) {
+            return $negated ? $date->subYearNoOverflow() : $date->addYearNoOverflow();
+        });
     }
     /**
      * Return the original source used to create the current interval.
@@ -888,8 +923,8 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
      */
     public static function diff($start, $end = null, bool $absolute = \false, array $skip = []) : static
     {
-        $start = $start instanceof CarbonInterface ? $start : Carbon::make($start);
-        $end = $end instanceof CarbonInterface ? $end : Carbon::make($end);
+        $start = self::carbonOrMake($start);
+        $end = self::carbonOrMake($end);
         $rawInterval = $start->diffAsDateInterval($end, $absolute);
         $interval = static::instance($rawInterval, $skip);
         $interval->absolute = $absolute;
@@ -1693,6 +1728,12 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
             }
         }
         $class = ($params[0] ?? null) instanceof DateTime ? CarbonPeriod::class : CarbonPeriodImmutable::class;
+        if ($this->step) {
+            $dates = \array_filter($params, static fn(mixed $param) => $param instanceof DateTimeInterface);
+            if (\count($dates) >= 2 && $dates[0] > $dates[1]) {
+                $this->invert();
+            }
+        }
         return $class::create($this, ...$params);
     }
     /**
@@ -1749,13 +1790,14 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
     /**
      * Add the passed interval to the current instance.
      *
-     * @param string|DateInterval $unit
-     * @param int|float           $value
+     * @param Unit|string|DateInterval $unit
+     * @param int|float                $value
      *
      * @return $this
      */
     public function add($unit, $value = 1) : static
     {
+        $this->checkNoStepIsDefined(__METHOD__);
         if (\is_numeric($unit)) {
             [$value, $unit] = [$unit, $value];
         }
@@ -1784,13 +1826,14 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
     /**
      * Subtract the passed interval to the current instance.
      *
-     * @param string|DateInterval $unit
-     * @param int|float           $value
+     * @param Unit|string|DateInterval $unit
+     * @param int|float                $value
      *
      * @return $this
      */
     public function sub($unit, $value = 1) : static
     {
+        $this->checkNoStepIsDefined(__METHOD__);
         if (\is_numeric($unit)) {
             [$value, $unit] = [$unit, $value];
         }
@@ -1827,7 +1870,7 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
         return $this->add("\n            {$years} years {$months} months {$weeks} weeks {$days} days\n            {$hours} hours {$minutes} minutes {$seconds} seconds {$microseconds} microseconds\n        ");
     }
     /**
-     * Add given parameters to the current interval.
+     * Subtract given parameters to the current interval.
      *
      * @param int       $years
      * @param int       $months
@@ -1861,6 +1904,7 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
      */
     public function times($factor) : static
     {
+        $this->checkNoStepIsDefined(__METHOD__);
         if ($factor < 0) {
             $this->invert = $this->invert ? 0 : 1;
             $factor = -$factor;
@@ -1916,6 +1960,7 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
      */
     public function multiply($factor) : static
     {
+        $this->checkNoStepIsDefined(__METHOD__);
         if ($factor < 0) {
             $this->invert = $this->invert ? 0 : 1;
             $factor = -$factor;
@@ -1945,19 +1990,20 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
      *
      * @return string
      */
-    public static function getDateIntervalSpec(DateInterval $interval, bool $microseconds = \false, array $skip = []) : string
+    public static function getDateIntervalSpec(DateInterval $interval, bool $microseconds = \false, array $skip = [], bool $withNegatives = \false) : string
     {
-        $date = \array_filter([static::PERIOD_YEARS => \abs($interval->y), static::PERIOD_MONTHS => \abs($interval->m), static::PERIOD_DAYS => \abs($interval->d)]);
+        $date = \array_filter([static::PERIOD_YEARS => $withNegatives ? $interval->y : \abs($interval->y), static::PERIOD_MONTHS => $withNegatives ? $interval->m : \abs($interval->m), static::PERIOD_DAYS => $withNegatives ? $interval->d : \abs($interval->d)]);
         $skip = \array_map([Unit::class, 'toNameIfUnit'], $skip);
-        if ($interval->days >= CarbonInterface::DAYS_PER_WEEK * CarbonInterface::WEEKS_PER_MONTH && (!isset($date[static::PERIOD_YEARS]) || \count(\array_intersect(['y', 'year', 'years'], $skip))) && (!isset($date[static::PERIOD_MONTHS]) || \count(\array_intersect(['m', 'month', 'months'], $skip)))) {
-            $date = [static::PERIOD_DAYS => \abs($interval->days)];
+        $days = \abs((int) $interval->days);
+        if ($days >= CarbonInterface::DAYS_PER_WEEK * CarbonInterface::WEEKS_PER_MONTH && (!isset($date[static::PERIOD_YEARS]) || \count(\array_intersect(['y', 'year', 'years'], $skip))) && (!isset($date[static::PERIOD_MONTHS]) || \count(\array_intersect(['m', 'month', 'months'], $skip)))) {
+            $date = [static::PERIOD_DAYS => $withNegatives ? $interval->days : $days];
         }
-        $seconds = \abs($interval->s);
-        if ($microseconds && $interval->f > 0) {
-            $seconds = \sprintf('%d.%06d', $seconds, \abs($interval->f) * 1000000);
+        $seconds = $withNegatives ? $interval->s : \abs($interval->s);
+        if ($microseconds && $interval->f !== 0.0) {
+            $seconds = $withNegatives ? \number_format($seconds + $interval->f, 6, '.', '') : \sprintf('%d.%06d', $seconds, \abs($interval->f) * 1000000);
         }
-        $time = \array_filter([static::PERIOD_HOURS => \abs($interval->h), static::PERIOD_MINUTES => \abs($interval->i), static::PERIOD_SECONDS => $seconds]);
-        $specString = static::PERIOD_PREFIX;
+        $time = \array_filter([static::PERIOD_HOURS => $withNegatives ? $interval->h : \abs($interval->h), static::PERIOD_MINUTES => $withNegatives ? $interval->i : \abs($interval->i), static::PERIOD_SECONDS => $seconds]);
+        $specString = ($withNegatives && $interval->invert ? '-' : '') . static::PERIOD_PREFIX;
         foreach ($date as $key => $value) {
             $specString .= $value . $key;
         }
@@ -1974,9 +2020,9 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
      *
      * @return string
      */
-    public function spec(bool $microseconds = \false) : string
+    public function spec(bool $microseconds = \false, bool $withNegatives = \false) : string
     {
-        return static::getDateIntervalSpec($this, $microseconds);
+        return static::getDateIntervalSpec($this, $microseconds, [], $withNegatives);
     }
     /**
      * Comparing 2 date intervals.
@@ -2359,6 +2405,10 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
             $inverted = $value < 0;
             return $this->copyProperties(self::fromString(\number_format(\abs($value), 12, '.', '') . ' ' . $unit)->invert($inverted)->cascade());
         }
+        $initiallyInverted = (bool) $this->invert;
+        if ($initiallyInverted) {
+            $this->invert();
+        }
         $base = CarbonImmutable::parse('2000-01-01 00:00:00', 'UTC')->roundUnit($unit, $precision, $function);
         $next = $base->add($this);
         $inverted = $next < $base;
@@ -2366,7 +2416,7 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
             $next = $base->sub($this);
         }
         $this->copyProperties($next->roundUnit($unit, $precision, $function)->diff($base));
-        return $this->invert($inverted);
+        return $this->invert($initiallyInverted xor $inverted);
     }
     /**
      * Truncate the current instance at the given unit with given precision if specified.
@@ -2765,6 +2815,10 @@ class CarbonInterval extends DateInterval implements CarbonConverterInterface, U
                 // Drop unknown settings
                 return $this;
         }
+    }
+    private static function carbonOrMake(mixed $dateTime) : CarbonInterface
+    {
+        return $dateTime instanceof CarbonInterface ? $dateTime : Carbon::make($dateTime);
     }
     private static function incrementUnit(DateInterval $instance, string $unit, int $value) : void
     {

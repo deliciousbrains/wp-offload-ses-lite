@@ -425,7 +425,7 @@ class Diagnostic_Info {
 
 		$value = $wp_offload_ses->settings->get_setting( $key, 0 );
 
-		return ( 1 === $value ) ? 'On' : 'Off';
+		return empty( $value ) ? 'Off' : 'On';
 	}
 
 	/**

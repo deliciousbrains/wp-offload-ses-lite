@@ -4,7 +4,7 @@ Tags: amazon ses,smtp,email delivery,gmail smtp,newsletter
 Requires at least: 5.9
 Tested up to: 7.0
 Requires PHP: 8.1
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 License: GPLv2
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
@@ -184,6 +184,11 @@ Please double check the credentials match up with the credentials you received w
 4. Activity tab
 
 == Changelog ==
+
+= 1.8.1 - 2026-07-07 =
+* Improvement: PHP and JS dependencies have been updated
+* Bug fix: The On/Off entries in Diagnostic Info now work as expected
+* Bug fix: An unlimited PHP memory limit no longer prevents queued emails from being sent
 
 = 1.8.0 - 2026-03-25 =
 * New: AWS PHP SDK has been updated to v3.369.22

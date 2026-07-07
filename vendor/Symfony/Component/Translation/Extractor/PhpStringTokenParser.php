@@ -65,9 +65,8 @@ class PhpStringTokenParser
         }
         if ('\'' === $str[$bLength]) {
             return \str_replace(['\\\\', '\\\''], ['\\', '\''], \substr($str, $bLength + 1, -1));
-        } else {
-            return self::parseEscapeSequences(\substr($str, $bLength + 1, -1), '"');
         }
+        return self::parseEscapeSequences(\substr($str, $bLength + 1, -1), '"');
     }
     /**
      * Parses escape sequences in strings (all string types apart from single quoted).
@@ -89,9 +88,8 @@ class PhpStringTokenParser
             return self::$replacements[$str];
         } elseif ('x' === $str[0] || 'X' === $str[0]) {
             return \chr(\hexdec($str));
-        } else {
-            return \chr(\octdec($str));
         }
+        return \chr(\octdec($str));
     }
     /**
      * Parses a constant doc string.

@@ -25,7 +25,7 @@ use DeliciousBrains\WP_Offload_SES\Symfony\Contracts\Translation\TranslatorTrait
  *
  * As mentioned by chx http://drupal.org/node/1273968 we can cover all by testing number from 0 to 199
  *
- * The goal to cover all languages is to far fetched so this test case is smaller.
+ * The goal to cover all languages is too far fetched so this test case is smaller.
  *
  * @author Clemens Tolboom clemens@build2be.nl
  */
@@ -281,7 +281,7 @@ class TranslatorTest extends TestCase
      * This both depends on a complete list trying to add above as understanding
      * the plural rules of the current failing languages.
      *
-     * @return array with nplural together with langcodes
+     * @return array With nplural together with langcodes
      */
     public static function failingLangcodes() : array
     {
