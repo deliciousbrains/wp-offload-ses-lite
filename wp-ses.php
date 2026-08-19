@@ -3,7 +3,10 @@
 Plugin Name: WP Offload SES Lite
 Description: Automatically send WordPress mail through Amazon SES (Simple Email Service).
 Author: Delicious Brains
-Version: 1.8.1
+Version: 1.8.2
+Requires at least: 5.9
+Tested up to: 7.1
+Requires PHP: 8.1
 Author URI: https://deliciousbrains.com/
 Plugin URI: https://deliciousbrains.com/
 Update URI: false
@@ -40,7 +43,7 @@ if ( defined( 'WPOSES_FILE' ) ) {
 }
 
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- wposes is the plugin's established prefix.
-$GLOBALS['wposes_meta']['wp-ses']['version'] = '1.8.1';
+$GLOBALS['wposes_meta']['wp-ses']['version'] = '1.8.2';
 
 if ( ! defined( 'WPOSESLITE_FILE' ) ) {
 	// Defines the path to the main plugin file.

@@ -94,6 +94,13 @@ class Email {
 			require_once ABSPATH . WPINC . '/PHPMailer/PHPMailer.php';
 			require_once ABSPATH . WPINC . '/PHPMailer/Exception.php';
 			$PHPMailer = new \PHPMailer\PHPMailer\PHPMailer();
+
+			// Validate addresses with is_email() as core's wp_mail() does, so that
+			// WP Offload SES accepts exactly what WordPress accepts. Also prevents
+			// PHPMailer's static validator auto-switching to 'eai' mid-request.
+			$PHPMailer::$validator = static function ( $email ) {
+				return (bool) is_email( $email );
+			};
 		} else {
 			require_once ABSPATH . WPINC . '/class-phpmailer.php';
 			$PHPMailer = new \PHPMailer( true );
@@ -185,6 +192,8 @@ class Email {
 
 	/**
 	 * Set from
+	 *
+	 * @return bool Whether PHPMailer accepted the from address.
 	 */
 	private function from() {
 		/** @var WP_Offload_SES $wp_offload_ses */
@@ -210,12 +219,20 @@ class Email {
 		}
 
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WP core hook for wp_mail() compatibility.
-		$this->mail->From     = apply_filters( 'wp_mail_from', $this->from );
+		$from = apply_filters( 'wp_mail_from', $this->from );
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WP core hook for wp_mail() compatibility.
-		$this->mail->FromName = trim( apply_filters( 'wp_mail_from_name', $this->from_name ), '" ' );
+		$from_name = trim( apply_filters( 'wp_mail_from_name', $this->from_name ), '" ' );
+
+		// Reject an invalid address here rather than deep inside preSend().
+		// Matches core's wp_mail(), which also leaves the Sender untouched.
+		if ( ! $this->mail->setFrom( $from, $from_name, false ) ) {
+			return false;
+		}
 
 		// Log the email address if it isn't verified.
 		$this->maybe_log_unverified_sender( $this->mail->From );
+
+		return true;
 	}
 
 	/**
@@ -473,14 +490,17 @@ class Email {
 	 *
 	 * Use PHPMailer to generate correct email format
 	 *
-	 * @return string
+	 * @return string|\Exception The raw MIME message, or the reason it could not be built.
 	 * @throws \phpmailerException
 	 */
 	public function prepare() {
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
-		$this->from();
+		if ( ! $this->from() ) {
+			return $this->build_error();
+		}
+
 		$this->content_type();
 		$this->charset();
 		$this->return_path();
@@ -501,7 +521,11 @@ class Email {
 		do_action_ref_array( 'phpmailer_init', array( &$this->mail ) );
 
 		try {
-			$this->mail->preSend();
+			// PHPMailer is constructed without exceptions enabled, so a failed
+			// build returns false and sets ErrorInfo rather than throwing.
+			if ( ! $this->mail->preSend() ) {
+				return $this->build_error();
+			}
 		} catch ( \PHPMailer\PHPMailer\Exception $exception ) {
 			return $exception;
 		} catch ( \phpmailerException $exception ) {
@@ -511,6 +535,21 @@ class Email {
 		}
 
 		return $this->mail->getSentMIMEMessage();
+	}
+
+	/**
+	 * Wrap PHPMailer's last error in an exception the queue can fail on.
+	 *
+	 * @return \Exception
+	 */
+	private function build_error() {
+		$error = trim( (string) $this->mail->ErrorInfo );
+
+		if ( '' === $error ) {
+			$error = __( 'The email could not be built.', 'wp-offload-ses' );
+		}
+
+		return new \Exception( $error );
 	}
 
 	/**
@@ -577,7 +616,12 @@ class Email {
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
-		$this->from();
+		if ( ! $this->from() ) {
+			// Show the address that was actually configured, not PHPMailer's default.
+			$this->mail->From     = $this->from;
+			$this->mail->FromName = $this->from_name;
+		}
+
 		$this->content_type();
 		$this->charset();
 		$this->return_path();

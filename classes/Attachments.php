@@ -95,7 +95,7 @@ class Attachments {
 	 * @return string
 	 */
 	public function get_salt() {
-		return wp_generate_password( 6, false, false );
+		return wp_generate_password( 32, false, false );
 	}
 
 	/**
@@ -117,6 +117,38 @@ class Attachments {
 	}
 
 	/**
+	 * Ensure the given directory blocks directory listing.
+	 *
+	 * Writes an .htaccess (Options -Indexes) for Apache and a blank index.html
+	 * for servers using autoindex (e.g. nginx, which ignores .htaccess) into the
+	 * directory, so its contents cannot be enumerated. Idempotent — safe to call
+	 * on every attachment write.
+	 *
+	 * @param string $dir The directory to protect. Created if it does not exist.
+	 *
+	 * @return void
+	 */
+	private function ensure_protected_dir( $dir ) {
+		$dir = trailingslashit( $dir );
+
+		if ( ! is_dir( $dir ) ) {
+			wp_mkdir_p( $dir );
+		}
+
+		$htaccess = $dir . '.htaccess';
+		if ( ! file_exists( $htaccess ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Writing a static protection file; WP_Filesystem can prompt for FTP credentials during a non-interactive send.
+			file_put_contents( $htaccess, "Options -Indexes\n" );
+		}
+
+		$index = $dir . 'index.html';
+		if ( ! file_exists( $index ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Writing a static protection file; WP_Filesystem can prompt for FTP credentials during a non-interactive send.
+			file_put_contents( $index, '' );
+		}
+	}
+
+	/**
 	 * Stores the file in our uploads directory.
 	 *
 	 * @param string $file_path The path to the original attachment.
@@ -128,12 +160,21 @@ class Attachments {
 			return false;
 		}
 
-		$salt     = $this->get_salt();
-		$new_path = $this->attachments_dir . $salt . '/' . $this->get_filename( $file_path );
+		// Protect the parent dir so the salt sub-directory names can't be listed.
+		$this->ensure_protected_dir( $this->attachments_dir );
 
-		if ( ! is_dir( $this->attachments_dir . $salt ) ) {
-			wp_mkdir_p( $this->attachments_dir . $salt );
-		}
+		$dir_salt  = $this->get_salt();
+		$file_salt = $this->get_salt();
+		$salt_dir  = $this->attachments_dir . $dir_salt . '/';
+
+		// Protect the individual attachment dir too (also creates it if needed).
+		$this->ensure_protected_dir( $salt_dir );
+
+		// Use a separate salt for the file name so guessing the directory does
+		// not also reveal the file name.
+		$ext         = pathinfo( $this->get_filename( $file_path ), PATHINFO_EXTENSION );
+		$stored_name = $file_salt . ( $ext ? '.' . $ext : '' );
+		$new_path    = $salt_dir . $stored_name;
 
 		if ( copy( $file_path, $new_path ) ) {
 			return $new_path;
@@ -316,8 +357,19 @@ class Attachments {
 			}
 
 			if ( $deleted ) {
+				$dir = dirname( $file );
+
+				// Remove the directory-listing protection files we wrote so the
+				// now-empty attachment directory can be removed.
+				foreach ( array( '.htaccess', 'index.html' ) as $protection_file ) {
+					$protection_path = $dir . '/' . $protection_file;
+					if ( file_exists( $protection_path ) ) {
+						wp_delete_file( $protection_path );
+					}
+				}
+
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- No WordPress alternative for removing empty directories.
-				@rmdir( dirname( $file ) );
+				@rmdir( $dir );
 				$query = $this->database->prepare( "DELETE FROM {$this->attachments_table} WHERE id = %d", $attachment['id'] );
 				$this->database->query( $query );
 			}			

@@ -3,9 +3,9 @@
 **Contributors:** wpengine, deliciousbrains, callumbw95, ianmjones, eriktorsner, kevinwhoffman, mattshaw, bradt, SylvainDeaure \
 **Tags:** amazon ses,smtp,email delivery,gmail smtp,newsletter \
 **Requires at least:** 5.9 \
-**Tested up to:** 7.0 \
+**Tested up to:** 7.1 \
 **Requires PHP:** 8.1 \
-**Stable tag:** 1.8.1 \
+**Stable tag:** 1.8.2 \
 **License:** GPLv2
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
@@ -178,6 +178,13 @@ Yes, WP Offload SES should be compatible with any plugin that uses the standard 
 Please double check the credentials match up with the credentials you received when creating your IAM user, and that your IAM user has the `AmazonSESFullAccess` permission.
 
 ## Changelog
+
+### 1.8.2 - 2026-08-19
+
+* Improvement: PHP and JS dependencies have been updated
+* Bug fix: An email that PHPMailer cannot build, such as one with a rejected From address, is now reported as failed instead of being sent empty
+* Bug fix: Email addresses are now validated with WordPress's is_email(), so WP Offload SES accepts exactly the addresses WordPress accepts
+* Bug Fix: Email attachments are now stored with a higher-entropy directory name, a hashed file name, and directory-listing protection to prevent sensitive information disclosure, thanks 0nlymohammed via the Intigriti Bug Bounty program
 
 ### 1.8.1 - 2026-07-07
 

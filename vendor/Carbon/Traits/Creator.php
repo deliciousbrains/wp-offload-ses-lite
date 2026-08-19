@@ -184,7 +184,8 @@ trait Creator
      */
     public static function parseFromLocale(string $time, ?string $locale = null, DateTimeZone|string|int|null $timezone = null) : static
     {
-        return static::rawParse(static::translateTimeString($time, $locale, static::DEFAULT_LOCALE), $timezone);
+        $text = static::translateTimeString($time, $locale, static::DEFAULT_LOCALE);
+        return static::rawParse(\str_replace("'", '', $text), $timezone);
     }
     /**
      * Get a Carbon instance for the current date and time.
