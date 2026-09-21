@@ -1,0 +1,6 @@
+# This file must stay under .github/. The release script rebuilds this
+# repository from the plugin build output and only carries over root entries
+# whose name begins with ".git", so a CODEOWNERS placed at the root or under
+# docs/ is valid to GitHub but is deleted at the next release.
+
+* @deliciousbrains/deli-eng
