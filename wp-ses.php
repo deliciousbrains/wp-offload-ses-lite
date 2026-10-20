@@ -3,7 +3,7 @@
 Plugin Name: WP Offload SES Lite
 Description: Automatically send WordPress mail through Amazon SES (Simple Email Service).
 Author: Delicious Brains
-Version: 1.8.2
+Version: 1.8.3
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 8.1
@@ -43,7 +43,7 @@ if ( defined( 'WPOSES_FILE' ) ) {
 }
 
 // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- wposes is the plugin's established prefix.
-$GLOBALS['wposes_meta']['wp-ses']['version'] = '1.8.2';
+$GLOBALS['wposes_meta']['wp-ses']['version'] = '1.8.3';
 
 if ( ! defined( 'WPOSESLITE_FILE' ) ) {
 	// Defines the path to the main plugin file.
@@ -179,11 +179,12 @@ if ( ! function_exists( 'wp_mail' ) ) {
 		 * @param string       $message     Email message.
 		 * @param string|array $headers     Optional. Additional headers.
 		 * @param string|array $attachments Optional. Files to attach.
+		 * @param string|array $embeds      Optional. Paths to files to embed inline, keyed by Content-ID.
 		 *
 		 * @return bool
 		 */
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Intentional wp_mail() override for SES integration.
-		function wp_mail( $to, $subject, $message, $headers = '', $attachments = array() ) {
+		function wp_mail( $to, $subject, $message, $headers = '', $attachments = array(), $embeds = array() ) {
 			/** @var WP_Offload_SES $wp_offload_ses */
 			global $wp_offload_ses;
 
@@ -197,7 +198,7 @@ if ( ! function_exists( 'wp_mail' ) ) {
 				return false;
 			}
 
-			return $wp_offload_ses->mail_handler( $to, $subject, $message, $headers, $attachments );
+			return $wp_offload_ses->mail_handler( $to, $subject, $message, $headers, $attachments, $embeds );
 		}
 	}
 } else {

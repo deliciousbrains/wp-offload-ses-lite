@@ -24,6 +24,7 @@ class Error extends WP_Error {
 	// Generic errors.
 	public static $mail_function_exists = 101;
 	public static $missing_access_keys  = 102;
+	public static $mail_no_recipient    = 103;
 
 	// API related errors.
 	public static $api_get_quota            = 201;

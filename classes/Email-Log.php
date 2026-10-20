@@ -92,6 +92,7 @@ class Email_Log {
 			'email_message'     => isset( $atts['message'] ) ? $atts['message'] : '',
 			'email_headers'     => isset( $atts['headers'] ) ? $atts['headers'] : '',
 			'email_attachments' => isset( $atts['attachments'] ) ? $atts['attachments'] : '',
+			'email_embeds'      => isset( $atts['embeds'] ) ? $atts['embeds'] : '',
 			'email_status'      => 'queued',
 			'email_created'     => current_time( 'mysql' ),
 		);
@@ -339,6 +340,7 @@ class Email_Log {
 				`email_message` LONGTEXT NOT NULL,
 				`email_headers` LONGTEXT NOT NULL,
 				`email_attachments` LONGTEXT NOT NULL,
+				`email_embeds` LONGTEXT,
 				`email_status`  VARCHAR(20) NOT NULL,
 				`email_open_count` INT DEFAULT '0',
 				`email_first_open_date` DATETIME,

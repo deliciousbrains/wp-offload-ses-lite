@@ -214,10 +214,11 @@ class Attachments {
 	 *
 	 * @param int    $email_id   The ID of the email sending the attachment.
 	 * @param string $attachment The path to the attachment.
+	 * @param string $cid        The Content-ID the message refers to the file by, if embedded.
 	 *
 	 * @return bool
 	 */
-	public function handle_attachment( $email_id, $attachment ) {
+	public function handle_attachment( $email_id, $attachment, $cid = '' ) {
 		if ( ! file_exists( $attachment ) ) {
 			return false;
 		}
@@ -242,7 +243,7 @@ class Attachments {
 			return false;
 		}
 
-		return $this->add_attachment_to_email( $email_id, $id, $this->get_filename( $attachment ) );
+		return $this->add_attachment_to_email( $email_id, $id, $this->get_filename( $attachment ), $cid );
 	}
 
 	/**
@@ -251,21 +252,24 @@ class Attachments {
 	 * @param int    $email_id      The ID of the email to add the attachment to.
 	 * @param int    $attachment_id The ID of the attachment to add.
 	 * @param string $filename      The filename to use.
+	 * @param string $cid           The Content-ID the message refers to the file by, if embedded.
 	 *
 	 * @return bool
 	 */
-	public function add_attachment_to_email( $email_id, $attachment_id, $filename ) {
+	public function add_attachment_to_email( $email_id, $attachment_id, $filename, $cid = '' ) {
 		$result = $this->database->insert(
 			$this->email_attachments_table,
 			array(
 				'email_id'      => $email_id,
 				'attachment_id' => $attachment_id,
 				'filename'      => $filename,
+				'cid'           => $cid,
 			),
 			array(
 				'%d',
 				'%d',
-				'%s'
+				'%s',
+				'%s',
 			)
 		);
 
@@ -281,14 +285,26 @@ class Attachments {
 	 */
 	public function get_attachments_by_email( $email_id ) {
 		$query = $this->database->prepare(
-			"SELECT email_attachments.filename AS filename, attachments.id AS id, attachments.path AS path
+			"SELECT email_attachments.filename AS filename, email_attachments.cid AS cid, attachments.id AS id, attachments.path AS path
 			FROM {$this->email_attachments_table} email_attachments
 			INNER JOIN {$this->attachments_table} attachments ON email_attachments.attachment_id = attachments.id
-			WHERE email_attachments.email_id = %d;",
+			WHERE email_attachments.email_id = %d
+			AND {$this->cid_clause()};",
 			$email_id
 		);
 
 		return $this->database->get_results( $query, ARRAY_A );
+	}
+
+	/**
+	 * Gets the public URL of a stored attachment.
+	 *
+	 * @param string $path The path to the stored file.
+	 *
+	 * @return string
+	 */
+	public function get_attachment_url( $path ) {
+		return str_replace( $this->attachments_dir, $this->attachments_url, $path );
 	}
 
 	/**
@@ -309,7 +325,7 @@ class Attachments {
 		foreach ( $attachments as $attachment ) {
 			$attachment_links[] = sprintf(
 				'<a href="%1$s" target="_blank">%2$s</a>',
-				esc_url( str_replace( $this->attachments_dir, $this->attachments_url, $attachment['path'] ) ),
+				esc_url( $this->get_attachment_url( $attachment['path'] ) ),
 				esc_html( $attachment['filename'] )
 			);
 		}
@@ -332,6 +348,18 @@ class Attachments {
 		);
 
 		return (bool) $this->database->query( $query );
+	}
+
+	/**
+	 * The condition that limits email_attachments rows to plain attachments.
+	 *
+	 * Embeds share the table and are told apart by their Content-ID, which
+	 * plain attachments never have.
+	 *
+	 * @return string
+	 */
+	protected function cid_clause() {
+		return "email_attachments.cid = ''";
 	}
 
 	/**
@@ -402,9 +430,36 @@ class Attachments {
 				email_id BIGINT(20) NOT NULL,
 				attachment_id BIGINT(20),
 				filename TEXT,
-				UNIQUE KEY uidx_email_attachment (email_id, attachment_id, filename(190))
+				cid VARCHAR(190) NOT NULL DEFAULT '',
+				UNIQUE KEY uidx_email_attachment_cid (email_id, attachment_id, filename(190), cid)
 				) $charset_collate;";
 		dbDelta( $sql );
+
+		// dbDelta() adds new indexes but never drops old ones, so the key that
+		// predates the cid column has to go by hand. Without this, a file that
+		// is both attached and embedded on one email is rejected as a duplicate.
+		// Only drop it once the replacement exists, as errors are hidden above
+		// and a failed ALTER would otherwise leave the table with no unique key.
+		if (
+			$this->index_exists( $this->email_attachments_table, 'uidx_email_attachment_cid' ) &&
+			$this->index_exists( $this->email_attachments_table, 'uidx_email_attachment' )
+		) {
+			$wpdb->query( "ALTER TABLE {$this->email_attachments_table} DROP INDEX uidx_email_attachment" );
+		}
+	}
+
+	/**
+	 * Checks if a table has an index with the given name.
+	 *
+	 * @param string $table    The table to check.
+	 * @param string $key_name The name of the index.
+	 *
+	 * @return bool
+	 */
+	private function index_exists( $table, $key_name ) {
+		$query = $this->database->prepare( "SHOW INDEX FROM {$table} WHERE Key_name = %s", $key_name );
+
+		return ! empty( $this->database->get_results( $query ) );
 	}
 
 }

@@ -68,8 +68,9 @@ class Email_Job extends Job {
 		$message     = $atts['email_message'] ?? '';
 		$headers     = $atts['email_headers'] ?? '';
 		$attachments = $atts['email_attachments'] ?? array();
+		$embeds      = $atts['email_embeds'] ?? array();
 		$client      = $wp_offload_ses->get_ses_api()->get_client();
-		$email       = new Email( $to, $subject, $message, $headers, $attachments, $this->email_id );
+		$email       = new Email( $to, $subject, $message, $headers, $attachments, $embeds, $this->email_id );
 		$raw         = $email->prepare();
 
 		if ( $raw instanceof Exception ) {

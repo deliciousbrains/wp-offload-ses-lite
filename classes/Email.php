@@ -62,6 +62,13 @@ class Email {
 	private $email_id;
 
 	/**
+	 * Why an inline embed could not be added, if one could not be.
+	 *
+	 * @var string
+	 */
+	private $embed_error = '';
+
+	/**
 	 * Init WP_Offload_SES_Email class
 	 *
 	 * @param string|array $to          The recipient of the email.
@@ -69,9 +76,10 @@ class Email {
 	 * @param string       $message     The email message.
 	 * @param string|array $headers     Headers to include in the email.
 	 * @param string|array $attachments Attachments to include in the email.
+	 * @param string|array $embeds      Files to embed inline, keyed by Content-ID.
 	 * @param int|null     $email_id    The ID of the email.
 	 */
-	public function __construct( $to, $subject, $message, $headers, $attachments, $email_id = null ) {
+	public function __construct( $to, $subject, $message, $headers, $attachments, $embeds = array(), $email_id = null ) {
 		$this->mail     = $this->get_PHPMailer();
 		$this->email_id = $email_id;
 
@@ -80,6 +88,7 @@ class Email {
 		$this->body( $message );
 		$this->headers( $headers );
 		$this->attachments( $attachments );
+		$this->embeds( $embeds );
 	}
 
 	/**
@@ -127,11 +136,14 @@ class Email {
 	/**
 	 * Maybe split recipient
 	 *
+	 * Static so that callers outside this class can split a recipient the same
+	 * way, rather than repeating the pattern and drifting from it.
+	 *
 	 * @param string $recipient the recipient to process.
 	 *
 	 * @return array
 	 */
-	private function maybe_split_recipient( $recipient ) {
+	public static function maybe_split_recipient( $recipient ) {
 		// Break $recipient into name and address parts if in the format "Foo <bar@baz.com>".
 		$recipient_name = '';
 
@@ -182,7 +194,7 @@ class Email {
 
 		foreach ( $to as $recipient ) {
 			try {
-				$recipient = $this->maybe_split_recipient( $recipient );
+				$recipient = self::maybe_split_recipient( $recipient );
 				$this->mail->AddAddress( $recipient['email'], $recipient['name'] );
 			} catch ( \Exception $e ) {
 				continue;
@@ -312,7 +324,7 @@ class Email {
 	 * @param string $content The from header content.
 	 */
 	private function header_from( $content ) {
-		$recipient       = $this->maybe_split_recipient( $content );
+		$recipient       = self::maybe_split_recipient( $content );
 		$this->from      = $recipient['email'];
 		$this->from_name = $recipient['name'];
 	}
@@ -354,7 +366,7 @@ class Email {
 		}
 
 		foreach ( $ccs as $cc ) {
-			$recipient = $this->maybe_split_recipient( trim( $cc ) );
+			$recipient = self::maybe_split_recipient( trim( $cc ) );
 
 			try {
 				switch ( $type ) {
@@ -382,7 +394,7 @@ class Email {
 
 		foreach ( $reply_to as $recipient ) {
 			try {
-				$recipient = $this->maybe_split_recipient( $recipient );
+				$recipient = self::maybe_split_recipient( $recipient );
 				$this->mail->addReplyTo( $recipient['email'], $recipient['name'] );
 			} catch ( \Exception $e ) {
 				continue;
@@ -422,6 +434,83 @@ class Email {
 				$this->mail->AddAttachment( $attachment['path'], $attachment['filename'] );
 			} catch ( \Exception $e ) {
 				continue;
+			}
+		}
+	}
+
+	/**
+	 * Set inline embeds.
+	 *
+	 * Unlike core's wp_mail(), an embed that cannot be added is recorded rather
+	 * than skipped -- a message that quietly loses its inline images looks like
+	 * a successful send but reaches the recipient with broken images.
+	 *
+	 * @param string|array $embeds Files to embed inline, keyed by Content-ID.
+	 */
+	private function embeds( $embeds ) {
+		/** @var WP_Offload_SES $wp_offload_ses */
+		global $wp_offload_ses;
+
+		$stored_embeds = array();
+
+		if ( null !== $this->email_id ) {
+			foreach ( $wp_offload_ses->get_embeds()->get_attachments_by_email( $this->email_id ) as $embed ) {
+				$stored_embeds[ $embed['cid'] ] = $embed['path'];
+			}
+		}
+
+		// Support embeds that were never stored against the email, such as
+		// an Email built directly rather than pulled back off the queue.
+		if ( empty( $stored_embeds ) && ! empty( $embeds ) ) {
+			if ( ! is_array( $embeds ) ) {
+				$embeds = array_filter( explode( "\n", str_replace( "\r\n", "\n", $embeds ) ) );
+			}
+
+			$stored_embeds = $embeds;
+		}
+
+		foreach ( $stored_embeds as $cid => $path ) {
+			/**
+			 * Filters the arguments for PHPMailer's addEmbeddedImage() method.
+			 *
+			 * @param array $args The path, cid, name, encoding, type and disposition of the embed.
+			 *
+			 * @return array
+			 */
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WP core hook for wp_mail() compatibility.
+			$embed_args = apply_filters(
+				'wp_mail_embed_args',
+				array(
+					'path'        => $path,
+					'cid'         => (string) $cid,
+					'name'        => wp_basename( $path ),
+					'encoding'    => 'base64',
+					'type'        => '',
+					'disposition' => 'inline',
+				)
+			);
+
+			try {
+				$added = $this->mail->addEmbeddedImage(
+					$embed_args['path'],
+					$embed_args['cid'],
+					$embed_args['name'],
+					$embed_args['encoding'],
+					$embed_args['type'],
+					$embed_args['disposition']
+				);
+			} catch ( \Exception $e ) {
+				$added = false;
+			}
+
+			if ( ! $added ) {
+				$this->embed_error = sprintf(
+					/* translators: %s: the Content-ID of the inline image. */
+					__( 'The inline image "%s" could not be embedded.', 'wp-offload-ses' ),
+					$embed_args['cid']
+				);
+
+				return;
 			}
 		}
 	}
@@ -497,6 +586,10 @@ class Email {
 		/** @var WP_Offload_SES $wp_offload_ses */
 		global $wp_offload_ses;
 
+		if ( '' !== $this->embed_error ) {
+			return $this->build_error( $this->embed_error );
+		}
+
 		if ( ! $this->from() ) {
 			return $this->build_error();
 		}
@@ -540,10 +633,14 @@ class Email {
 	/**
 	 * Wrap PHPMailer's last error in an exception the queue can fail on.
 	 *
+	 * @param string $error An error to report in place of PHPMailer's last one.
+	 *
 	 * @return \Exception
 	 */
-	private function build_error() {
-		$error = trim( (string) $this->mail->ErrorInfo );
+	private function build_error( $error = '' ) {
+		if ( '' === $error ) {
+			$error = trim( (string) $this->mail->ErrorInfo );
+		}
 
 		if ( '' === $error ) {
 			$error = __( 'The email could not be built.', 'wp-offload-ses' );
@@ -606,6 +703,48 @@ class Email {
 	}
 
 	/**
+	 * Points inline images at the stored copy of each embed.
+	 *
+	 * The body refers to an embed by its Content-ID, which only a mail client
+	 * can resolve. A browser cannot, and wp_kses_post() strips the cid: protocol.
+	 *
+	 * @param string $body     The HTML email body.
+	 * @param int    $email_id The ID of the email.
+	 *
+	 * @return string
+	 */
+	private function link_embeds_to_stored_files( $body, $email_id ) {
+		/** @var WP_Offload_SES $wp_offload_ses */
+		global $wp_offload_ses;
+
+		if ( ! is_string( $body ) ) {
+			return $body;
+		}
+
+		$urls = array();
+
+		foreach ( $wp_offload_ses->get_embeds()->get_attachments_by_email( $email_id ) as $embed ) {
+			$urls[ $embed['cid'] ] = $wp_offload_ses->get_embeds()->get_attachment_url( $embed['path'] );
+		}
+
+		if ( empty( $urls ) ) {
+			return $body;
+		}
+
+		return preg_replace_callback(
+			'/\bsrc\s*=\s*(["\'])cid:([^"\']+)\1/i',
+			function ( $matches ) use ( $urls ) {
+				if ( ! isset( $urls[ $matches[2] ] ) ) {
+					return $matches[0];
+				}
+
+				return 'src=' . $matches[1] . esc_url( $urls[ $matches[2] ] ) . $matches[1];
+			},
+			$body
+		);
+	}
+
+	/**
 	 * View the email. Returns HTML used in modal.
 	 *
 	 * @param array $email_data Additional info about the email.
@@ -635,7 +774,13 @@ class Email {
 		$actions     = $wp_offload_ses->get_email_action_links( $email_data['id'], $email_data['status'] );
 		unset( $actions['view'] );
 
-		$body = $this->sanitize_email_body( $this->mail->Body );
+		$body = $this->mail->Body;
+
+		if ( 'text/html' === $this->mail->ContentType && ! empty( $email_data['id'] ) ) {
+			$body = $this->link_embeds_to_stored_files( $body, $email_data['id'] );
+		}
+
+		$body = $this->sanitize_email_body( $body );
 
 		// Maybe strip slashes and add HTML line breaks.
 		if ( 'text/html' !== $this->mail->ContentType ) {
@@ -689,6 +834,8 @@ class Email {
 			<span id="wposes-email-sent"><?php echo esc_html( $sent ); ?></span>
 
 			<div id="wposes-email-content"><?php echo wp_kses_post( $body ); ?></div>
+
+			<span id="wposes-email-attachments"><?php echo wp_kses_post( $attachments ); ?></span>
 
 			<div class="actions select">
 				<span id="wposes-email-info" style="float: left;">

@@ -5,7 +5,7 @@
 **Requires at least:** 5.9 \
 **Tested up to:** 7.1 \
 **Requires PHP:** 8.1 \
-**Stable tag:** 1.8.2 \
+**Stable tag:** 1.8.3 \
 **License:** GPLv2
 
 Fix your email delivery problems by sending your WordPress emails through Amazon SES's powerful email sending infrastructure.
@@ -178,6 +178,14 @@ Yes, WP Offload SES should be compatible with any plugin that uses the standard 
 Please double check the credentials match up with the credentials you received when creating your IAM user, and that your IAM user has the `AmazonSESFullAccess` permission.
 
 ## Changelog
+
+### 1.8.3 - 2026-10-19
+
+* New: A `wp_mail()` call rejected for having no valid recipient now names the file and line that made it in the debug log, when WP_DEBUG is on
+* Improvement: PHP and JS dependencies have been updated
+* Bug fix: Inline images passed to `wp_mail()` via the `$embeds` parameter are now sent to SES instead of being dropped
+* Bug fix: A `wp_mail()` call with no valid recipient is now rejected and reported as failed, instead of being logged, queued and retried as a blank email
+* Bug fix: A `wp_mail()` call with a null subject no longer causes a fatal error
 
 ### 1.8.2 - 2026-08-19
 

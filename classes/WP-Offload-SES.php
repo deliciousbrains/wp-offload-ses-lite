@@ -12,10 +12,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use DeliciousBrains\WP_Offload_SES\Error;
 use DeliciousBrains\WP_Offload_SES\Queue\Email_Queue;
 use DeliciousBrains\WP_Offload_SES\Queue\Queue_Status;
 use Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 use phpmailerException;
+use WP_Error;
 
 /**
  * Class WP_Offload_SES
@@ -126,6 +129,13 @@ class WP_Offload_SES extends Plugin_Base {
 	private $attachments;
 
 	/**
+	 * The Embeds class.
+	 *
+	 * @var Embeds
+	 */
+	private $embeds;
+
+	/**
 	 * Construct the plugin base and initialize the plugin.
 	 *
 	 * @param string $plugin_file_path The plugin file path.
@@ -158,6 +168,7 @@ class WP_Offload_SES extends Plugin_Base {
 		$this->queue_status = new Queue_Status( $this );
 		$this->notices      = Notices::get_instance( $this );
 		$this->attachments  = new Attachments();
+		$this->embeds       = new Embeds();
 
 		if ( ! $this->is_pro() ) {
 			$this->health_report = new Health_Report( $this );
@@ -551,6 +562,15 @@ class WP_Offload_SES extends Plugin_Base {
 	 */
 	public function get_attachments(): Attachments {
 		return $this->attachments;
+	}
+
+	/**
+	 * Getter for Embeds.
+	 *
+	 * @return Embeds
+	 */
+	public function get_embeds(): Embeds {
+		return $this->embeds;
 	}
 
 	/**
@@ -1447,11 +1467,17 @@ class WP_Offload_SES extends Plugin_Base {
 	/**
 	 * Maybe decode the subject line.
 	 *
-	 * @param string $subject The email subject.
+	 * A caller is free to pass null, the way core's wp_mail() tolerates one, so
+	 * the declared type is nullable. Without that a null subject is a TypeError
+	 * here, before mail_handler() has had the chance to reject the send.
+	 *
+	 * @param string|null $subject The email subject.
 	 *
 	 * @return string|bool
 	 */
-	public function maybe_decode_subject( string $subject ) {
+	public function maybe_decode_subject( ?string $subject ) {
+		$subject = (string) $subject;
+
 		if (
 			'=?' === substr( $subject, 0, 2 ) &&
 			'?=' === substr( $subject, -2 ) &&
@@ -1511,10 +1537,11 @@ class WP_Offload_SES extends Plugin_Base {
 	 * @param string       $message     The email message.
 	 * @param string|array $headers     The email headers.
 	 * @param string|array $attachments The email attachments.
+	 * @param string|array $embeds      The email's inline embeds, keyed by Content-ID.
 	 *
 	 * @return bool
 	 */
-	public function mail_handler( $to, $subject, $message, $headers, $attachments ): bool {
+	public function mail_handler( $to, $subject, $message, $headers, $attachments, $embeds = array() ): bool {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WP core hook for wp_mail() compatibility.
 		$content_type = apply_filters( 'wp_mail_content_type', 'text/plain' );
 
@@ -1533,12 +1560,49 @@ class WP_Offload_SES extends Plugin_Base {
 		 * Alter an email's attributes before it is added to the queue to be sent.
 		 * Returning an empty array will stop the email from being queued and sent.
 		 *
-		 * @param array $atts with keys 'to', 'subject', 'message', 'headers' and 'attachments'.
+		 * @param array $atts with keys 'to', 'subject', 'message', 'headers', 'attachments' and 'embeds'.
 		 *
 		 * @return array
 		 */
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WP core hook for wp_mail() compatibility.
-		$atts     = apply_filters( 'wp_mail', compact( 'to', 'subject', 'message', 'headers', 'attachments' ) );
+		$atts = apply_filters( 'wp_mail', compact( 'to', 'subject', 'message', 'headers', 'attachments', 'embeds' ) );
+
+		// Nothing downstream rejects a send with no recipient: log_email() only
+		// guards against a wholly empty $atts, and compact() never produces one.
+		// Fail here the way core's wp_mail() would, so nothing is logged, queued
+		// or retried for an email that was never sendable.
+		$recipient = $atts['to'] ?? '';
+
+		if ( ! $this->has_valid_recipient( $recipient ) ) {
+			new Error(
+				Error::$mail_no_recipient,
+				__( 'wp_mail() was called with no valid recipient. The email was not logged, queued or sent.', 'wp-offload-ses' ),
+				$this->get_mail_caller()
+			);
+
+			$error_data = $atts;
+
+			// PHPMailer throws 'provide_address' with STOP_CRITICAL for this exact
+			// condition, and that is the code core's WP_Error carries. We are
+			// standing in for that rejection earlier in the pipeline, so we carry
+			// it too.
+			require_once ABSPATH . WPINC . '/PHPMailer/PHPMailer.php';
+
+			$error_data['phpmailer_exception_code'] = PHPMailer::STOP_CRITICAL;
+
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WP core hook for wp_mail() compatibility.
+			do_action(
+				'wp_mail_failed',
+				new WP_Error(
+					'wp_mail_failed',
+					__( 'You must provide at least one recipient email address.', 'wp-offload-ses' ),
+					$error_data
+				)
+			);
+
+			return false;
+		}
+
 		$email_id = $this->get_email_log()->log_email( $atts );
 
 		if ( false === $email_id ) {
@@ -1553,6 +1617,23 @@ class WP_Offload_SES extends Plugin_Base {
 			$this->get_attachments()->handle_attachment( $email_id, $attachment );
 		}
 
+		if ( ! is_array( $embeds ) ) {
+			// Keys become Content-IDs, so preserve them and drop only blank lines.
+			$embeds = array_filter( explode( "\n", str_replace( "\r\n", "\n", $embeds ) ) );
+		}
+
+		foreach ( $embeds as $cid => $embed ) {
+			// Unlike core, an embed we cannot read fails the email rather than
+			// being skipped -- the recipient would otherwise get a broken image
+			// with nothing recorded anywhere to explain it.
+			if ( ! $this->get_embeds()->handle_attachment( $email_id, $embed, (string) $cid ) ) {
+				$this->get_email_log()->update_email( $email_id, 'email_status', 'failed' );
+				$this->add_failed_email_notice();
+
+				return false;
+			}
+		}
+
 		$this->get_email_queue()->process_email( $email_id );
 
 		if ( ! $this->settings->get_setting( 'enqueue-only', false ) ) {
@@ -1560,6 +1641,75 @@ class WP_Offload_SES extends Plugin_Base {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Does a wp_mail() recipient contain at least one valid address?
+	 *
+	 * Accepts every form core accepts: a single address, a comma-separated list,
+	 * an array, and the "Foo <bar@baz.com>" form. Only a recipient from which no
+	 * valid address survives parsing is rejected, so one bad address in a list
+	 * does not stop the send.
+	 *
+	 * @param string|array $to The email recipient, as filtered by 'wp_mail'.
+	 *
+	 * @return bool
+	 */
+	private function has_valid_recipient( $to ): bool {
+		if ( ! is_array( $to ) ) {
+			$to = explode( ',', (string) $to );
+		}
+
+		foreach ( $to as $recipient ) {
+			if ( ! is_string( $recipient ) ) {
+				continue;
+			}
+
+			// "Foo <bar@baz.com>" is not an address as far as is_email() is
+			// concerned, so take the address part the way the send path does.
+			$recipient = Email::maybe_split_recipient( $recipient )['email'];
+
+			if ( is_email( trim( $recipient ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * The file and line that called wp_mail(), as "file.php:123".
+	 *
+	 * The first frame outside the plugin's own source is the caller, which skips
+	 * both mail_handler() and the wp_mail() override that reached it.
+	 *
+	 * @return string
+	 */
+	private function get_mail_caller(): string {
+		// Already normalized and trailing slashed by wposes_get_plugin_dir_path().
+		$source = $this->get_plugin_dir_path();
+
+		// Under the mu-plugin layout the entry point file sits one directory above
+		// the rest of the plugin, and it is the file that defines the wp_mail()
+		// override, so $source alone would have us report ourselves as the caller.
+		$entry_point = wp_normalize_path( $this->get_plugin_file_path() );
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
+		foreach ( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ) as $frame ) {
+			if ( empty( $frame['file'] ) || empty( $frame['line'] ) ) {
+				continue;
+			}
+
+			$file = wp_normalize_path( $frame['file'] );
+
+			if ( $file === $entry_point || 0 === strpos( $file, $source ) ) {
+				continue;
+			}
+
+			return $file . ':' . $frame['line'];
+		}
+
+		return 'an unknown caller';
 	}
 
 	/**
